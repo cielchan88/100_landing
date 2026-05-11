@@ -1,28 +1,30 @@
 ---
 day: 2
-title: "Forwarded-Message Origin Tracer"
-tagline: "Trace where that viral forwarded message actually came from."
+title: "Title Doctor"
+tagline: "Paste a draft title. Get 15 honest alternatives, streamed live."
 date: 2026-05-12
-status: draft
-live_url:
-repo_url:
-tags: ["AI", "misinformation", "Python"]
+status: live
+live_url: /day-02/title-doctor
+repo_url: https://github.com/cielchan88/100_landing
+tags: ["AI", "writing", "streaming"]
 ---
 
 ## Problem
 
-Messages forwarded through WhatsApp lose their origin the moment they leave the original sender. Claims about policy, health, or politics spread without context — and by the time they reach you, the source is unrecoverable.
+Every writer, marketer, and creator drafts a title that is *almost* there — vague verb, buried subject, no stakes. Existing AI title generators give 5 variants that all sound the same and all score themselves 9/10.
 
 ## Approach
 
-Paste any forwarded message. The app searches for its earliest appearance online, detects variant mutations across the chain, gathers fact-check verifications, and returns a verdict you can forward right back into the same group.
+Title Doctor returns 15 alternatives across 5 deliberately distinct strategies (Curiosity Gap, Contrarian, Specific Number, Question, Declarative). It scores them honestly — most land in the 6-8 range, weak variants get 4s, and clickbait gets called out by name in the rationale. The user's draft also gets a verdict so they know whether the original is salvageable.
 
 ## Stack
 
-- FastAPI + Jinja
-- Anthropic API with the `web_search` tool
-- SQLite cache keyed on a hash of each message already traced
+- Flask blueprint mounted at `/day-02/title-doctor` on the existing `100_landing` app
+- Anthropic API with `claude-sonnet-4-5`, single call returning structured JSON
+- Server-Sent Events to stream the verdict + variants progressively for a live feel
+- Vanilla JS on the frontend — no framework, ~150 lines
+- No database, no auth, no rate limit page (free tier handles the throttling naturally)
 
 ## Lessons
 
-The only way to fight misinformation that spreads through WhatsApp is to make the verification spread through WhatsApp too.
+The screenshot-worthy output came from *honest scoring*. Every previous AI title tool I've seen gives all 9s and 10s. The moment some variants score 4 and 5, the tool starts feeling trustworthy — which is what makes the high-scoring ones actually useful.

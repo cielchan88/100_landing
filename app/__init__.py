@@ -1,7 +1,10 @@
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
 from flask import Flask
+
+load_dotenv()
 
 
 def create_app() -> Flask:
@@ -24,6 +27,9 @@ def create_app() -> Flask:
 
     from .routes import bp
     app.register_blueprint(bp)
+
+    from .day02.blueprint import bp as day02_bp
+    app.register_blueprint(day02_bp)
 
     from .content import get_live_count
 

@@ -138,8 +138,9 @@ def _ensure_loaded() -> None:
 
 def get_live_days() -> List[DayEntry]:
     _ensure_loaded()
+    today = date.today()
     return sorted(
-        (e for e in _cache.values() if e.status == "live"),
+        (e for e in _cache.values() if e.status == "live" and e.date <= today),
         key=lambda e: e.day,
     )
 
@@ -147,11 +148,12 @@ def get_live_days() -> List[DayEntry]:
 def get_day(slug: str) -> Optional[DayEntry]:
     _ensure_loaded()
     entry = _cache.get(slug)
-    if entry is None or entry.status != "live":
+    if entry is None or entry.status != "live" or entry.date > date.today():
         return None
     return entry
 
 
 def get_live_count() -> int:
     _ensure_loaded()
-    return sum(1 for e in _cache.values() if e.status == "live")
+    today = date.today()
+    return sum(1 for e in _cache.values() if e.status == "live" and e.date <= today)
