@@ -112,6 +112,10 @@ lewat URL.
 
 ## Deploy ke PythonAnywhere — langkah lengkap
 
+> **Lihat [`DEPLOY.md`](./DEPLOY.md) untuk tutorial step-by-step lengkap
+> dengan checklist, contoh output, dan troubleshooting per error.**
+> Bagian di bawah adalah ringkasannya.
+
 Asumsi: akun PythonAnywhere dengan username `100dayswithclaude` sudah
 dibuat (free tier).
 
