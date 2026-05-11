@@ -1,7 +1,7 @@
 ---
 day: 2
 title: "Forwarded-Message Origin Tracer"
-tagline: "Lacak asal-usul pesan viral yang di-forward berkali-kali."
+tagline: "Trace where that viral forwarded message actually came from."
 date: 2026-05-12
 status: live
 live_url:
@@ -11,18 +11,18 @@ tags: ["AI", "misinformation", "Python"]
 
 ## Problem
 
-Pesan WhatsApp yang di-forward terus-menerus kehilangan jejak asal-usulnya. Klaim soal kebijakan, kesehatan, atau berita politik tersebar tanpa konteks.
+Messages forwarded through WhatsApp lose their origin the moment they leave the original sender. Claims about policy, health, or politics spread without context — and by the time they reach you, the source is unrecoverable.
 
 ## Approach
 
-Paste pesan apa pun. App mencari kemunculan paling awal, mendeteksi mutasi varian, mengumpulkan verifikasi fact-check, dan memberikan verdict yang siap di-forward balik.
+Paste any forwarded message. The app searches for its earliest appearance online, detects variant mutations across the chain, gathers fact-check verifications, and returns a verdict you can forward right back into the same group.
 
 ## Stack
 
 - FastAPI + Jinja
-- Anthropic API dengan web_search tool
-- SQLite cache untuk hash pesan yang sudah pernah dilacak
+- Anthropic API with the `web_search` tool
+- SQLite cache keyed on a hash of each message already traced
 
 ## Lessons
 
-Cara melawan misinformasi yang menyebar lewat WhatsApp adalah membuat verifikasinya menyebar lewat WhatsApp juga.
+The only way to fight misinformation that spreads through WhatsApp is to make the verification spread through WhatsApp too.

@@ -1,25 +1,35 @@
 ---
 day: 1
 title: "Hello, Day 1"
-tagline: "Memulai eksperimen 100 hari membangun web app setiap hari."
+tagline: "Kicking off a 100-day public sprint of shipping one web app a day."
 date: 2026-05-11
 status: live
-live_url:
+live_url: https://100dayswithclaude.pythonanywhere.com
 repo_url: https://github.com/cielchan88/100_landing
 tags: ["meta", "kickoff"]
 ---
 
-## Mengapa 100 hari?
+## Why 100 days?
 
-Eksperimen ini sederhana: bangun satu web app baru setiap hari, selama 100 hari, di depan publik. Tidak ada hari libur. Tidak ada cheat day.
+The premise is simple: ship one new web app every day, in public, for 100 days. No skip days. No cheat days. No old work in a fresh coat of paint.
 
-## Aturannya
+Daily shipping is the cheapest way I know to learn which ideas survive contact with execution — and which ones evaporate the moment you start typing.
 
-- Satu proyek per hari, dideploy live.
-- Source code terbuka di GitHub.
-- Setiap proyek harus bisa dibuka di browser.
-- Tidak ada proyek yang di-rebrand dari pekerjaan lama.
+## The rules
 
-## Yang ingin saya pelajari
+- **One project per day**, deployed live and openable in a browser.
+- **Source on GitHub**, public from the first commit.
+- **Built same-day** — no rolling half-finished work over from yesterday.
+- **No rebrands** of older projects, no matter how tempting.
 
-Apakah konsistensi mengalahkan inspirasi? Apakah constraint harian memaksa selera dan kecepatan? Mari kita lihat di hari ke-100.
+## What I want to find out
+
+Does consistency beat inspiration? Do daily constraints sharpen taste and speed, or just produce 100 forgettable demos? Can one human, paired with Claude, actually hold this pace?
+
+Check back at Day 100.
+
+## Today's build
+
+This site — the thing you're reading. A static-feeling Flask app where every new day is just a markdown file dropped into `content/days/`. Light enough to host on a free tier, simple enough that publishing tomorrow's entry takes about 30 seconds.
+
+See you tomorrow.
