@@ -1,0 +1,724 @@
+{% extends 'base.html' %}
+
+{% block title %}Scrabble vs Claude — Day 1 — 100 Days with Claude{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 sm:px-6 py-10">
+
+  <a href="/days/day-01" class="text-sm inline-flex items-center gap-2"
+     style="color: var(--muted);"
+     onmouseover="this.style.color='var(--accent-hover)'"
+     onmouseout="this.style.color='var(--muted)'">
+    <span aria-hidden="true">←</span> Back to Day 1
+  </a>
+
+  <div class="mt-6 mb-8">
+    <p class="mono text-sm" style="color: var(--accent);">Day 01 · Scrabble</p>
+    <h1 class="text-3xl md:text-4xl font-semibold mt-2" style="letter-spacing: -0.02em;">You vs Claude</h1>
+    <p class="text-base mt-3" style="color: var(--muted);">
+      Drag tiles from your rack onto the board, then hit <strong>Submit</strong>. Claude plays the highest-scoring word it can find from its rack.
+    </p>
+  </div>
+
+  <div id="scrabble-app" class="grid grid-cols-1 lg:grid-cols-[auto_minmax(0,1fr)] gap-8">
+
+    <!-- Board column -->
+    <div class="flex flex-col items-center">
+      <div id="board" class="scrabble-board" aria-label="Scrabble board"></div>
+
+      <div id="rack-wrap" class="mt-6">
+        <div class="text-xs mono mb-2" style="color: var(--muted);">Your rack</div>
+        <div id="rack" class="rack" aria-label="Your rack"></div>
+      </div>
+
+      <div class="mt-5 flex flex-wrap gap-2 justify-center">
+        <button id="btn-submit" class="btn btn-primary">Submit</button>
+        <button id="btn-recall" class="btn">Recall</button>
+        <button id="btn-shuffle" class="btn">Shuffle</button>
+        <button id="btn-pass" class="btn">Pass</button>
+        <button id="btn-exchange" class="btn">Exchange</button>
+        <button id="btn-new" class="btn btn-ghost">New game</button>
+      </div>
+
+      <div id="status" class="mt-4 text-sm min-h-[1.5em] text-center" aria-live="polite"></div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="space-y-6">
+      <div class="scoreboard">
+        <div class="score-row">
+          <span class="score-label">You</span>
+          <span id="human-score" class="score-value">0</span>
+        </div>
+        <div class="score-row">
+          <span class="score-label">Claude</span>
+          <span id="ai-score" class="score-value">0</span>
+        </div>
+        <div class="score-row text-sm" style="color: var(--muted);">
+          <span>Bag</span>
+          <span id="bag-count">0</span>
+        </div>
+        <div id="turn-indicator" class="mt-3 text-xs mono" style="color: var(--accent);"></div>
+      </div>
+
+      <div>
+        <div class="text-xs mono mb-2" style="color: var(--muted);">Move log</div>
+        <ol id="log" class="space-y-2 text-sm"></ol>
+      </div>
+
+      <details class="text-sm" style="color: var(--muted);">
+        <summary class="cursor-pointer" style="color: var(--text);">How it works</summary>
+        <div class="mt-3 space-y-2 leading-relaxed">
+          <p>Standard Scrabble rules: 100 tiles, 7-tile rack, English ENABLE word list (~168k words). First move must cover the center star. Every word formed must be in the dictionary.</p>
+          <p>Claude's AI enumerates every legal move from its rack and plays the highest-scoring one. No lookahead, no heuristics — just greedy points.</p>
+          <p>Blank tiles (<span class="mono">?</span>): drag onto the board and pick a letter. Blanks score 0 but can stand in for any letter.</p>
+        </div>
+      </details>
+    </div>
+  </div>
+</div>
+
+<!-- Blank tile letter chooser -->
+<dialog id="blank-dialog" class="blank-dialog">
+  <form method="dialog">
+    <div class="text-sm mb-3" style="color: var(--muted);">Pick a letter for the blank tile</div>
+    <div id="blank-grid" class="blank-grid"></div>
+    <div class="mt-3 text-right">
+      <button value="cancel" class="btn btn-ghost text-sm">Cancel</button>
+    </div>
+  </form>
+</dialog>
+
+<style>
+  .scrabble-board {
+    display: grid;
+    grid-template-columns: repeat(15, 1fr);
+    grid-template-rows: repeat(15, 1fr);
+    gap: 2px;
+    background: #2a2522;
+    padding: 4px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    width: min(560px, calc(100vw - 2rem));
+    aspect-ratio: 1 / 1;
+    user-select: none;
+  }
+  .cell {
+    background: #3a322d;
+    border-radius: 3px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.55rem;
+    font-weight: 600;
+    color: rgba(250, 250, 247, 0.55);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    cursor: default;
+  }
+  .cell.dl { background: #4a6b80; color: rgba(255,255,255,0.85); }
+  .cell.tl { background: #2a5a85; color: rgba(255,255,255,0.9); }
+  .cell.dw { background: #b56a4a; color: rgba(255,255,255,0.9); }
+  .cell.tw { background: #c14e2b; color: rgba(255,255,255,0.95); }
+  .cell.center::before {
+    content: "★";
+    position: absolute;
+    font-size: 1.25rem;
+    color: rgba(255, 255, 255, 0.45);
+  }
+  .cell.center { background: #b56a4a; color: transparent; }
+  .cell.drop-hover { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+  .tile, .cell .tile {
+    background: #e8d9a3;
+    color: #2a1f14;
+    border-radius: 4px;
+    width: calc(100% - 2px);
+    height: calc(100% - 2px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: clamp(0.9rem, 2.2vw, 1.4rem);
+    font-family: 'Inter', sans-serif;
+    position: relative;
+    cursor: grab;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.3), inset 0 -2px 0 rgba(0,0,0,0.08);
+    user-select: none;
+  }
+  .tile.placed-pending {
+    background: #f2e3ad;
+    box-shadow: 0 0 0 2px var(--accent), 0 1px 2px rgba(0,0,0,0.3);
+  }
+  .tile.placed-locked { cursor: default; }
+  .tile.blank-tile {
+    background: #f5ecc9;
+    color: #5a4a30;
+    font-style: italic;
+  }
+  .tile.recent-ai {
+    animation: aiFlash 1.2s ease;
+  }
+  @keyframes aiFlash {
+    0% { box-shadow: 0 0 0 3px var(--accent); }
+    100% { box-shadow: 0 1px 2px rgba(0,0,0,0.3), inset 0 -2px 0 rgba(0,0,0,0.08); }
+  }
+  .tile-value {
+    position: absolute;
+    bottom: 1px;
+    right: 3px;
+    font-size: 0.5em;
+    font-weight: 600;
+    color: rgba(42, 31, 20, 0.7);
+    pointer-events: none;
+  }
+  .tile.dragging { opacity: 0.4; }
+
+  .rack {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 44px;
+    gap: 6px;
+    padding: 8px;
+    background: #2a2522;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    min-height: 60px;
+    justify-content: center;
+  }
+  .rack-slot {
+    width: 44px;
+    height: 44px;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.03);
+    border: 1px dashed rgba(255,255,255,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .rack-slot .tile { width: 100%; height: 100%; }
+  .rack-slot.exchange-selected { outline: 2px solid var(--accent); }
+
+  .btn {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: border-color 150ms, background 150ms;
+  }
+  .btn:hover:not(:disabled) { border-color: var(--accent); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-primary {
+    background: var(--accent);
+    color: var(--bg);
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+  .btn-primary:hover:not(:disabled) { background: var(--accent-hover); border-color: var(--accent-hover); }
+  .btn-ghost { color: var(--muted); }
+
+  .scoreboard {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+  }
+  .score-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 0.4rem 0;
+  }
+  .score-row + .score-row { border-top: 1px solid var(--border); }
+  .score-label { font-size: 0.9rem; color: var(--muted); }
+  .score-value { font-size: 1.5rem; font-weight: 600; font-family: 'JetBrains Mono', monospace; }
+
+  #log li {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+  }
+  #log .log-actor { font-size: 0.75rem; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+  #log .log-word { font-weight: 600; color: var(--text); }
+  #log .log-score { float: right; color: var(--accent); font-family: 'JetBrains Mono', monospace; }
+  #log .log-pass { color: var(--muted); font-style: italic; }
+
+  #status.ok { color: #7fb069; }
+  #status.err { color: #d97757; }
+
+  .blank-dialog {
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem;
+    max-width: 360px;
+  }
+  .blank-dialog::backdrop { background: rgba(0,0,0,0.6); }
+  .blank-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 4px;
+  }
+  .blank-grid button {
+    background: #e8d9a3;
+    color: #2a1f14;
+    border: none;
+    border-radius: 4px;
+    padding: 0.5rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .blank-grid button:hover { background: #f2e3ad; }
+</style>
+
+<script>
+(function() {
+  const BOARD_SIZE = 15;
+  const LETTER_VALUES = {
+    A:1,B:3,C:3,D:2,E:1,F:4,G:2,H:4,I:1,J:8,K:5,L:1,M:3,N:1,O:1,P:3,
+    Q:10,R:1,S:1,T:1,U:1,V:4,W:4,X:8,Y:4,Z:10,"?":0
+  };
+
+  const state = {
+    game_id: null,
+    board: null,
+    premiums: null,
+    rack: [],
+    pending: [],
+    exchangeMode: false,
+    exchangeSel: new Set(),
+    turn: "human",
+    gameOver: false,
+    lastAiTiles: [],
+    winner: null,
+  };
+
+  const $board = document.getElementById("board");
+  const $rack = document.getElementById("rack");
+  const $status = document.getElementById("status");
+  const $humanScore = document.getElementById("human-score");
+  const $aiScore = document.getElementById("ai-score");
+  const $bagCount = document.getElementById("bag-count");
+  const $turn = document.getElementById("turn-indicator");
+  const $log = document.getElementById("log");
+  const $btnSubmit = document.getElementById("btn-submit");
+  const $btnRecall = document.getElementById("btn-recall");
+  const $btnShuffle = document.getElementById("btn-shuffle");
+  const $btnPass = document.getElementById("btn-pass");
+  const $btnExchange = document.getElementById("btn-exchange");
+  const $btnNew = document.getElementById("btn-new");
+  const $dialog = document.getElementById("blank-dialog");
+  const $blankGrid = document.getElementById("blank-grid");
+
+  for (const L of "ABCDEFGHIJKLMNOPQRSTUVWXYZ") {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.textContent = L;
+    b.addEventListener("click", () => {
+      if (state.pendingBlankResolve) {
+        state.pendingBlankResolve(L);
+        state.pendingBlankResolve = null;
+      }
+      $dialog.close();
+    });
+    $blankGrid.appendChild(b);
+  }
+
+  function chooseBlankLetter() {
+    return new Promise((resolve) => {
+      state.pendingBlankResolve = resolve;
+      $dialog.showModal();
+      $dialog.addEventListener("close", function once() {
+        $dialog.removeEventListener("close", once);
+        if (state.pendingBlankResolve) {
+          state.pendingBlankResolve(null);
+          state.pendingBlankResolve = null;
+        }
+      });
+    });
+  }
+
+  function setStatus(msg, kind) {
+    $status.textContent = msg || "";
+    $status.className = "mt-4 text-sm min-h-[1.5em] text-center " + (kind || "");
+  }
+
+  function premiumLabel(p) {
+    return { dl: "DL", tl: "TL", dw: "DW", tw: "TW" }[p] || "";
+  }
+
+  function tileElement(letter, opts) {
+    opts = opts || {};
+    const t = document.createElement("div");
+    t.className = "tile";
+    if (opts.placedPending) t.classList.add("placed-pending");
+    if (opts.placedLocked) t.classList.add("placed-locked");
+    if (opts.isBlank) t.classList.add("blank-tile");
+    if (opts.recentAi) t.classList.add("recent-ai");
+    t.textContent = letter;
+    const val = document.createElement("span");
+    val.className = "tile-value";
+    val.textContent = opts.isBlank ? "0" : (LETTER_VALUES[letter] || "");
+    t.appendChild(val);
+    return t;
+  }
+
+  function renderBoard() {
+    $board.innerHTML = "";
+    for (let r = 0; r < BOARD_SIZE; r++) {
+      for (let c = 0; c < BOARD_SIZE; c++) {
+        const cell = document.createElement("div");
+        const prem = state.premiums[r][c];
+        const cls = ["cell"];
+        if (prem !== "none") cls.push(prem);
+        if (r === 7 && c === 7) cls.push("center");
+        cell.className = cls.join(" ");
+        cell.dataset.row = r;
+        cell.dataset.col = c;
+
+        if (prem !== "none" && !(r === 7 && c === 7)) {
+          cell.textContent = premiumLabel(prem);
+        }
+
+        const placed = state.board[r][c];
+        const pending = state.pending.find(p => p.row === r && p.col === c);
+
+        if (placed) {
+          cell.textContent = "";
+          const isRecent = state.lastAiTiles.some(t => t.row === r && t.col === c);
+          const t = tileElement(placed.letter, { placedLocked: true, isBlank: placed.is_blank, recentAi: isRecent });
+          cell.appendChild(t);
+        } else if (pending) {
+          cell.textContent = "";
+          const t = tileElement(pending.letter, { placedPending: true, isBlank: pending.is_blank });
+          t.draggable = !state.gameOver;
+          t.dataset.from = "board";
+          t.dataset.row = r;
+          t.dataset.col = c;
+          attachDragHandlers(t);
+          cell.appendChild(t);
+        }
+
+        if (!placed) {
+          cell.addEventListener("dragover", (e) => {
+            if (state.gameOver || state.turn !== "human") return;
+            e.preventDefault();
+            cell.classList.add("drop-hover");
+          });
+          cell.addEventListener("dragleave", () => cell.classList.remove("drop-hover"));
+          cell.addEventListener("drop", async (e) => {
+            e.preventDefault();
+            cell.classList.remove("drop-hover");
+            const data = parseDragData(e);
+            if (data) await handleDrop(r, c, data);
+          });
+        }
+        $board.appendChild(cell);
+      }
+    }
+  }
+
+  function renderRack() {
+    $rack.innerHTML = "";
+    const usedIndices = new Set(state.pending.map(p => p.rack_index));
+    for (let i = 0; i < state.rack.length; i++) {
+      const slot = document.createElement("div");
+      slot.className = "rack-slot";
+      slot.dataset.idx = i;
+      if (state.exchangeSel.has(i)) slot.classList.add("exchange-selected");
+      if (!usedIndices.has(i)) {
+        const letter = state.rack[i];
+        const t = tileElement(letter === "?" ? "" : letter, { isBlank: letter === "?" });
+        if (letter === "?") t.textContent = "?";
+        t.draggable = !state.gameOver && state.turn === "human" && !state.exchangeMode;
+        t.dataset.from = "rack";
+        t.dataset.idx = i;
+        attachDragHandlers(t);
+        if (state.exchangeMode) {
+          t.style.cursor = "pointer";
+          t.addEventListener("click", () => {
+            if (state.exchangeSel.has(i)) state.exchangeSel.delete(i);
+            else state.exchangeSel.add(i);
+            renderRack();
+          });
+        }
+        slot.appendChild(t);
+      }
+      $rack.appendChild(slot);
+    }
+    $rack.ondragover = (e) => { if (!state.gameOver && state.turn === "human") e.preventDefault(); };
+    $rack.ondrop = (e) => {
+      e.preventDefault();
+      const data = parseDragData(e);
+      if (!data) return;
+      if (data.from === "board") {
+        state.pending = state.pending.filter(p => !(p.row === Number(data.row) && p.col === Number(data.col)));
+        renderAll();
+      }
+    };
+  }
+
+  function parseDragData(e) {
+    try { return JSON.parse(e.dataTransfer.getData("application/json")); }
+    catch { return null; }
+  }
+
+  function attachDragHandlers(el) {
+    el.addEventListener("dragstart", (e) => {
+      const data = { from: el.dataset.from };
+      if (data.from === "rack") data.idx = el.dataset.idx;
+      else { data.row = el.dataset.row; data.col = el.dataset.col; }
+      e.dataTransfer.setData("application/json", JSON.stringify(data));
+      e.dataTransfer.effectAllowed = "move";
+      el.classList.add("dragging");
+    });
+    el.addEventListener("dragend", () => el.classList.remove("dragging"));
+  }
+
+  async function handleDrop(row, col, data) {
+    if (!data) return;
+    if (state.board[row][col] || state.pending.some(p => p.row === row && p.col === col)) return;
+
+    if (data.from === "rack") {
+      const idx = Number(data.idx);
+      const letter = state.rack[idx];
+      let placedLetter = letter;
+      let isBlank = false;
+      if (letter === "?") {
+        const chosen = await chooseBlankLetter();
+        if (!chosen) return;
+        placedLetter = chosen;
+        isBlank = true;
+      }
+      state.pending = state.pending.filter(p => p.rack_index !== idx);
+      state.pending.push({ row, col, letter: placedLetter, is_blank: isBlank, rack_index: idx });
+    } else if (data.from === "board") {
+      const fromR = Number(data.row), fromC = Number(data.col);
+      const idx = state.pending.findIndex(p => p.row === fromR && p.col === fromC);
+      if (idx === -1) return;
+      const moving = state.pending[idx];
+      state.pending.splice(idx, 1);
+      state.pending.push({ row, col, letter: moving.letter, is_blank: moving.is_blank, rack_index: moving.rack_index });
+    }
+    renderAll();
+  }
+
+  function renderScores() {
+    $humanScore.textContent = state.human_score;
+    $aiScore.textContent = state.ai_score;
+    $bagCount.textContent = state.bag_count;
+    if (state.gameOver) {
+      let msg = "Game over — ";
+      if (state.winner === "human") msg += "you win!";
+      else if (state.winner === "ai") msg += "Claude wins.";
+      else msg += "it's a tie.";
+      $turn.textContent = msg;
+    } else {
+      $turn.textContent = state.turn === "human" ? "Your turn" : "Claude is thinking…";
+    }
+  }
+
+  function renderLog(history) {
+    $log.innerHTML = "";
+    for (let i = history.length - 1; i >= 0; i--) {
+      const h = history[i];
+      const li = document.createElement("li");
+      const actor = document.createElement("div");
+      actor.className = "log-actor";
+      actor.textContent = h.actor === "human" ? "You" : "Claude";
+      li.appendChild(actor);
+      const body = document.createElement("div");
+      if (h.kind === "move") {
+        body.innerHTML = `<span class="log-word">${h.word}</span><span class="log-score">+${h.score}</span>`;
+        if (h.words && h.words.length > 1) {
+          const subs = h.words.map(w => `${w.word} (${w.score})`).join(" · ");
+          const small = document.createElement("div");
+          small.className = "text-xs mt-1";
+          small.style.color = "var(--muted)";
+          small.textContent = subs;
+          body.appendChild(small);
+        }
+      } else if (h.kind === "pass") {
+        body.innerHTML = `<span class="log-pass">passed</span>`;
+      } else if (h.kind === "exchange") {
+        body.innerHTML = `<span class="log-pass">exchanged tiles</span>`;
+      }
+      li.appendChild(body);
+      $log.appendChild(li);
+    }
+  }
+
+  function updateButtons() {
+    const myTurn = state.turn === "human" && !state.gameOver;
+    $btnSubmit.disabled = !myTurn || state.pending.length === 0 || state.exchangeMode;
+    $btnRecall.disabled = !myTurn || state.pending.length === 0;
+    $btnPass.disabled = !myTurn || state.exchangeMode;
+    $btnExchange.textContent = state.exchangeMode ? `Exchange (${state.exchangeSel.size})` : "Exchange";
+    $btnExchange.disabled = !myTurn || state.bag_count < 1;
+    $btnShuffle.disabled = state.gameOver;
+  }
+
+  function renderAll() {
+    renderBoard();
+    renderRack();
+    renderScores();
+    updateButtons();
+  }
+
+  function loadStateFromServer(s) {
+    state.game_id = s.id;
+    state.board = s.board;
+    state.premiums = s.premiums;
+    state.rack = s.human_rack;
+    state.human_score = s.human_score;
+    state.ai_score = s.ai_score;
+    state.bag_count = s.bag_count;
+    state.turn = s.turn;
+    state.gameOver = s.game_over;
+    state.winner = s.winner;
+    state.pending = [];
+    state.exchangeMode = false;
+    state.exchangeSel = new Set();
+    localStorage.setItem("scrabble_game_id", s.id);
+    renderAll();
+    renderLog(s.history);
+  }
+
+  async function api(path, body) {
+    const res = await fetch(path, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(body || {}),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+    return data;
+  }
+
+  async function newGame() {
+    setStatus("Starting new game…");
+    try {
+      const data = await api("/days/day-01/play/api/new", {});
+      state.lastAiTiles = [];
+      loadStateFromServer(data);
+      setStatus("", "");
+    } catch (e) {
+      setStatus(e.message, "err");
+    }
+  }
+
+  async function loadGame(id) {
+    try {
+      const res = await fetch("/days/day-01/play/api/state/" + encodeURIComponent(id));
+      if (!res.ok) { await newGame(); return; }
+      const data = await res.json();
+      loadStateFromServer(data);
+      if (data.turn === "ai" && !data.game_over) triggerAi();
+    } catch {
+      await newGame();
+    }
+  }
+
+  async function submitMove() {
+    if (state.pending.length === 0) return;
+    const tiles = state.pending.map(p => ({ row: p.row, col: p.col, letter: p.letter, is_blank: p.is_blank }));
+    setStatus("Submitting…");
+    try {
+      const data = await api("/days/day-01/play/api/move", { game_id: state.game_id, tiles });
+      state.lastAiTiles = [];
+      loadStateFromServer(data.state);
+      const s = data.scored;
+      setStatus(`You played ${s.main_word} for +${s.score}.`, "ok");
+      if (data.state.turn === "ai" && !data.state.game_over) triggerAi();
+    } catch (e) {
+      setStatus(e.message, "err");
+    }
+  }
+
+  async function triggerAi() {
+    setStatus("Claude is thinking…");
+    updateButtons();
+    try {
+      const data = await api("/days/day-01/play/api/ai-turn", { game_id: state.game_id });
+      if (data.ai_action.kind === "move") {
+        state.lastAiTiles = data.ai_action.tiles || [];
+        setStatus(`Claude played ${data.ai_action.word} for +${data.ai_action.score}.`, "ok");
+      } else if (data.ai_action.kind === "pass") {
+        state.lastAiTiles = [];
+        setStatus("Claude passed.", "");
+      } else if (data.ai_action.kind === "exchange") {
+        state.lastAiTiles = [];
+        setStatus("Claude exchanged tiles.", "");
+      }
+      loadStateFromServer(data.state);
+    } catch (e) {
+      setStatus(e.message, "err");
+    }
+  }
+
+  $btnSubmit.addEventListener("click", submitMove);
+  $btnRecall.addEventListener("click", () => { state.pending = []; renderAll(); });
+  $btnShuffle.addEventListener("click", () => {
+    if (state.pending.length > 0) { setStatus("Recall your tiles before shuffling.", "err"); return; }
+    for (let i = state.rack.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [state.rack[i], state.rack[j]] = [state.rack[j], state.rack[i]];
+    }
+    renderRack();
+  });
+  $btnPass.addEventListener("click", async () => {
+    if (!confirm("Pass your turn?")) return;
+    setStatus("Passing…");
+    try {
+      const data = await api("/days/day-01/play/api/pass", { game_id: state.game_id });
+      state.lastAiTiles = [];
+      loadStateFromServer(data.state);
+      if (data.state.turn === "ai" && !data.state.game_over) triggerAi();
+    } catch (e) {
+      setStatus(e.message, "err");
+    }
+  });
+  $btnExchange.addEventListener("click", async () => {
+    if (!state.exchangeMode) {
+      state.exchangeMode = true;
+      state.pending = [];
+      setStatus("Click tiles in your rack to exchange, then press Exchange again.", "");
+      renderAll();
+      return;
+    }
+    if (state.exchangeSel.size === 0) {
+      state.exchangeMode = false;
+      setStatus("", "");
+      renderAll();
+      return;
+    }
+    const indices = Array.from(state.exchangeSel);
+    setStatus("Exchanging…");
+    try {
+      const data = await api("/days/day-01/play/api/exchange", { game_id: state.game_id, indices });
+      state.lastAiTiles = [];
+      loadStateFromServer(data.state);
+      if (data.state.turn === "ai" && !data.state.game_over) triggerAi();
+    } catch (e) {
+      setStatus(e.message, "err");
+    }
+  });
+  $btnNew.addEventListener("click", async () => {
+    if (state.game_id && !state.gameOver) {
+      if (!confirm("Abandon current game and start a new one?")) return;
+    }
+    await newGame();
+  });
+
+  const saved = localStorage.getItem("scrabble_game_id");
+  if (saved) loadGame(saved);
+  else newGame();
+})();
+</script>
+{% endblock %}
