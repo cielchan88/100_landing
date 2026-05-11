@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+
+{% block title %}Title Doctor — Day 2 of 100 Days with Claude{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='day02/title_doctor.css') }}">
+
+<div class="max-w-5xl mx-auto px-4 sm:px-6 py-10">
+
+  <a href="/" class="text-sm inline-flex items-center gap-2"
+     style="color: var(--muted);"
+     onmouseover="this.style.color='var(--accent-hover)'"
+     onmouseout="this.style.color='var(--muted)'">
+    <span aria-hidden="true">←</span> Back to all days
+  </a>
+
+  <header class="mt-8 mb-10">
+    <p class="mono text-sm" style="color: var(--accent);">Day 02 · Title Doctor</p>
+    <h1 class="text-4xl md:text-5xl font-semibold mt-3" style="letter-spacing: -0.02em;">
+      Your draft title is fine.<br>
+      <span style="color: var(--accent);">These are better.</span>
+    </h1>
+    <p class="text-lg mt-4 max-w-2xl" style="color: var(--muted);">
+      Paste a draft. Get 15 alternatives across 5 strategies, scored honestly. No clickbait factory.
+    </p>
+  </header>
+
+  <!-- Input card -->
+  <section class="max-w-3xl mx-auto rounded-2xl p-6"
+           style="background: var(--surface); border: 1px solid var(--border);">
+    <form id="td-form" class="space-y-5">
+      <div>
+        <label for="td-draft" class="block text-sm font-medium mb-2">Your draft title</label>
+        <div class="relative">
+          <textarea id="td-draft" rows="3" minlength="3" maxlength="200" required
+                    placeholder="e.g. How to be productive"
+                    class="w-full rounded-lg p-3 text-base resize-y focus:outline-none"
+                    style="background: var(--bg); color: var(--text); border: 1px solid var(--border);"></textarea>
+          <div id="td-counter" class="absolute bottom-2 right-3 text-xs mono"
+               style="color: var(--muted);">0 / 200</div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label for="td-content-type" class="block text-sm font-medium mb-2">Content type (optional)</label>
+          <select id="td-content-type"
+                  class="w-full rounded-lg p-3 text-base focus:outline-none"
+                  style="background: var(--bg); color: var(--text); border: 1px solid var(--border);">
+            <option value="essay">essay</option>
+            <option value="blog post" selected>blog post</option>
+            <option value="newsletter">newsletter</option>
+            <option value="video">video</option>
+            <option value="podcast episode">podcast episode</option>
+            <option value="book chapter">book chapter</option>
+            <option value="social post (X/LinkedIn)">social post (X/LinkedIn)</option>
+            <option value="email subject line">email subject line</option>
+            <option value="landing page headline">landing page headline</option>
+            <option value="talk title">talk title</option>
+            <option value="other">other</option>
+          </select>
+        </div>
+        <div>
+          <label for="td-audience" class="block text-sm font-medium mb-2">Audience (optional)</label>
+          <input id="td-audience" type="text" maxlength="200"
+                 placeholder="e.g. mid-career engineers, food bloggers, busy parents…"
+                 class="w-full rounded-lg p-3 text-base focus:outline-none"
+                 style="background: var(--bg); color: var(--text); border: 1px solid var(--border);">
+        </div>
+      </div>
+
+      <button id="td-submit" type="submit"
+              class="w-full md:w-auto md:px-8 py-3 rounded-lg font-medium transition"
+              style="background: var(--accent); color: var(--bg);"
+              disabled>
+        <span id="td-submit-text">Improve</span>
+        <span id="td-submit-loading" class="hidden inline-flex items-center gap-2">
+          Generating<span class="pulse-dot">·</span>
+        </span>
+      </button>
+    </form>
+  </section>
+
+  <!-- Output region -->
+  <section id="td-output" class="max-w-3xl mx-auto mt-10 hidden">
+    <div id="td-error" class="hidden p-4 rounded-lg mb-6"
+         style="background: rgba(217,119,87,0.08); border: 1px solid var(--accent); color: var(--text);"></div>
+
+    <div id="td-verdict" class="hidden p-5 rounded-xl mb-8 flex items-start gap-5"
+         style="background: var(--surface); border: 1px solid var(--border);">
+      <div>
+        <div class="text-xs mono uppercase tracking-wider mb-1" style="color: var(--muted);">Verdict</div>
+        <div id="td-verdict-score" class="mono text-5xl font-semibold leading-none"
+             style="color: var(--accent);">—</div>
+        <div class="text-xs mono mt-1" style="color: var(--muted);">/ 10</div>
+      </div>
+      <div class="flex-1 pt-1">
+        <div class="text-xs mono uppercase tracking-wider mb-1" style="color: var(--muted);">Diagnosis</div>
+        <div id="td-verdict-diagnosis" class="text-base leading-relaxed"></div>
+      </div>
+    </div>
+
+    <div id="td-groups"></div>
+
+    <div id="td-actions" class="hidden mt-8 flex flex-wrap gap-3">
+      <button id="td-share" type="button"
+              class="px-5 py-2.5 rounded-lg text-sm font-medium border"
+              style="background: transparent; border-color: var(--border); color: var(--text);">
+        Copy verdict + top 3
+      </button>
+      <button id="td-reset" type="button"
+              class="px-5 py-2.5 rounded-lg text-sm font-medium"
+              style="background: var(--accent); color: var(--bg);">
+        Try another
+      </button>
+    </div>
+  </section>
+</div>
+
+<template id="td-group-tpl">
+  <div class="td-group mb-8">
+    <div class="td-group-name text-xs mono uppercase tracking-widest mb-3"
+         style="color: var(--accent);"></div>
+    <div class="td-group-variants space-y-3"></div>
+  </div>
+</template>
+
+<template id="td-variant-tpl">
+  <div class="variant-card relative p-4 rounded-xl"
+       style="background: var(--surface); border: 1px solid var(--border);">
+    <button class="td-copy absolute top-3 right-3 text-xs mono px-2 py-1 rounded"
+            style="color: var(--muted); background: transparent; border: 1px solid var(--border);"
+            type="button" aria-label="Copy title">copy</button>
+    <div class="td-variant-title text-lg pr-16" style="color: var(--text);"></div>
+    <div class="mt-2 flex items-center gap-3">
+      <span class="td-variant-score score-badge mono text-xs px-2 py-0.5 rounded"></span>
+      <span class="td-variant-rationale text-sm" style="color: var(--muted);"></span>
+    </div>
+  </div>
+</template>
+
+<script src="{{ url_for('static', filename='day02/title_doctor.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,64 @@
+/* Title Doctor — Day 2 styles */
+
+.variant-card {
+  opacity: 0;
+  transform: translateY(8px);
+  animation: fadeInUp 0.35s ease forwards;
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.score-badge {
+  font-weight: 600;
+  border: 1px solid var(--border);
+}
+.score-badge.score-low {
+  color: var(--muted);
+  background: rgba(168, 162, 158, 0.08);
+}
+.score-badge.score-mid {
+  color: rgba(217, 119, 87, 0.8);
+  background: rgba(217, 119, 87, 0.06);
+  border-color: rgba(217, 119, 87, 0.25);
+}
+.score-badge.score-high {
+  color: var(--accent);
+  background: rgba(217, 119, 87, 0.12);
+  border-color: var(--accent);
+}
+
+.pulse-dot {
+  display: inline-block;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+#td-draft:focus,
+#td-content-type:focus,
+#td-audience:focus {
+  border-color: var(--accent);
+}
+
+#td-submit:not(:disabled):hover {
+  background: var(--accent-hover);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .variant-card {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  .pulse-dot {
+    animation: none;
+  }
+}
