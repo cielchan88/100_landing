@@ -3,7 +3,7 @@
 > Membangun satu proyek web setiap hari, selama 100 hari.
 
 🌐 **Live:** https://100dayswithclaude.pythonanywhere.com
-📦 **Repo:** https://github.com/100dayswithclaude/100_landing
+📦 **Repo:** https://github.com/cielchan88/100_landing
 
 Sebuah katalog harian dari 100 proyek web yang dibangun selama 100 hari
 berturut-turut, bersama Claude Code. Setiap hari menghasilkan satu halaman
@@ -26,7 +26,7 @@ baru yang otomatis muncul sebagai tombol di landing page.
 ## Setup lokal
 
 ```bash
-git clone https://github.com/100dayswithclaude/100_landing.git
+git clone https://github.com/cielchan88/100_landing.git
 cd 100_landing
 python -m venv venv
 source venv/bin/activate    # Windows: venv\Scripts\activate
@@ -123,7 +123,7 @@ dibuat (free tier).
 
 ```bash
 cd ~
-git clone https://github.com/100dayswithclaude/100_landing.git
+git clone https://github.com/cielchan88/100_landing.git
 ```
 
 ### B. Buat virtualenv

@@ -11,7 +11,7 @@ Total waktu: ~15 menit untuk deploy pertama.
 ## Prasyarat
 
 - [ ] Repo `100_landing` sudah di-push ke GitHub:
-      `https://github.com/100dayswithclaude/100_landing`
+      `https://github.com/cielchan88/100_landing`
 - [ ] Punya akun PythonAnywhere dengan username `100dayswithclaude`
       (daftar gratis di <https://www.pythonanywhere.com/registration/register/beginner/>)
 - [ ] Bisa login ke dashboard PythonAnywhere
@@ -26,7 +26,7 @@ Total waktu: ~15 menit untuk deploy pertama.
 
    ```bash
    cd ~
-   git clone https://github.com/100dayswithclaude/100_landing.git
+   git clone https://github.com/cielchan88/100_landing.git
    ```
 
 4. Verifikasi:
@@ -38,7 +38,7 @@ Total waktu: ~15 menit untuk deploy pertama.
    Output yang diharapkan: `README.md  app  content  flask_app.py  requirements.txt  static  wsgi.py` ...
 
 > Repo private? Gunakan personal access token GitHub:
-> `git clone https://USERNAME:TOKEN@github.com/100dayswithclaude/100_landing.git`
+> `git clone https://USERNAME:TOKEN@github.com/cielchan88/100_landing.git`
 
 ---
 
@@ -108,7 +108,7 @@ Lanjut scroll ke section **Virtualenv**:
    `/var/www/100dayswithclaude_pythonanywhere_com_wsgi.py`
 3. Editor akan terbuka — **hapus seluruh isi default** (template Flask/Django bawaan)
 4. Buka file `wsgi.py` dari repo lokal Anda (atau langsung lihat di
-   <https://github.com/100dayswithclaude/100_landing/blob/main/wsgi.py>)
+   <https://github.com/cielchan88/100_landing/blob/main/wsgi.py>)
 5. Copy seluruh isinya, paste ke editor PythonAnywhere
 6. Klik **Save** di pojok kanan atas
 

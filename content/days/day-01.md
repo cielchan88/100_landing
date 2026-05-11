@@ -5,7 +5,7 @@ tagline: "Memulai eksperimen 100 hari membangun web app setiap hari."
 date: 2026-05-11
 status: live
 live_url:
-repo_url: https://github.com/100dayswithclaude/100_landing
+repo_url: https://github.com/cielchan88/100_landing
 tags: ["meta", "kickoff"]
 ---
 

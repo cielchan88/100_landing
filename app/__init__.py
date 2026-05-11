@@ -17,7 +17,7 @@ def create_app() -> Flask:
     project_root = os.path.dirname(os.path.dirname(__file__))
     app.config["CONTENT_DIR"] = os.path.join(project_root, "content", "days")
     app.config["SITE_URL"] = "https://100dayswithclaude.pythonanywhere.com"
-    app.config["REPO_URL"] = "https://github.com/100dayswithclaude/100_landing"
+    app.config["REPO_URL"] = "https://github.com/cielchan88/100_landing"
     app.config["TOTAL_DAYS"] = 100
 
     from .content import init_content
