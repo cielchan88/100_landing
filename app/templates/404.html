@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}Not found — 100 Days with Claude{% endblock %}
+
+{% block content %}
+<section class="max-w-xl mx-auto px-6 py-32 text-center">
+  <p class="mono text-6xl md:text-7xl font-medium mb-6" style="color: var(--accent);">404</p>
+  <p class="text-lg mb-10 leading-relaxed" style="color: var(--muted);">
+    This page doesn't exist yet — maybe it's a future day.
+  </p>
+  <a href="/"
+     class="inline-flex items-center gap-2 text-sm px-4 py-2 rounded-lg border"
+     style="border-color: var(--border); color: var(--accent);"
+     onmouseover="this.style.borderColor='var(--accent)'"
+     onmouseout="this.style.borderColor='var(--border)'">
+    <span aria-hidden="true">←</span> Back to all days
+  </a>
+</section>
+{% endblock %}

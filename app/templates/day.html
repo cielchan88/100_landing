@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ day.title }} — 100 Days with Claude{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-6 py-16">
+
+  <a href="/" class="text-sm inline-flex items-center gap-2"
+     style="color: var(--muted);"
+     onmouseover="this.style.color='var(--accent-hover)'"
+     onmouseout="this.style.color='var(--muted)'">
+    <span aria-hidden="true">←</span> Back to all days
+  </a>
+
+  <p class="mono text-sm mt-8" style="color: var(--accent);">
+    Day {{ day.day|pad2 }} · {{ day.date|format_date }}
+  </p>
+
+  <h1 class="text-4xl md:text-5xl font-semibold mt-3" style="letter-spacing: -0.02em; color: var(--text);">
+    {{ day.title }}
+  </h1>
+
+  <p class="text-lg mt-4 leading-relaxed" style="color: var(--muted);">
+    {{ day.tagline }}
+  </p>
+
+  {% if day.tags %}
+  <div class="flex flex-wrap gap-2 mt-6">
+    {% for tag in day.tags %}
+      <span class="text-xs px-2.5 py-1 rounded-full border mono"
+            style="border-color: var(--border); color: var(--muted);">
+        {{ tag }}
+      </span>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if day.live_url or day.repo_url %}
+  <div class="flex flex-wrap gap-3 mt-6">
+    {% if day.live_url %}
+      <a href="{{ day.live_url }}" target="_blank" rel="noopener"
+         class="inline-flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-lg border"
+         style="border-color: var(--border); color: var(--accent);"
+         onmouseover="this.style.borderColor='var(--accent)'"
+         onmouseout="this.style.borderColor='var(--border)'">
+        Live
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5" aria-hidden="true">
+          <path d="M7 17 17 7"/><path d="M7 7h10v10"/>
+        </svg>
+      </a>
+    {% endif %}
+    {% if day.repo_url %}
+      <a href="{{ day.repo_url }}" target="_blank" rel="noopener"
+         class="inline-flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-lg border"
+         style="border-color: var(--border); color: var(--accent);"
+         onmouseover="this.style.borderColor='var(--accent)'"
+         onmouseout="this.style.borderColor='var(--border)'">
+        Source
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5" aria-hidden="true">
+          <path d="M7 17 17 7"/><path d="M7 7h10v10"/>
+        </svg>
+      </a>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <article class="prose-custom mt-10">
+    {{ day.body_html|safe }}
+  </article>
+
+</div>
+{% endblock %}

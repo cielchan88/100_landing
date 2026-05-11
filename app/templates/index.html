@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  {% include 'partials/hero.html' %}
+
+  <section class="px-6 pb-24 max-w-7xl mx-auto">
+    {% if days %}
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        {% for day in days %}
+          {% include 'partials/day_card.html' %}
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="max-w-md mx-auto rounded-xl p-8 text-center border"
+           style="background: var(--surface); border-color: var(--border);">
+        <div class="mono text-2xl mb-2" style="color: var(--accent); opacity: 0.6;">01</div>
+        <p style="color: var(--muted);">Day 1 coming soon.</p>
+      </div>
+    {% endif %}
+  </section>
+{% endblock %}
