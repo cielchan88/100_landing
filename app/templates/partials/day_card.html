@@ -1,0 +1,16 @@
+<a
+  href="{{ url_for('main.day', slug=day.slug) }}"
+  class="day-card group block rounded-xl p-5 no-underline"
+  aria-label="Day {{ day.day|pad2 }}: {{ day.title }}"
+>
+  <div class="font-mono text-2xl md:text-3xl font-medium text-[var(--accent)] opacity-60 group-hover:opacity-100 transition-opacity mb-4">
+    {{ day.day|pad2 }}
+  </div>
+  <h3 class="text-[var(--fg)] font-medium text-base leading-snug mb-1.5 line-clamp-2"
+      style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">
+    {{ day.title }}
+  </h3>
+  <p class="text-xs text-[var(--fg-muted)] truncate">
+    {{ day.tagline }}
+  </p>
+</a>

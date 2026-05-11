@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="max-w-xl mx-auto px-6 md:px-10 py-24 md:py-32 text-center">
+  <p class="font-mono text-xs uppercase tracking-[0.25em] text-[var(--accent)] mb-4">
+    404
+  </p>
+  <h1 class="text-4xl md:text-5xl font-semibold tracking-tight mb-5"
+      style="letter-spacing: -0.02em;">
+    Halaman tidak ditemukan.
+  </h1>
+  <p class="text-[var(--fg-muted)] mb-10 leading-relaxed">
+    Mungkin hari itu belum dirilis — atau slug-nya salah ketik.
+  </p>
+  <a href="{{ url_for('main.index') }}"
+     class="inline-flex items-center gap-2 text-sm rounded-lg border border-[color:var(--border-strong)] text-[var(--accent-bright)] px-4 py-2 hover:border-[var(--accent)] hover:bg-[var(--bg-elev)] transition-colors">
+    <span aria-hidden="true">&larr;</span>
+    Back to all days
+  </a>
+</section>
+{% endblock %}

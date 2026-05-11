@@ -1,0 +1,10 @@
+<header class="w-full">
+  <div class="max-w-6xl mx-auto px-6 md:px-10 py-6 flex items-center justify-between">
+    <a href="{{ url_for('main.index') }}" class="font-mono text-xs md:text-sm text-[var(--accent)] tracking-widest hover:text-[var(--accent-bright)] transition-colors">
+      {{ live_count|pad2 }}<span class="text-[var(--fg-muted)]">/{{ total_days|pad2 }}</span>
+    </a>
+    <nav>
+      <a href="{{ url_for('main.about') }}" class="text-sm text-[var(--fg-muted)] hover:text-[var(--accent-bright)] transition-colors">About</a>
+    </nav>
+  </div>
+</header>
