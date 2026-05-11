@@ -59,9 +59,35 @@
   }
 
   function showError(msg) {
+    renderInlineError(msg, "error");
+  }
+
+  function renderInlineError(msg, kind) {
     outputEl.classList.remove("hidden");
+    verdictEl.classList.add("hidden");
+    groupsEl.innerHTML = "";
+    actionsEl.classList.add("hidden");
+
+    const label = kind === "slow" ? "⏱️ Slow down" : "⚠️ Error";
+    const accent = kind === "slow" ? "var(--accent-hover)" : "var(--accent)";
+
     errorEl.classList.remove("hidden");
-    errorEl.textContent = msg;
+    errorEl.style.borderColor = accent;
+    errorEl.innerHTML = "";
+    const head = document.createElement("div");
+    head.className = "text-xs mono uppercase tracking-wider mb-1";
+    head.style.color = "var(--muted)";
+    head.textContent = label;
+    const body = document.createElement("div");
+    body.className = "text-sm";
+    body.style.color = "var(--muted)";
+    body.textContent = msg;
+    errorEl.appendChild(head);
+    errorEl.appendChild(body);
+  }
+
+  function resetSubmitButton() {
+    setBusy(false);
   }
 
   function renderVerdict(v) {
@@ -148,11 +174,41 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      if (!res.ok && res.headers.get("content-type")?.includes("application/json")) {
-        const j = await res.json().catch(() => ({}));
-        showError(j.error || `Request failed (${res.status}).`);
+
+      if (res.status === 429) {
+        const data = await res.json().catch(() => ({}));
+        renderInlineError(
+          data.message || "Too many requests. Try again in a minute.",
+          "slow"
+        );
+        resetSubmitButton();
         return;
       }
+
+      const contentType = res.headers.get("content-type") || "";
+
+      if (!res.ok && !contentType.includes("text/event-stream")) {
+        let msg = "Something went wrong on the server. Try again in a moment.";
+        if (contentType.includes("application/json")) {
+          const j = await res.json().catch(() => ({}));
+          msg = j.message || j.error || msg;
+        }
+        renderInlineError(msg, "error");
+        resetSubmitButton();
+        return;
+      }
+
+      if (!contentType.includes("text/event-stream")) {
+        try {
+          const data = await res.json();
+          renderInlineError(data.message || data.error || "Unexpected server response.", "error");
+        } catch {
+          renderInlineError("Unexpected server response.", "error");
+        }
+        resetSubmitButton();
+        return;
+      }
+
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let buffer = "";

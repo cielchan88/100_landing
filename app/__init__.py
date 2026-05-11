@@ -3,8 +3,18 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from flask import Flask
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 load_dotenv()
+
+
+limiter = Limiter(
+    key_func=get_remote_address,
+    default_limits=[],
+    storage_uri="memory://",
+    strategy="fixed-window",
+)
 
 
 def create_app() -> Flask:
@@ -21,6 +31,8 @@ def create_app() -> Flask:
     app.config["FLASK_ENV"] = env
     app.config["DEBUG"] = env != "production"
     app.config["TEMPLATES_AUTO_RELOAD"] = env != "production"
+
+    limiter.init_app(app)
 
     from .filters import register_filters
     register_filters(app)

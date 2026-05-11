@@ -7,6 +7,8 @@ import time
 
 from flask import Blueprint, Response, jsonify, render_template, request, stream_with_context
 
+from app import limiter
+
 from .anthropic_client import TitleDoctorError, generate_titles
 
 log = logging.getLogger(__name__)
@@ -57,6 +59,7 @@ def _stream_error(message: str):
 
 
 @bp.route("/api/improve", methods=["POST"])
+@limiter.limit("10 per hour; 3 per minute")
 def improve():
     body = request.get_json(silent=True) or {}
     draft = (body.get("draft") or "").strip()
@@ -101,3 +104,16 @@ def improve():
         mimetype="text/event-stream",
         headers=headers,
     )
+
+
+@bp.errorhandler(429)
+def ratelimit_handler(e):
+    description = getattr(e, "description", "Rate limit exceeded.")
+    return jsonify({
+        "error": "rate_limited",
+        "message": (
+            "Too many requests in a short window. "
+            "Take a breath and try again in a minute — this keeps Title Doctor free for everyone."
+        ),
+        "detail": str(description),
+    }), 429
