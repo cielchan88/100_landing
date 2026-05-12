@@ -27,126 +27,19 @@ Open http://localhost:5000.
 3. Commit and push.
 4. On PythonAnywhere: `cd ~/100_landing && git pull` then click Reload in the Web tab.
 
-### Frontmatter template
-
-```yaml
----
-day: 4
-title: "Project name"
-tagline: "One-line pitch."
-date: 2026-05-14
-status: live          # or 'draft' to hide
-live_url: https://...
-repo_url: https://github.com/...
-tags: ["tag1", "tag2"]
----
-
-Markdown body here.
-```
-
 A day is **visible only when**:
 - `status` is `live`, AND
 - the entry's `date` is today or earlier (future-dated entries are auto-hidden until their day arrives).
-
-## Project structure
-
-```
-100_landing/
-  flask_app.py            # entry point for `python flask_app.py`
-  wsgi.py                 # PythonAnywhere WSGI hook
-  app/
-    __init__.py           # create_app()
-    routes.py             # main routes + Day 1 Scrabble API
-    content.py            # markdown loader (date-gated)
-    filters.py            # jinja filters
-    scrabble/             # Day 1 game engine + AI
-    day02/                # Day 2 Title Doctor blueprint
-    templates/
-      base.html, index.html, day.html, about.html, 404.html, scrabble.html
-      partials/
-      day02/title_doctor.html
-  static/
-    favicon.svg
-    day02/title_doctor.css, title_doctor.js
-  content/
-    days/day-01.md, day-02.md, ...
-  requirements.txt
-  README.md
-```
-
-## PythonAnywhere deploy (free tier)
-
-### 1. Push this repo to GitHub
-
-Done, at https://github.com/cielchan88/100_landing.
-
-### 2. Clone on PythonAnywhere
-
-In a Bash console:
-
-```bash
-cd ~
-git clone https://github.com/cielchan88/100_landing.git
-cd 100_landing
-mkvirtualenv 100days-venv --python=python3.11
-pip install -r requirements.txt
-```
-
-### 3. Web tab → Add a new web app → Manual configuration → Python 3.11
-
-### 4. Edit the WSGI file
-
-Replace its contents with:
-
-```python
-import sys
-path = '/home/100dayswithclaude/100_landing'
-if path not in sys.path:
-    sys.path.insert(0, path)
-from flask_app import app as application
-```
-
-### 5. Set the virtualenv path
-
-`/home/100dayswithclaude/.virtualenvs/100days-venv`
-
-And the static mapping:
-
-- URL: `/static/`
-- Directory: `/home/100dayswithclaude/100_landing/static/`
-
-### 6. Reload
-
-Click the green **Reload** button. Visit https://100dayswithclaude.pythonanywhere.com.
-
-## Updating content in production
-
-```bash
-cd ~/100_landing
-git pull origin main
-```
-
-Then click Reload in the Web tab.
-
-## Troubleshooting
-
-- **500 error** → check the error log in the Web tab
-- **ModuleNotFoundError** → `workon 100days-venv && pip install -r ~/100_landing/requirements.txt`
-- **Static files 404** → confirm the static mapping in the Web tab
-- **New day not appearing** → confirm `status: live` AND `date` is today or earlier in the frontmatter, then Reload
-- **Old content cached** → free-tier worker doesn't auto-restart; Reload is mandatory after any change
 
 ## Day 2 deploy notes
 
 Day 2 (Title Doctor) adds a Flask blueprint at `/day-02/title-doctor` that calls the Anthropic API. To deploy:
 
 ```bash
-# Local — commit and push
 git add .
 git commit -m "Day 2: Title Doctor blueprint with SSE streaming"
 git push origin main
 
-# On PythonAnywhere Bash console
 cd ~/100_landing
 git pull origin main
 workon 100days-venv
@@ -160,6 +53,46 @@ Then in the PythonAnywhere Web tab:
 3. Visit https://100dayswithclaude.pythonanywhere.com/day-02/title-doctor
 
 Without an API key the page still loads but the form returns a 503 with a friendly message.
+
+## Day 3 deploy notes
+
+Color Heist is mounted at `/day-03/color-heist` and requires the ScreenshotOne API for URL mode.
+
+### Get a free ScreenshotOne API key
+
+1. Sign up at https://screenshotone.com (no credit card required)
+2. From the dashboard, copy your `access_key`
+3. Add it to `.env`:
+
+```
+SCREENSHOTONE_ACCESS_KEY=your-access-key-here
+```
+
+Free tier gives 100 screenshots/month. We cache each URL for 24h on ScreenshotOne's side, so dev/demo traffic on the same URLs won't burn fresh credits.
+
+### Update PythonAnywhere outbound whitelist
+
+PythonAnywhere free tier blocks arbitrary outbound HTTPS. Before this works in production, add `api.screenshotone.com` to your account's allowed-domains list. Open the Web tab on PythonAnywhere — if outbound access is restricted, you'll see the list there.
+
+### Deploy steps
+
+```bash
+git add .
+git commit -m "Day 3: Color Heist with URL, image, and picker modes"
+git push origin main
+
+cd ~/100_landing
+git pull origin main
+workon 100days-venv
+pip install -r requirements.txt
+nano .env   # add SCREENSHOTONE_ACCESS_KEY
+```
+
+Then click Reload in the Web tab and visit: https://100dayswithclaude.pythonanywhere.com/day-03/color-heist
+
+### Image upload size note
+
+Our 5MB image limit is enforced via Flask's `MAX_CONTENT_LENGTH = 5 * 1024 * 1024` setting. Larger uploads return a friendly 413.
 
 ## License
 
