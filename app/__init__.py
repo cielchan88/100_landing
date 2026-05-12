@@ -31,6 +31,7 @@ def create_app() -> Flask:
     app.config["FLASK_ENV"] = env
     app.config["DEBUG"] = env != "production"
     app.config["TEMPLATES_AUTO_RELOAD"] = env != "production"
+    app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024  # 5MB
 
     limiter.init_app(app)
 
@@ -42,6 +43,9 @@ def create_app() -> Flask:
 
     from .day02.blueprint import bp as day02_bp
     app.register_blueprint(day02_bp)
+
+    from .day03.blueprint import bp as day03_bp
+    app.register_blueprint(day03_bp)
 
     from .content import get_live_count
 
