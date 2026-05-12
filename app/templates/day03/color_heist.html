@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+
+{% block title %}Color Heist — Day 3 of 100 Days with Claude{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='day03/color_heist.css') }}">
+
+<div class="max-w-5xl mx-auto px-4 sm:px-6 py-10">
+
+  <a href="/" class="text-sm inline-flex items-center gap-2"
+     style="color: var(--muted);"
+     onmouseover="this.style.color='var(--accent-hover)'"
+     onmouseout="this.style.color='var(--muted)'">
+    <span aria-hidden="true">←</span> Back to all days
+  </a>
+
+  <header class="mt-8 mb-10">
+    <p class="mono text-sm" style="color: var(--accent);">Day 03 · Color Heist</p>
+    <h1 class="text-4xl md:text-5xl font-semibold mt-3" style="letter-spacing: -0.02em;">
+      Steal palettes <br>
+      <span style="color: var(--accent);">from anywhere.</span>
+    </h1>
+    <p class="text-lg mt-4 max-w-2xl" style="color: var(--muted);">
+      Drop a URL, an image, or pick a color. Get 8 dominant tones plus 4 generated palettes. Export to CSS, Tailwind, JSON, or SVG.
+    </p>
+  </header>
+
+  <!-- Input card -->
+  <section class="max-w-3xl mx-auto rounded-2xl p-6"
+           style="background: var(--surface); border: 1px solid var(--border);">
+
+    <!-- Tab strip -->
+    <div role="tablist" class="flex gap-1 border-b mb-6" style="border-color: var(--border);">
+      <button class="tab-btn px-4 py-3 text-sm font-medium" data-tab="url" data-active="true"
+              role="tab" aria-selected="true">URL</button>
+      <button class="tab-btn px-4 py-3 text-sm font-medium" data-tab="image" data-active="false"
+              role="tab" aria-selected="false">Image</button>
+      <button class="tab-btn px-4 py-3 text-sm font-medium" data-tab="picker" data-active="false"
+              role="tab" aria-selected="false">Color Picker</button>
+    </div>
+
+    <!-- URL tab -->
+    <div class="tab-body" data-body="url">
+      <label for="ch-url" class="block text-sm font-medium mb-2">Website URL</label>
+      <input id="ch-url" type="url" placeholder="https://stripe.com" maxlength="2048"
+             class="w-full rounded-lg p-3 text-base focus:outline-none"
+             style="background: var(--bg); color: var(--text); border: 1px solid var(--border);">
+      <button id="ch-submit-url" class="ch-btn ch-btn-primary mt-4 w-full md:w-auto md:px-8">
+        <span class="ch-btn-label">Steal</span>
+        <span class="ch-btn-loading hidden">Heisting…</span>
+      </button>
+    </div>
+
+    <!-- Image tab -->
+    <div class="tab-body hidden" data-body="image">
+      <div id="ch-drop" class="drop-zone rounded-lg p-8 text-center cursor-pointer"
+           style="border: 2px dashed var(--border); color: var(--muted);">
+        <div id="ch-drop-empty">
+          <div class="text-base mb-1">Drop an image here or click to upload</div>
+          <div class="text-xs">PNG, JPG, or WebP — max 5MB</div>
+        </div>
+        <div id="ch-drop-selected" class="hidden">
+          <div class="mono text-sm" style="color: var(--text);" id="ch-file-name"></div>
+          <div class="text-xs mt-1" id="ch-file-size"></div>
+        </div>
+      </div>
+      <input id="ch-file" type="file" accept="image/png,image/jpeg,image/webp" class="hidden">
+      <button id="ch-submit-image" class="ch-btn ch-btn-primary mt-4 w-full md:w-auto md:px-8" disabled>
+        <span class="ch-btn-label">Steal</span>
+        <span class="ch-btn-loading hidden">Analyzing…</span>
+      </button>
+    </div>
+
+    <!-- Picker tab -->
+    <div class="tab-body hidden" data-body="picker">
+      <label class="block text-sm font-medium mb-2">Seed color</label>
+      <div class="flex items-center gap-3">
+        <input id="ch-picker" type="color" value="#D97757"
+               class="rounded-lg cursor-pointer"
+               style="width: 60px; height: 60px; border: 1px solid var(--border); background: var(--bg);">
+        <input id="ch-hex" type="text" value="#D97757" maxlength="7" spellcheck="false"
+               class="rounded-lg p-3 text-base mono focus:outline-none"
+               style="background: var(--bg); color: var(--text); border: 1px solid var(--border); width: 130px;">
+      </div>
+      <button id="ch-submit-picker" class="ch-btn ch-btn-primary mt-4 w-full md:w-auto md:px-8">
+        <span class="ch-btn-label">Generate</span>
+        <span class="ch-btn-loading hidden">Generating…</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- Output region -->
+  <section id="ch-output" class="mt-10 hidden">
+
+    <div id="ch-error" class="hidden p-4 rounded-lg mb-6 max-w-3xl mx-auto"
+         style="background: rgba(217,119,87,0.08); border: 1px solid var(--accent); color: var(--text);"></div>
+
+    <!-- Active palette -->
+    <div class="mb-8">
+      <div class="flex items-baseline justify-between mb-3 max-w-5xl mx-auto px-1">
+        <div class="text-xs mono uppercase tracking-widest" style="color: var(--accent);">
+          <span id="ch-active-label">Extracted</span>
+        </div>
+        <div class="text-xs mono" style="color: var(--muted);">click swatch to copy</div>
+      </div>
+      <div id="ch-active-strip" class="grid grid-cols-4 md:grid-cols-8 gap-0 max-w-5xl mx-auto rounded-xl overflow-hidden"
+           style="border: 1px solid var(--border);"></div>
+
+      <!-- Export bar -->
+      <div class="flex flex-wrap gap-2 mt-4 max-w-5xl mx-auto">
+        <button class="ch-export-btn" data-export="css">CSS</button>
+        <button class="ch-export-btn" data-export="tailwind">Tailwind</button>
+        <button class="ch-export-btn" data-export="json">JSON</button>
+        <button class="ch-export-btn" data-export="svg">SVG</button>
+      </div>
+    </div>
+
+    <!-- Suggested palettes -->
+    <div id="ch-suggestions" class="space-y-5 max-w-5xl mx-auto"></div>
+  </section>
+</div>
+
+<!-- Export modal -->
+<div id="ch-modal" class="modal-backdrop hidden fixed inset-0 z-50 flex items-center justify-center p-4"
+     style="background: rgba(15, 15, 14, 0.8);">
+  <div class="modal-card w-full max-w-2xl rounded-xl p-6"
+       style="background: var(--surface); border: 1px solid var(--border);">
+    <div class="flex items-center justify-between mb-4">
+      <h2 id="ch-modal-title" class="text-lg font-semibold">Export</h2>
+      <button id="ch-modal-close" aria-label="Close" class="text-2xl leading-none px-2" style="color: var(--muted);">×</button>
+    </div>
+    <pre id="ch-modal-code" class="rounded-lg p-4 text-sm overflow-x-auto max-h-96 mono"
+         style="background: var(--pre-bg); color: var(--text); border: 1px solid var(--border);"></pre>
+    <button id="ch-modal-copy" class="ch-btn ch-btn-primary mt-4">Copy</button>
+  </div>
+</div>
+
+<template id="ch-suggestion-tpl">
+  <div class="ch-suggestion">
+    <div class="flex items-baseline justify-between mb-2 px-1">
+      <div class="text-xs mono uppercase tracking-widest" style="color: var(--muted);">
+        <span class="ch-suggestion-label"></span>
+      </div>
+      <button class="ch-use-btn text-xs mono" style="color: var(--accent);">Use this palette →</button>
+    </div>
+    <div class="ch-suggestion-strip grid grid-cols-4 md:grid-cols-8 gap-0 rounded-lg overflow-hidden"
+         style="border: 1px solid var(--border);"></div>
+  </div>
+</template>
+
+<template id="ch-swatch-tpl">
+  <div class="swatch flex items-center justify-center relative" tabindex="0" role="button">
+    <span class="swatch-hex mono text-xs font-semibold"></span>
+    <div class="swatch-overlay absolute inset-0 flex flex-col items-center justify-center gap-1">
+      <span class="swatch-wcag text-xs mono"></span>
+      <span class="swatch-copy text-[10px] mono uppercase tracking-wider">copy</span>
+    </div>
+  </div>
+</template>
+
+<script src="{{ url_for('static', filename='day03/color_heist.js') }}"></script>
+{% endblock %}

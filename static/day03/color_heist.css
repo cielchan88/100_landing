@@ -1,0 +1,144 @@
+/* Color Heist — Day 3 */
+
+.tab-btn {
+  color: var(--muted);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  cursor: pointer;
+  transition: color 150ms, border-color 150ms;
+}
+.tab-btn:hover { color: var(--text); }
+.tab-btn[data-active="true"] {
+  color: var(--text);
+  border-bottom-color: var(--accent);
+}
+
+.ch-btn {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: border-color 150ms, background 150ms, opacity 150ms;
+}
+.ch-btn:hover:not(:disabled) { border-color: var(--accent); }
+.ch-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.ch-btn-primary {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+}
+.ch-btn-primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
+.ch-export-btn {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 150ms;
+}
+.ch-export-btn:hover { border-color: var(--accent); }
+
+.drop-zone {
+  transition: border-color 150ms, background 150ms;
+}
+.drop-zone.is-dragover {
+  border-color: var(--accent) !important;
+  background: rgba(217, 119, 87, 0.06);
+}
+
+#ch-hex.is-invalid {
+  border-color: rgba(255, 90, 80, 0.7) !important;
+}
+
+/* Swatch grid */
+.swatch {
+  min-height: 120px;
+  cursor: pointer;
+  position: relative;
+  outline: none;
+  transition: transform 150ms;
+}
+.swatch:hover { z-index: 1; }
+.swatch:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: -3px;
+  z-index: 2;
+}
+
+.swatch-hex {
+  z-index: 1;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.0);
+  transition: opacity 150ms;
+  pointer-events: none;
+}
+
+.swatch-overlay {
+  opacity: 0;
+  background: rgba(15, 15, 14, 0.75);
+  color: #FAFAF7;
+  transition: opacity 200ms;
+  pointer-events: none;
+}
+
+.swatch:hover .swatch-overlay,
+.swatch:focus-visible .swatch-overlay {
+  opacity: 1;
+}
+.swatch:hover .swatch-hex {
+  opacity: 0;
+}
+
+.swatch.is-copied .swatch-overlay {
+  opacity: 1;
+}
+.swatch.is-copied .swatch-overlay .swatch-copy {
+  color: var(--accent);
+}
+
+/* Suggestion strip — smaller swatches */
+.ch-suggestion-strip .swatch {
+  min-height: 70px;
+}
+
+/* Modal */
+.modal-backdrop { animation: fadeIn 0.15s ease forwards; }
+.modal-card { animation: slideUp 0.2s ease forwards; }
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes copiedFade {
+  0%, 80% { opacity: 1; }
+  100%    { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal-backdrop, .modal-card, .swatch, .swatch-overlay, .swatch-hex,
+  .drop-zone, .tab-btn, .ch-btn, .ch-export-btn {
+    animation: none !important;
+    transition: none !important;
+  }
+}
