@@ -4,9 +4,14 @@ from __future__ import annotations
 import logging
 import os
 from dataclasses import dataclass, field
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Dict, List, Optional
+
+try:
+    from zoneinfo import ZoneInfo
+except ImportError:  # pragma: no cover - py<3.9
+    ZoneInfo = None  # type: ignore
 
 import frontmatter
 import markdown as md
@@ -18,6 +23,22 @@ _CONTENT_DIR = Path(__file__).parent.parent / "content" / "days"
 _REQUIRED_FIELDS = ("day", "title", "tagline", "date", "status")
 _VALID_STATUSES = ("live", "draft")
 _MD_EXTENSIONS = ["fenced_code", "tables", "codehilite"]
+
+_DEFAULT_TZ = "Asia/Jakarta"
+
+
+def _local_today() -> date:
+    """Return today's date in the site's local timezone (default Asia/Jakarta).
+
+    Override with the SITE_TZ env var. Falls back to UTC if zoneinfo / tz is unavailable.
+    """
+    tz_name = os.environ.get("SITE_TZ", _DEFAULT_TZ)
+    if ZoneInfo is not None:
+        try:
+            return datetime.now(ZoneInfo(tz_name)).date()
+        except Exception as exc:
+            log.warning("Bad SITE_TZ %r, falling back to UTC: %s", tz_name, exc)
+    return datetime.now(timezone.utc).date()
 
 
 @dataclass
@@ -138,7 +159,7 @@ def _ensure_loaded() -> None:
 
 def get_live_days() -> List[DayEntry]:
     _ensure_loaded()
-    today = date.today()
+    today = _local_today()
     return sorted(
         (e for e in _cache.values() if e.status == "live" and e.date <= today),
         key=lambda e: e.day,
@@ -148,12 +169,12 @@ def get_live_days() -> List[DayEntry]:
 def get_day(slug: str) -> Optional[DayEntry]:
     _ensure_loaded()
     entry = _cache.get(slug)
-    if entry is None or entry.status != "live" or entry.date > date.today():
+    if entry is None or entry.status != "live" or entry.date > _local_today():
         return None
     return entry
 
 
 def get_live_count() -> int:
     _ensure_loaded()
-    today = date.today()
+    today = _local_today()
     return sum(1 for e in _cache.values() if e.status == "live" and e.date <= today)
