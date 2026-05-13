@@ -2,7 +2,7 @@
 day: 4
 title: "Reasoning Reps"
 tagline: "Five minutes of un-AI'd thinking, daily."
-date: 2026-05-13
+date: 2026-05-14
 status: live
 live_url: /day-04/reasoning-reps
 repo_url: https://github.com/cielchan88/100_landing
