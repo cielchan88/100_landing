@@ -1,0 +1,79 @@
+{% extends 'day04/base_d04.html' %}
+
+{% block d04_content %}
+
+<div class="rep-progress mb-3" aria-hidden="true">
+  {% for i in range(1, total_reps + 1) %}
+    {% if i < rep %}
+      <span data-state="done"></span>
+    {% elif i == rep %}
+      <span data-state="current"></span>
+    {% else %}
+      <span data-state="future"></span>
+    {% endif %}
+  {% endfor %}
+</div>
+<div class="text-xs mono mb-6" style="color: var(--muted);">
+  Rep {{ rep }} of {{ total_reps }} — {{ skill_label }}
+  &nbsp;·&nbsp;
+  <span style="color: var(--accent);">Reps for {{ iso_date }} <span style="opacity: 0.7;">(UTC)</span></span>
+</div>
+
+<p class="text-base italic mb-6" style="color: var(--muted);">
+  {{ puzzle.instruction }}
+</p>
+
+{% if puzzle.skill == 'working_memory' %}
+  <div id="rr-prompt" class="rr-prompt-card rounded-xl p-6 mb-6 text-xl"
+       data-display-seconds="{{ puzzle.prompt_display_seconds or 8 }}"
+       style="background: var(--surface); border: 1px solid var(--border); font-family: 'JetBrains Mono', monospace;">
+    {{ puzzle.prompt }}
+  </div>
+  <div id="rr-countdown-line" class="text-sm mb-6 text-center" style="color: var(--accent);">
+    Memorize: <span id="rr-mem-seconds">{{ puzzle.prompt_display_seconds or 8 }}</span>s
+  </div>
+{% else %}
+  <div class="rr-prompt-card rounded-xl p-5 mb-6"
+       style="background: var(--surface); border: 1px solid var(--border); white-space: pre-line;">
+    {{ puzzle.prompt }}
+  </div>
+{% endif %}
+
+<form id="rr-form" method="POST"
+      action="{{ url_for('day04_reasoning_reps.play', rep=rep, d=iso_date, a=a_query) }}"
+      class="{% if puzzle.skill == 'working_memory' %}hidden{% endif %}"
+      id="rr-question-section">
+
+  <h2 class="text-xl font-semibold mb-5">{{ puzzle.question }}</h2>
+
+  {% if puzzle.answer_type == 'multiple_choice' %}
+    <fieldset class="space-y-3">
+      <legend class="sr-only">{{ puzzle.question }}</legend>
+      {% for choice in puzzle.choices %}
+        <label class="choice-card" data-selected="false">
+          <input type="radio" name="answer" value="{{ loop.index0 }}" class="sr-only rr-choice-input">
+          <span class="rr-choice-marker mono text-sm mr-3" style="color: var(--muted);">
+            {{ ['A','B','C','D'][loop.index0] }}
+          </span>
+          <span class="rr-choice-text">{{ choice }}</span>
+        </label>
+      {% endfor %}
+    </fieldset>
+  {% else %}
+    <label for="rr-numeric-input" class="block text-sm mb-2" style="color: var(--muted);">
+      Enter a single number (integers or decimals; no commas).
+    </label>
+    <input id="rr-numeric-input" name="answer" type="number" step="any" required
+           placeholder="Your best estimate"
+           class="w-full rounded-lg p-3 text-lg mono focus:outline-none"
+           style="background: var(--bg); color: var(--text); border: 1px solid var(--border);">
+  {% endif %}
+
+  <button id="rr-submit" type="submit"
+          class="rr-btn rr-btn-primary mt-6 w-full md:w-auto md:px-8"
+          disabled>
+    Lock in answer →
+  </button>
+</form>
+
+{% endblock %}

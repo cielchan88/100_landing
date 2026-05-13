@@ -1,0 +1,30 @@
+{% extends 'day04/base_d04.html' %}
+
+{% block d04_content %}
+
+<header class="mb-8">
+  <h1 class="text-3xl md:text-4xl font-semibold" style="letter-spacing: -0.02em;">Archive</h1>
+  <p class="text-sm mt-2" style="color: var(--muted);">
+    Past days available to replay. Replays are for practice — they don't count toward today's score.
+  </p>
+</header>
+
+{% if dates %}
+  <ul class="rr-archive-grid" data-today="{{ today }}">
+    {% for d in dates %}
+      <li>
+        <a class="rr-archive-cell rounded-lg p-3 block"
+           href="{{ url_for('day04_reasoning_reps.play', rep=1, d=d) }}"
+           data-date="{{ d }}"
+           style="background: var(--surface); border: 1px solid var(--border); color: var(--text);">
+          <span class="block mono text-sm">{{ d }}</span>
+          <span class="block text-xs mt-1 rr-archive-status" style="color: var(--muted);">—</span>
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p class="text-sm" style="color: var(--muted);">No puzzle days are loaded yet.</p>
+{% endif %}
+
+{% endblock %}

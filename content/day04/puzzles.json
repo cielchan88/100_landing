@@ -1,0 +1,84 @@
+{
+  "2026-05-13": [
+    {
+      "skill": "working_memory",
+      "title": "Rep 1: Working Memory",
+      "instruction": "We'll show 7 items for 8 seconds. Memorize the order.",
+      "prompt": "Tokyo · Lisbon · Cairo · Oslo · Lima · Vienna · Seoul",
+      "prompt_display_seconds": 8,
+      "question": "Which city was at position 5?",
+      "answer_type": "multiple_choice",
+      "choices": ["Lima", "Vienna", "Oslo", "Cairo"],
+      "correct_index": 0,
+      "correct_range": null,
+      "exact_answer": null,
+      "explanation": "Healthy working memory holds 7 ± 2 items for 15-30 seconds without rehearsal. The trick most people use unconsciously is chunking — grouping items by region (Tokyo–Seoul = East Asia, Lisbon–Vienna = Europe, Cairo = Africa, Lima = South America). When you chunk, you remember fewer slots."
+    },
+    {
+      "skill": "source_evaluation",
+      "title": "Rep 2: Source Evaluation",
+      "instruction": "A claim is presented with four possible sources. Pick the most credible one.",
+      "prompt": "Claim: Adults who consume two or more cups of green tea daily show approximately 18% lower risk of stroke compared to non-consumers, after controlling for diet and exercise.",
+      "prompt_display_seconds": null,
+      "question": "Which source most credibly supports this claim?",
+      "answer_type": "multiple_choice",
+      "choices": [
+        "A 2024 meta-analysis in Stroke journal pooling 14 cohort studies (n=550,000) across multiple countries",
+        "A viral Twitter thread by a self-described 'longevity researcher' with 800K followers",
+        "A press release from the Global Tea Industry Association announcing new product benefits",
+        "A Healthline aggregator article titled '11 Reasons Green Tea Is a Superfood'"
+      ],
+      "correct_index": 0,
+      "correct_range": null,
+      "exact_answer": null,
+      "explanation": "A meta-analysis in a specialty peer-reviewed journal aggregating hundreds of thousands of subjects across countries is the gold standard. The other three are: anecdote/personal authority, industry-funded press release with conflict of interest, and content-marketing aggregator. Source evaluation is the muscle most easily atrophied by AI summaries that blend source types without weighting."
+    },
+    {
+      "skill": "inference",
+      "title": "Rep 3: Inference",
+      "instruction": "Given the premises, identify the valid conclusion.",
+      "prompt": "Premise 1: All members of the international research consortium who completed peer review training before 2024 received the senior reviewer designation.\nPremise 2: Dr. Mendez did not receive the senior reviewer designation.\nPremise 3: Receiving the senior reviewer designation requires completing peer review training before 2024.",
+      "prompt_display_seconds": null,
+      "question": "Which conclusion is logically VALID?",
+      "answer_type": "multiple_choice",
+      "choices": [
+        "Dr. Mendez left the consortium",
+        "Dr. Mendez did not complete peer review training before 2024",
+        "Dr. Mendez completed peer review training after 2024",
+        "Dr. Mendez was exempt from the training requirement"
+      ],
+      "correct_index": 1,
+      "correct_range": null,
+      "exact_answer": null,
+      "explanation": "From Premise 3 (Senior → CompletedBefore2024) and Premise 2 (¬Senior), modus tollens gives ¬CompletedBefore2024. Option C is wrong: 'didn't complete before 2024' doesn't mean 'completed after 2024' — Mendez might have never completed it. Conflating absence-of-evidence with evidence-of-absence is one of the most common reasoning errors."
+    },
+    {
+      "skill": "pattern_recognition",
+      "title": "Rep 4: Pattern Recognition",
+      "instruction": "Identify the next number in the sequence.",
+      "prompt": "2, 6, 12, 20, 30, 42, ?",
+      "prompt_display_seconds": null,
+      "question": "What's the next number?",
+      "answer_type": "multiple_choice",
+      "choices": ["54", "56", "58", "60"],
+      "correct_index": 1,
+      "correct_range": null,
+      "exact_answer": null,
+      "explanation": "Differences between terms: 4, 6, 8, 10, 12, **14**. So 42 + 14 = 56. The closed form is n(n+1): 1·2=2, 2·3=6, 3·4=12... 7·8=56. Pattern recognition is the cognitive skill most easily outsourced to AI ('what's the pattern?'), so it's the most at risk of atrophy."
+    },
+    {
+      "skill": "estimation",
+      "title": "Rep 5: Estimation",
+      "instruction": "A Fermi-style estimation problem. Take your time — no timer.",
+      "prompt": "Approximately how many cups of espresso are pulled across all bars and cafés in central Rome (the historic core, not the entire metropolitan area) on a typical weekday?",
+      "prompt_display_seconds": null,
+      "question": "Your best estimate:",
+      "answer_type": "numeric_estimation",
+      "choices": null,
+      "correct_index": null,
+      "correct_range": [200000, 700000],
+      "exact_answer": 400000,
+      "explanation": "Decompose: central Rome has roughly 1,500-2,500 bars and cafés serving espresso. Italians average 2-3 espressos per day; tourists in Rome consume similar amounts. With ~600K daytime population including commuters and tourists, total espresso events are 1.2M-1.8M city-wide. Central Rome captures perhaps 25-30% of this concentration. Fermi estimation — decompose, multiply, sanity-check — is the antidote to 'just ask AI for a number you can't verify.'"
+    }
+  ]
+}

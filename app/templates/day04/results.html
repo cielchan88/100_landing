@@ -1,0 +1,98 @@
+{% extends 'day04/base_d04.html' %}
+
+{% block d04_content %}
+
+{% if is_shared %}
+  <header class="mb-8">
+    <h1 class="text-3xl md:text-4xl font-semibold" style="letter-spacing: -0.02em;">
+      A friend played Reasoning Reps for
+      <span style="color: var(--accent);">{{ iso_date }}</span>
+    </h1>
+    <p class="text-sm mt-2" style="color: var(--muted);">
+      Their score is below — no answers revealed.
+    </p>
+  </header>
+{% else %}
+  <header class="mb-8" data-played-date="{{ iso_date }}" id="rr-results-root">
+    <h1 class="text-3xl md:text-4xl font-semibold" style="letter-spacing: -0.02em;">
+      Your reps for <span style="color: var(--accent);">{{ iso_date }}</span>
+    </h1>
+    <p class="text-sm mt-2" style="color: var(--muted);">
+      UTC date. Tomorrow's reps in
+      <span class="countdown-display mono is-counting" id="rr-tomorrow-countdown" data-target="utc-midnight">00:00:00</span>.
+    </p>
+  </header>
+{% endif %}
+
+<div class="flex flex-col items-center mb-10">
+  <div class="score-circle" style="color: var(--accent);">
+    <span>{{ total }}/5</span>
+  </div>
+  <p class="mt-4 text-sm" style="color: var(--muted);">
+    {% if total == 5 %}Five for five. Sharp day.
+    {% elif total == 4 %}Four out of five. Strong.
+    {% elif total == 3 %}Three out of five. The skills not yet rusty.
+    {% elif total == 2 %}Two out of five. Worth coming back tomorrow.
+    {% elif total == 1 %}One out of five. The atrophy is real — daily reps help.
+    {% else %}Zero out of five. The dose matters more than the score.
+    {% endif %}
+  </p>
+</div>
+
+<section class="space-y-1 mb-10">
+  {% for row in breakdown %}
+    <div class="skill-row">
+      <span class="text-lg" style="width: 1.5rem; text-align: center;"
+            aria-label="{{ 'correct' if row.correct else 'incorrect' }}">
+        {% if row.correct %}<span style="color: #7fb069;">✓</span>{% else %}<span style="color: #d97757;">✗</span>{% endif %}
+      </span>
+      <span class="flex-1">
+        <span class="text-sm mono mr-2" style="color: var(--muted);">Rep {{ row.rep }}</span>
+        <span class="font-medium">{{ row.skill_label }}</span>
+      </span>
+      {% if not is_shared %}
+        <details class="text-xs">
+          <summary class="cursor-pointer" style="color: var(--accent);">explain</summary>
+          <div class="mt-2 text-sm leading-relaxed" style="color: var(--muted);">
+            {% if row.puzzle.answer_type == 'multiple_choice' %}
+              <p class="mb-2"><strong style="color: var(--text);">Correct answer:</strong>
+                 {{ row.puzzle.choices[row.puzzle.correct_index] }}</p>
+            {% else %}
+              <p class="mb-2"><strong style="color: var(--text);">Best-fit answer:</strong>
+                 ~{{ row.puzzle.exact_answer }}
+                 <span style="opacity: 0.7;">
+                   (range {{ row.puzzle.correct_range[0] }}–{{ row.puzzle.correct_range[1] }})
+                 </span>
+              </p>
+            {% endif %}
+            <p>{{ row.puzzle.explanation }}</p>
+          </div>
+        </details>
+      {% endif %}
+    </div>
+  {% endfor %}
+</section>
+
+{% if is_shared %}
+  <div class="flex flex-wrap gap-3 justify-center">
+    <a href="{{ url_for('day04_reasoning_reps.play', rep=1, d=today) }}"
+       class="rr-btn rr-btn-primary">Try today's reps →</a>
+  </div>
+  <p class="text-xs text-center mt-3" style="color: var(--muted);">
+    Today's reps are different — fresh puzzles every day at 00:00 UTC.
+  </p>
+{% else %}
+  <div class="flex flex-wrap gap-3 justify-center">
+    <button id="rr-share-btn" type="button"
+            class="rr-btn"
+            data-share-template="{{ url_for('day04_reasoning_reps.results', d=iso_date) }}?d={{ iso_date }}&s={{ score_string }}">
+      Copy share link
+    </button>
+    <a href="{{ url_for('day04_reasoning_reps.archive') }}" class="rr-btn">Archive</a>
+    <a href="{{ url_for('day04_reasoning_reps.play', rep=1, d=iso_date) }}" class="rr-btn">
+      Replay this day
+    </a>
+  </div>
+{% endif %}
+
+{% endblock %}

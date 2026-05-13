@@ -1,0 +1,86 @@
+{% extends 'day04/base_d04.html' %}
+
+{% block d04_content %}
+
+<header class="mb-10">
+  <h1 class="text-4xl md:text-5xl font-semibold" style="letter-spacing: -0.02em;">
+    <span>Five minutes of</span><br>
+    <span style="color: var(--accent);">un-AI'd thinking,</span><br>
+    <span>daily.</span>
+  </h1>
+  <p class="text-lg mt-5 max-w-2xl" style="color: var(--muted);">
+    A daily set of five short reasoning puzzles for the AI era. Working memory, source evaluation, inference, pattern recognition, estimation. No timer. No AI hints.
+  </p>
+  <p class="text-sm mt-3" style="color: var(--muted);">
+    Take your time — there's no timer.
+  </p>
+</header>
+
+<section class="rr-day-card max-w-md mx-auto rounded-2xl p-6"
+         style="background: var(--surface); border: 1px solid var(--border);"
+         data-today="{{ today }}">
+  <div class="text-xs mono uppercase tracking-widest mb-2" style="color: var(--muted);">
+    Today's reps <span style="opacity: 0.7;">(UTC)</span>
+  </div>
+  <div id="rr-today-date" class="mono text-2xl font-semibold mb-4" style="letter-spacing: 0.02em;">
+    {{ today|format_date if today|format_date else today }}
+  </div>
+
+  <div class="rep-icons mb-5">
+    <span title="Working Memory">🧠</span>
+    <span title="Source Evaluation">🔍</span>
+    <span title="Inference">🧩</span>
+    <span title="Pattern Recognition">➿</span>
+    <span title="Estimation">📐</span>
+  </div>
+
+  {% if has_today %}
+    <a id="rr-start-btn"
+       href="{{ url_for('day04_reasoning_reps.play', rep=1, d=today) }}"
+       class="rr-btn rr-btn-primary block w-full text-center">
+      Start today's reps →
+    </a>
+    <div id="rr-played-state" class="hidden mt-4 text-sm text-center" style="color: var(--muted);">
+      You played today. Tomorrow's reps in
+      <span class="countdown-display mono" id="rr-countdown" data-target="utc-midnight">00:00:00</span>.
+    </div>
+  {% elif fallback_date %}
+    <p class="text-sm mb-4" style="color: var(--muted);">
+      Today's reps are still being calibrated. Try the most recent set:
+    </p>
+    <a href="{{ url_for('day04_reasoning_reps.play', rep=1, d=fallback_date) }}"
+       class="rr-btn rr-btn-primary block w-full text-center">
+      Play {{ fallback_date }} →
+    </a>
+  {% else %}
+    <p class="text-sm" style="color: var(--muted);">
+      Reasoning Reps is being calibrated. Check back soon.
+    </p>
+  {% endif %}
+</section>
+
+<nav class="mt-6 text-sm flex flex-wrap gap-4 justify-center" style="color: var(--muted);">
+  <a href="{{ url_for('day04_reasoning_reps.archive') }}"
+     class="hover:underline" style="color: var(--accent);">Archive</a>
+  <button id="rr-about-toggle" class="hover:underline" type="button"
+          style="background: none; border: none; color: var(--accent); cursor: pointer;">
+    About this game
+  </button>
+  <button id="rr-share-toggle" class="hover:underline" type="button"
+          data-share-url="{{ request.url_root.rstrip('/') }}/day-04/reasoning-reps"
+          style="background: none; border: none; color: var(--accent); cursor: pointer;">
+    Share Reasoning Reps
+  </button>
+</nav>
+
+<details id="rr-about" class="mt-6 max-w-md mx-auto text-sm rounded-lg p-4"
+         style="color: var(--muted); background: var(--surface); border: 1px solid var(--border);">
+  <summary class="cursor-pointer font-medium" style="color: var(--text);">Why this exists</summary>
+  <div class="mt-3 space-y-2 leading-relaxed">
+    <p>Knowledge workers in 2026 increasingly hand off five core reasoning functions to AI assistants: working memory (don't remember — just ask), source evaluation (don't weigh sources — accept the summary), inference (don't deduce — read the conclusion), pattern recognition (don't pattern-match — query the model), estimation (don't reason about quantities — request a number).</p>
+    <p>Each is a muscle. Muscles atrophy without practice. Reasoning Reps is 5 short daily reps — about five minutes total — designed around the specific skills AI substitutes for. Same puzzles for everyone each UTC day. No timer, deep thinking over speed.</p>
+    <p>The bet: targeted daily practice on AI-substituted skills beats generic brain-training.</p>
+  </div>
+</details>
+
+{% endblock %}
