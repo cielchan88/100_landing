@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}The Restless Earth — Day 5 of 100 Days with Claude{% endblock %}
+
+{% block content %}
+<link rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin="" />
+<link rel="stylesheet" href="{{ url_for('static', filename='day05/restless_earth.css') }}" />
+
+<div class="re-root">
+  <div id="re-map" aria-label="World map showing live earthquake activity"></div>
+
+  <div class="re-topbar">
+    <span class="re-eyebrow">Day 05 · The Restless Earth</span>
+    <a href="/" aria-label="Back to all days">← All days</a>
+  </div>
+
+  <aside class="re-panel" aria-label="Earthquake controls and stats">
+    <div class="re-panel-title">The planet, in real time.</div>
+
+    <div class="re-label">Time window</div>
+    <div class="re-toggle-group" role="tablist">
+      <button class="re-toggle-btn" data-window="1h"  data-active="false" role="tab" aria-label="Last 1 hour">1h</button>
+      <button class="re-toggle-btn" data-window="24h" data-active="true"  role="tab" aria-label="Last 24 hours">24h</button>
+      <button class="re-toggle-btn" data-window="7d"  data-active="false" role="tab" aria-label="Last 7 days">7d</button>
+    </div>
+
+    <div class="re-label">
+      Minimum magnitude · <span id="re-mag-value" class="re-slider-value">M ≥ 2.5</span>
+    </div>
+    <input id="re-mag-slider" class="re-slider" type="range"
+           min="0" max="7" step="0.5" value="2.5"
+           aria-label="Minimum magnitude" />
+
+    <div class="re-stats">
+      <div class="re-big-num" id="re-count">—</div>
+      <div class="re-big-label">earthquakes shown in window</div>
+      <div class="re-biggest" id="re-biggest">Loading…</div>
+      <div class="re-region" id="re-region"></div>
+    </div>
+
+    <div class="re-legend" aria-label="Depth color legend">
+      <div class="re-legend-title">Depth color</div>
+      <div class="re-legend-row">
+        <span class="re-legend-dot" style="background:#FF6B47"></span>
+        <span>Shallow · &lt; 10 km</span>
+      </div>
+      <div class="re-legend-row">
+        <span class="re-legend-dot" style="background:#D97757"></span>
+        <span>Mid · 10–70 km</span>
+      </div>
+      <div class="re-legend-row">
+        <span class="re-legend-dot" style="background:#7BA7CC"></span>
+        <span>Deep · 70–300 km</span>
+      </div>
+      <div class="re-legend-row">
+        <span class="re-legend-dot" style="background:#5A6FA8"></span>
+        <span>Very deep · &gt; 300 km</span>
+      </div>
+    </div>
+
+    <div class="re-refresh-row">
+      <span class="re-refresh-dot" aria-hidden="true"></span>
+      <span>Refreshing every 5 minutes · <span id="re-last-updated"></span></span>
+    </div>
+
+    <div class="re-error" id="re-error" role="alert"></div>
+  </aside>
+
+  <div class="re-credit">Data from USGS Earthquake Hazards Program</div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""></script>
+<script src="{{ url_for('static', filename='day05/restless_earth.js') }}" defer></script>
+{% endblock %}

@@ -1,0 +1,282 @@
+/* The Restless Earth — Day 5 */
+
+:root {
+  --re-header-h: 56px;
+}
+
+.re-root {
+  position: fixed;
+  top: var(--re-header-h);
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+#re-map {
+  position: absolute;
+  inset: 0;
+  background: #0a0a09;
+  z-index: 0;
+}
+
+.re-topbar {
+  position: absolute;
+  top: 12px;
+  left: 16px;
+  right: 16px;
+  z-index: 400;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: none;
+}
+.re-topbar > * { pointer-events: auto; }
+.re-topbar .re-eyebrow {
+  color: var(--accent);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  background: rgba(15, 15, 14, 0.6);
+  padding: 4px 10px;
+  border-radius: 0.4rem;
+  border: 1px solid var(--border);
+}
+.re-topbar a {
+  color: var(--muted);
+  font-size: 0.75rem;
+  background: rgba(15, 15, 14, 0.6);
+  padding: 4px 10px;
+  border-radius: 0.4rem;
+  border: 1px solid var(--border);
+  text-decoration: none;
+}
+.re-topbar a:hover { color: var(--accent); }
+
+.re-panel {
+  position: absolute;
+  top: 56px;
+  right: 16px;
+  width: min(320px, calc(100vw - 32px));
+  background: rgba(26, 24, 22, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  z-index: 500;
+  color: var(--text);
+  font-size: 0.875rem;
+}
+
+.re-panel-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin-bottom: 0.75rem;
+}
+
+.re-toggle-group { display: flex; gap: 4px; margin: 0.5rem 0 1rem; }
+.re-toggle-btn {
+  flex: 1;
+  padding: 0.4rem 0.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.4rem;
+  color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 150ms;
+}
+.re-toggle-btn[data-active="true"] {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+.re-toggle-btn:hover:not([data-active="true"]) {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.re-label {
+  font-size: 0.7rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.re-slider {
+  width: 100%;
+  margin: 0.5rem 0;
+  accent-color: var(--accent);
+}
+.re-slider-value {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--accent);
+}
+
+.re-stats {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+.re-stats .re-big-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.75rem;
+  color: var(--text);
+  line-height: 1;
+}
+.re-stats .re-big-label {
+  color: var(--muted);
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}
+.re-stats .re-biggest { margin-top: 0.75rem; font-size: 0.8rem; line-height: 1.4; }
+.re-stats .re-biggest strong {
+  color: var(--accent);
+  font-family: 'JetBrains Mono', monospace;
+}
+.re-stats .re-region { color: var(--muted); font-size: 0.75rem; margin-top: 0.25rem; }
+
+.re-refresh-row {
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+.re-refresh-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: rePulse 2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+@keyframes rePulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.4); }
+}
+
+.re-error {
+  display: none;
+  margin-top: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(217, 119, 87, 0.08);
+  border: 1px solid var(--accent);
+  border-radius: 0.4rem;
+  color: var(--text);
+  font-size: 0.75rem;
+}
+
+.re-legend {
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+}
+.re-legend-title {
+  font-size: 0.65rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.4rem;
+}
+.re-legend-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.7rem;
+  color: var(--muted);
+  margin: 0.15rem 0;
+}
+.re-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.re-credit {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 400;
+  font-size: 0.7rem;
+  color: var(--muted);
+  background: rgba(15, 15, 14, 0.7);
+  padding: 4px 10px;
+  border-radius: 0.4rem;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.re-marker {
+  border-radius: 50%;
+  opacity: 0.85;
+}
+.re-marker-new {
+  animation: reMarkerPulse 1.5s ease-out 1;
+}
+@keyframes reMarkerPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(217, 119, 87, 0.7); }
+  100% { box-shadow: 0 0 0 30px rgba(217, 119, 87, 0); }
+}
+
+.leaflet-popup-content-wrapper {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+.leaflet-popup-content {
+  margin: 0.6rem 0.8rem;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+.leaflet-popup-tip {
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+.leaflet-container a.leaflet-popup-close-button { color: var(--muted); }
+.leaflet-container { font-family: 'Inter', sans-serif; }
+
+.re-popup-mag {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 1rem;
+}
+.re-popup-place { margin-top: 0.25rem; color: var(--text); }
+.re-popup-meta {
+  margin-top: 0.4rem;
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+@media (max-width: 768px) {
+  .re-panel {
+    top: auto;
+    right: 0;
+    left: 0;
+    width: 100%;
+    max-width: none;
+    bottom: 0;
+    border-radius: 1rem 1rem 0 0;
+    border-bottom: none;
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+  .re-credit { bottom: calc(60vh + 4px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .re-refresh-dot { animation: none; opacity: 0.7; }
+  .re-marker-new { animation: none; }
+}
