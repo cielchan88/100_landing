@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block title %}The Shape of a Scam — Day 6 of 100 Days with Claude{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='day06/shape_of_a_scam.css') }}">
+
+<div class="max-w-5xl mx-auto px-4 sm:px-6 py-10">
+
+  <a href="/" class="text-sm inline-flex items-center gap-2"
+     style="color: var(--muted);"
+     onmouseover="this.style.color='var(--accent-hover)'"
+     onmouseout="this.style.color='var(--muted)'">
+    <span aria-hidden="true">←</span> Back to all days
+  </a>
+
+  <header class="mt-8 mb-10">
+    <p class="sos-eyebrow">Day 06 · The Shape of a Scam</p>
+    <h1 class="font-semibold mt-3"
+        style="font-size: clamp(2.25rem, 6vw, 4rem); line-height: 1.05; letter-spacing: -0.02em;">
+      The math behind three<br>
+      <span style="color: var(--accent);">income structures.</span>
+    </h1>
+    <p class="text-lg mt-5 max-w-2xl" style="color: var(--muted); line-height: 1.6;">
+      Ponzi schemes, pyramid schemes, and multi-level marketing share more mathematics than the law suggests — and less than the headlines imply. This tool simulates them, side by side.
+    </p>
+  </header>
+
+  <section class="sos-empathy" aria-label="Before you start">
+    <div class="sos-empathy-label">Before you start</div>
+    <p class="sos-empathy-body">
+      Many people become involved in these structures for understandable reasons — economic pressure, trust in a friend or family member, or the genuine hope of a better life. This tool is not about judgment. It is about making the underlying mathematics visible, so anyone facing a choice can see it clearly before deciding.
+    </p>
+  </section>
+
+  <section class="mt-12">
+    <h2 class="text-xl font-semibold mb-3">Three structures</h2>
+    <div class="sos-structures-grid">
+      <div class="sos-structure-card">
+        <div class="sos-structure-title">Ponzi Scheme</div>
+        <p class="sos-structure-body">
+          Investments paid back from new investors' capital, not real revenue.
+        </p>
+        <ul class="sos-structure-bullets">
+          <li>Promises consistent, sustainable returns</li>
+          <li>No real product or service generating cash</li>
+          <li>Collapses when recruitment slows</li>
+        </ul>
+      </div>
+      <div class="sos-structure-card">
+        <div class="sos-structure-title">Pyramid Scheme</div>
+        <p class="sos-structure-body">
+          Income comes from recruiting new members, not from selling products or services.
+        </p>
+        <ul class="sos-structure-bullets">
+          <li>Entry fee paid by each new joiner</li>
+          <li>Recruiter earns a cut of each recruit's fee</li>
+          <li>Population mathematically runs out</li>
+        </ul>
+      </div>
+      <div class="sos-structure-card">
+        <div class="sos-structure-title">Multi-Level Marketing</div>
+        <p class="sos-structure-body">
+          Legal hybrid: real products sold to consumers plus commission from recruited downline.
+        </p>
+        <ul class="sos-structure-bullets">
+          <li>Wholesale buy-in, retail markup on sales</li>
+          <li>Monthly inventory commitments</li>
+          <li>Commission on downline product sales</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="mt-12">
+    <h2 class="text-xl font-semibold mb-1">Run a simulation</h2>
+    <p class="text-sm mb-5" style="color: var(--muted);">
+      Each preset runs 100 monte-carlo trials. Same seed every time — results are deterministic and shareable.
+    </p>
+    <div class="sos-presets-grid">
+      {% for preset in presets %}
+        <article class="sos-preset-card">
+          <span class="sos-preset-eyebrow">{{ preset.structure_label }}</span>
+          <h3 class="sos-preset-title">{{ preset.name }}</h3>
+          <p class="sos-preset-description">{{ preset.description }}</p>
+          <a class="sos-preset-cta" href="{{ url_for('day06_shape_of_a_scam.simulate', preset_id=preset.id) }}">
+            Run 100 simulations →
+          </a>
+        </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <p class="sos-disclaimer">
+    Simulations use simplified, anonymous models. No real companies are named or implied.
+    For information on identifying potentially fraudulent schemes, consult the FTC consumer alerts
+    or your local consumer protection authority.
+  </p>
+</div>
+{% endblock %}

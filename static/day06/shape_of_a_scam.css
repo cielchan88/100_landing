@@ -1,0 +1,243 @@
+/* The Shape of a Scam — Day 6 */
+
+.sos-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+
+.sos-empathy {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 0.75rem;
+  padding: 2rem;
+  margin: 2.5rem 0;
+  max-width: 768px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.sos-empathy-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin-bottom: 1rem;
+}
+.sos-empathy-body {
+  font-style: italic;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: var(--text);
+}
+
+.sos-structures-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin: 1.5rem 0 2.5rem;
+}
+@media (min-width: 768px) {
+  .sos-structures-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.sos-structure-card,
+.sos-preset-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  transition: border-color 200ms;
+}
+.sos-structure-card:hover,
+.sos-preset-card:hover { border-color: var(--accent); }
+
+.sos-structure-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+.sos-structure-body {
+  font-size: 0.875rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.sos-structure-bullets {
+  list-style: disc;
+  margin-left: 1.25rem;
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.sos-structure-bullets li { margin-bottom: 0.25rem; }
+
+.sos-presets-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+@media (min-width: 768px) {
+  .sos-presets-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+.sos-preset-card {
+  display: flex;
+  flex-direction: column;
+}
+.sos-preset-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+.sos-preset-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0.5rem 0;
+}
+.sos-preset-description {
+  font-size: 0.875rem;
+  color: var(--muted);
+  line-height: 1.55;
+  flex: 1;
+  margin-bottom: 1rem;
+}
+.sos-preset-cta {
+  display: inline-block;
+  background: var(--accent);
+  color: var(--bg);
+  padding: 0.6rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-decoration: none;
+  text-align: center;
+  transition: background 150ms;
+}
+.sos-preset-cta:hover { background: var(--accent-hover); }
+
+.sos-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin: 2rem 0;
+}
+.sos-stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  text-align: center;
+}
+.sos-stat-number {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1;
+}
+.sos-stat-number.is-warning { color: var(--accent); }
+.sos-stat-number.is-loss { color: #FF6B47; }
+.sos-stat-number.is-profit { color: #7fb069; }
+.sos-stat-label {
+  margin-top: 0.5rem;
+  font-size: 0.7rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.sos-chart-container {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  position: relative;
+}
+.sos-chart-title {
+  font-size: 0.875rem;
+  color: var(--muted);
+  margin-bottom: 1rem;
+}
+.sos-chart-canvas-wrap {
+  position: relative;
+  height: 320px;
+}
+@media (max-width: 480px) {
+  .sos-chart-canvas-wrap { height: 240px; }
+}
+
+.sos-explanation-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  margin: 2rem 0;
+  max-width: 768px;
+}
+.sos-explanation-card .sos-explanation-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin-bottom: 0.75rem;
+}
+.sos-explanation-body {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--text);
+}
+
+.sos-other-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+@media (min-width: 640px) {
+  .sos-other-grid { grid-template-columns: repeat(2, 1fr); }
+}
+.sos-other-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 0.85rem 1rem;
+  font-size: 0.875rem;
+  text-decoration: none;
+  color: var(--text);
+  transition: border-color 200ms;
+}
+.sos-other-card:hover { border-color: var(--accent); }
+.sos-other-card .sos-other-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+
+.sos-disclaimer {
+  font-size: 0.75rem;
+  color: var(--muted);
+  text-align: center;
+  padding: 2rem 0 0;
+  margin-top: 3rem;
+  border-top: 1px solid var(--border);
+  line-height: 1.55;
+}
+
+.sos-footer-note {
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-align: center;
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+  line-height: 1.5;
+}

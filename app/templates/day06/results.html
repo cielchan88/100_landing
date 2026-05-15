@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ result.preset.name }} — The Shape of a Scam — Day 6{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='day06/shape_of_a_scam.css') }}">
+
+<div class="max-w-5xl mx-auto px-4 sm:px-6 py-10" id="sos-results-root">
+
+  <a href="{{ url_for('day06_shape_of_a_scam.intro') }}" class="text-sm inline-flex items-center gap-2"
+     style="color: var(--muted);"
+     onmouseover="this.style.color='var(--accent-hover)'"
+     onmouseout="this.style.color='var(--muted)'">
+    <span aria-hidden="true">←</span> Back to scenarios
+  </a>
+
+  <header class="mt-8 mb-8">
+    <p class="sos-eyebrow">{{ result.preset.structure_label }}</p>
+    <h1 class="font-semibold mt-2"
+        style="font-size: clamp(1.75rem, 4vw, 2.75rem); line-height: 1.1; letter-spacing: -0.02em;">
+      {{ result.preset.name }}
+    </h1>
+    <p class="text-base mt-3 max-w-2xl" style="color: var(--muted); line-height: 1.55;">
+      {{ result.preset.description }}
+    </p>
+    <p class="text-xs mt-3" style="color: var(--muted);">
+      Based on {{ result.stats.n_trials }} monte-carlo simulations of this structure
+      ({{ '{:,}'.format(result.stats.total_participants) }} total simulated participants).
+    </p>
+  </header>
+
+  <section class="sos-stat-grid" aria-label="Key statistics">
+    {% set pct_lost = result.stats.pct_lost_money %}
+    <div class="sos-stat-card">
+      <div class="sos-stat-number sos-animate-num {% if pct_lost > 70 %}is-warning{% endif %}"
+           data-target="{{ pct_lost }}" data-suffix="%" data-float="1"
+           aria-label="{{ pct_lost }}% of participants lost money">0%</div>
+      <div class="sos-stat-label">Lost money</div>
+    </div>
+
+    {% set median = result.stats.median_outcome %}
+    <div class="sos-stat-card">
+      <div class="sos-stat-number sos-animate-num {% if median < 0 %}is-loss{% elif median > 0 %}is-profit{% endif %}"
+           data-target="{{ median }}"
+           aria-label="Median outcome was {{ median }} dollars">$0</div>
+      <div class="sos-stat-label">Median outcome</div>
+    </div>
+
+    {% set op = result.stats.avg_operator_earnings %}
+    <div class="sos-stat-card">
+      <div class="sos-stat-number sos-animate-num is-warning"
+           data-target="{{ op }}"
+           aria-label="Operator earnings averaged {{ op }} dollars">$0</div>
+      <div class="sos-stat-label">
+        {% if result.preset.structure == 'mlm' %}Company take per trial
+        {% else %}Operator earnings
+        {% endif %}
+      </div>
+    </div>
+
+    {% if result.preset.structure in ('ponzi', 'pyramid') %}
+      <div class="sos-stat-card">
+        <div class="sos-stat-number sos-animate-num {% if result.stats.collapse_rate > 50 %}is-loss{% endif %}"
+             data-target="{{ result.stats.collapse_rate }}" data-suffix="%" data-float="1"
+             aria-label="{{ result.stats.collapse_rate }}% of trials collapsed">0%</div>
+        <div class="sos-stat-label">Trials that collapsed</div>
+      </div>
+    {% else %}
+      <div class="sos-stat-card">
+        <div class="sos-stat-number sos-animate-num is-profit"
+             data-target="{{ result.stats.pct_profited }}" data-suffix="%" data-float="1"
+             aria-label="{{ result.stats.pct_profited }}% of participants profited">0%</div>
+        <div class="sos-stat-label">Profited</div>
+      </div>
+    {% endif %}
+  </section>
+
+  <section class="sos-chart-container" aria-label="Distribution of outcomes">
+    <div class="sos-chart-title">
+      Distribution of outcomes
+      <span style="opacity: 0.7;">· {{ '{:,}'.format(result.stats.total_participants) }} participants</span>
+    </div>
+    <div class="sos-chart-canvas-wrap">
+      <canvas id="sos-histogram" aria-label="Histogram of participant net outcomes"></canvas>
+    </div>
+  </section>
+
+  <section class="sos-chart-container" aria-label="One illustrative trial">
+    <div class="sos-chart-title">
+      One illustrative trial
+      {% if result.showcase.collapsed %}
+        <span style="opacity: 0.7;">· collapsed at month {{ result.showcase.collapse_month }}</span>
+      {% endif %}
+    </div>
+    <div class="sos-chart-canvas-wrap">
+      <canvas id="sos-timeline" aria-label="Cumulative money in versus out over time"></canvas>
+    </div>
+  </section>
+
+  <section class="sos-explanation-card">
+    <div class="sos-explanation-label">Why this happens</div>
+    <p class="sos-explanation-body">{{ result.preset.explanation }}</p>
+  </section>
+
+  <section class="mt-10">
+    <h2 class="text-base font-semibold mb-3">See another structure</h2>
+    <div class="sos-other-grid">
+      {% for other in other_presets %}
+        <a class="sos-other-card" href="{{ url_for('day06_shape_of_a_scam.simulate', preset_id=other.id) }}">
+          <div class="sos-other-eyebrow">{{ other.structure_label }}</div>
+          <div>{{ other.name }}</div>
+        </a>
+      {% endfor %}
+    </div>
+  </section>
+
+  <p class="sos-disclaimer">
+    This simulator uses stylized models for educational purposes. Real-world schemes vary in
+    complexity and detail. If you believe you may have been involved in fraudulent activity,
+    consult relevant consumer protection authorities.
+  </p>
+</div>
+
+<script id="sos-data" type="application/json">{{ result | tojson }}</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='day06/shape_of_a_scam.js') }}"></script>
+{% endblock %}
