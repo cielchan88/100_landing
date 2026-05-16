@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block title %}Insights — Distraction Inventory{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='day07/distraction_inventory.css') }}">
+
+<div class="di-insights" id="di-insights-root">
+  <a href="{{ url_for('day07_distraction_inventory.index') }}" class="di-back-link">
+    <span aria-hidden="true">←</span> Back to logging
+  </a>
+
+  <header class="di-insights-header">
+    <p class="di-eyebrow">Day 07 · Insights</p>
+    <h1 class="font-semibold mt-2" style="font-size: clamp(1.75rem, 4vw, 2.25rem); letter-spacing: -0.02em;">
+      Your patterns
+    </h1>
+    <p id="di-stat-headline" class="di-stat-headline">Loading…</p>
+    <p style="margin-top: 0.5rem;">
+      <span class="di-privacy">
+        <span aria-hidden="true">🔒</span> Your data stays in your browser
+      </span>
+    </p>
+  </header>
+
+  <!-- Empty state (0 entries) -->
+  <div id="di-empty-state" style="display:none; text-align:center; padding: 3rem 1rem; color: var(--muted);">
+    <p>No moments logged yet. Start by capturing the next time you notice yourself distracted.</p>
+    <p style="margin-top: 1rem;">
+      <a href="{{ url_for('day07_distraction_inventory.index') }}"
+         style="color: var(--accent);">Start logging →</a>
+    </p>
+  </div>
+
+  <!-- Few-entries state (1-4) -->
+  <div id="di-few-state" style="display:none; text-align:center; padding: 3rem 1rem; color: var(--muted);">
+    <p>
+      Patterns emerge with a few more entries. You've logged
+      <strong id="di-few-count" style="color: var(--accent);"></strong> so far.
+    </p>
+    <p style="margin-top: 1rem;">
+      <a href="{{ url_for('day07_distraction_inventory.index') }}"
+         style="color: var(--accent);">Keep logging →</a>
+    </p>
+
+    <div class="di-insights-actions">
+      <button id="di-export" type="button" class="di-btn-primary">Export as JSON</button>
+      <button id="di-reset" type="button" class="di-btn-danger">Reset all data</button>
+    </div>
+  </div>
+
+  <!-- Full insights state (5+) -->
+  <div id="di-full-state" style="display:none;">
+    <section class="di-section" aria-label="Hour of day heatmap">
+      <h2>When you're most distracted</h2>
+      <p class="di-section-sub">Hours of the day, darker means more frequent.</p>
+      <div id="di-heatmap" class="di-heatmap" role="img" aria-label="24-hour heatmap"></div>
+      <div class="di-heatmap-labels" aria-hidden="true">
+        <span>12am</span><span>6am</span><span>12pm</span><span>6pm</span><span>11pm</span>
+      </div>
+    </section>
+
+    <section class="di-section" aria-label="Top avoidances">
+      <h2>What you most often avoid</h2>
+      <div class="di-chart-wrap">
+        <canvas id="di-avoiding-chart" aria-label="Bar chart of avoidance categories"></canvas>
+      </div>
+    </section>
+
+    <section class="di-section" aria-label="Top turning-to">
+      <h2>Where you turn</h2>
+      <div class="di-chart-wrap">
+        <canvas id="di-turning-chart" aria-label="Bar chart of distraction categories"></canvas>
+      </div>
+    </section>
+
+    <section class="di-section" aria-label="Common pairings">
+      <h2>Your most frequent moves</h2>
+      <p class="di-section-sub">The top 5 avoid → turned-to pairs.</p>
+      <div id="di-pairings"></div>
+    </section>
+
+    <section class="di-section" aria-label="Day of week pattern">
+      <h2>Your weekly rhythm</h2>
+      <p class="di-section-sub">Today is highlighted.</p>
+      <div class="di-chart-wrap" style="height: 200px;">
+        <canvas id="di-dow-chart" aria-label="Bar chart of distraction counts by day of week"></canvas>
+      </div>
+    </section>
+
+    <div class="di-insights-actions">
+      <button id="di-export" type="button" class="di-btn-primary">Export as JSON</button>
+      <button id="di-reset" type="button" class="di-btn-danger">Reset all data</button>
+    </div>
+  </div>
+</div>
+
+<!-- Reset confirm modal -->
+<div id="di-confirm-modal" class="di-modal-backdrop" role="dialog" aria-modal="true"
+     aria-labelledby="di-confirm-title" data-open="false">
+  <div class="di-modal">
+    <h2 id="di-confirm-title">Delete all entries?</h2>
+    <p style="color: var(--muted); font-size: 0.875rem; line-height: 1.55;">
+      This will permanently delete all <strong id="di-confirm-count" style="color: var(--accent);">0</strong>
+      entries from this browser. There's no undo.
+    </p>
+    <div class="di-modal-actions">
+      <button id="di-confirm-no" type="button" class="di-btn-secondary">Cancel</button>
+      <button id="di-confirm-yes" type="button" class="di-btn-danger">Yes, delete everything</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='day07/distraction_inventory.js') }}" defer></script>
+{% endblock %}

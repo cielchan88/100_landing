@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}About — Distraction Inventory{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='day07/distraction_inventory.css') }}">
+
+<div class="max-w-2xl mx-auto px-4 sm:px-6 py-10">
+  <a href="{{ url_for('day07_distraction_inventory.index') }}" class="di-back-link">
+    <span aria-hidden="true">←</span> Back to logging
+  </a>
+
+  <p class="di-eyebrow mt-6">Day 07 · About</p>
+  <h1 class="font-semibold mt-2"
+      style="font-size: clamp(1.75rem, 4vw, 2.25rem); letter-spacing: -0.02em;">
+    About Distraction Inventory.
+  </h1>
+
+  <div style="margin-top: 1.5rem; line-height: 1.7; color: var(--text); font-size: 1rem;">
+    <p style="margin-bottom: 1.25rem;">
+      Most productivity apps track what you did. This one tracks what you didn't do — and what
+      you did instead. Together, those two pieces of information form a more honest picture
+      of your day than any task-completion list.
+    </p>
+    <p style="margin-bottom: 1.25rem;">
+      Capture is intentionally minimal. Two fields, six avoidance categories, eight distraction
+      categories. The constraints exist to keep logging under five seconds. If logging takes
+      longer than that, you'll stop doing it, and the patterns never emerge.
+    </p>
+    <p style="margin-bottom: 1.25rem;">
+      After a week or two of entries, the
+      <a href="{{ url_for('day07_distraction_inventory.insights') }}" style="color: var(--accent);">Insights</a>
+      page shows you where your attention actually goes when you're avoiding something hard.
+      The patterns are usually less surprising than the <em>consistency</em> of the patterns.
+    </p>
+    <p style="margin-bottom: 1.25rem;">
+      Your entries never leave your browser. Nothing is sent to a server. If you clear your
+      browser data, the entries are gone. There's an Export option on the Insights page if you
+      want a permanent record.
+    </p>
+  </div>
+
+  <p style="margin-top: 2.5rem;">
+    <a href="{{ url_for('day07_distraction_inventory.index') }}"
+       style="color: var(--accent);">← Back to logging</a>
+  </p>
+</div>
+{% endblock %}

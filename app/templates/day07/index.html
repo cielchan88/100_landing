@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}Distraction Inventory — Day 7 of 100 Days with Claude{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='day07/distraction_inventory.css') }}">
+
+<div class="max-w-3xl mx-auto px-4 sm:px-6 pt-6 pb-12">
+  <a href="/" class="text-sm inline-flex items-center gap-2"
+     style="color: var(--muted);"
+     onmouseover="this.style.color='var(--accent-hover)'"
+     onmouseout="this.style.color='var(--muted)'">
+    <span aria-hidden="true">←</span> Back to all days
+  </a>
+
+  <div class="di-hero">
+    <p class="di-eyebrow">Day 07 · Distraction Inventory</p>
+    <h1 class="mt-3">
+      What you avoid,<br>
+      <span style="color: var(--accent);">and what you turn to.</span>
+    </h1>
+    <p class="di-subtitle">Capture the moment. See the pattern.</p>
+  </div>
+
+  <button id="di-log-btn" type="button" class="di-log-cta" aria-label="Log a moment of distraction">
+    Log a moment
+  </button>
+  <p class="di-keyboard-hint">press <kbd>L</kbd></p>
+
+  <section class="di-recent-section" aria-label="Recently captured">
+    <div class="di-section-label">Recently captured</div>
+    <div id="di-recent-list" role="list"></div>
+  </section>
+
+  <div class="di-footer-row">
+    <a href="{{ url_for('day07_distraction_inventory.insights') }}" class="di-footer-link">
+      → See your patterns
+    </a>
+    <div>
+      <span class="di-privacy">
+        <span aria-hidden="true">🔒</span> Your data stays in your browser
+      </span>
+      <details class="di-about-privacy">
+        <summary>About your privacy</summary>
+        <p class="di-about-privacy-body">
+          All entries are saved only in this browser's localStorage. Nothing is sent
+          to a server. If you clear your browser data, your entries are deleted.
+          You can export to JSON anytime from the Insights page.
+          <a href="{{ url_for('day07_distraction_inventory.about') }}"
+             style="color: var(--accent);">Read more →</a>
+        </p>
+      </details>
+    </div>
+  </div>
+</div>
+
+<!-- Capture modal -->
+<div id="di-modal" class="di-modal-backdrop" role="dialog" aria-modal="true"
+     aria-labelledby="di-modal-title" data-open="false">
+  <div class="di-modal">
+    <h2 id="di-modal-title">What just happened?</h2>
+
+    <label for="di-avoiding">Avoiding</label>
+    <select id="di-avoiding" aria-required="true"></select>
+
+    <label for="di-turning">Turned to</label>
+    <select id="di-turning" aria-required="true"></select>
+
+    <div class="di-modal-actions">
+      <button id="di-cancel" type="button" class="di-btn-secondary">Cancel</button>
+      <button id="di-save" type="button" class="di-btn-primary">Save</button>
+    </div>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='day07/distraction_inventory.js') }}" defer></script>
+{% endblock %}
