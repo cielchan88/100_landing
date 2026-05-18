@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}Snake — Day 8 of 100 Days with Claude{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='day08/snake.css') }}">
+
+<div class="snake-page">
+  <div class="snake-topbar">
+    <a href="/" aria-label="Back to all days">← Back to all days</a>
+    <span class="eyebrow">Day 08 · Snake</span>
+  </div>
+
+  <div class="snake-canvas-wrapper">
+    <div class="snake-score" id="snake-score" aria-live="polite">0</div>
+    <canvas id="snake-canvas" width="600" height="600" aria-label="Snake game"></canvas>
+    <button id="snake-sound-toggle" class="snake-sound-toggle" type="button"
+            aria-label="Mute sound" data-muted="false">🔊</button>
+
+    <!-- Intro overlay -->
+    <div id="snake-intro" class="snake-overlay" role="dialog" aria-labelledby="snake-intro-title">
+      <div class="snake-overlay-card">
+        <div class="snake-overlay-title">
+          <span class="accent">S</span>nake
+        </div>
+        <p class="snake-overlay-tagline">An old game, made with care.</p>
+        <p class="snake-overlay-prompt" id="snake-intro-prompt">Press <kbd>Space</kbd> or tap to start</p>
+      </div>
+    </div>
+
+    <!-- Game-over overlay -->
+    <div id="snake-gameover" class="snake-overlay is-hidden" role="dialog" aria-labelledby="snake-final-score">
+      <div class="snake-overlay-card">
+        <p class="snake-final-label">Final score</p>
+        <div id="snake-final-score" class="snake-final-score">0</div>
+        <p id="snake-final-message" class="snake-final-message"></p>
+        <button id="snake-play-again" class="snake-play-again" type="button">Play again →</button>
+      </div>
+    </div>
+  </div>
+
+  <p id="snake-control-hint" class="snake-controls-hint">
+    <kbd>↑↓←→</kbd> or <kbd>WASD</kbd> to move · <kbd>Space</kbd> to pause · <kbd>M</kbd> to mute
+  </p>
+
+  <p class="snake-footer">Day 08 · 100 Days with Claude · /day-08/snake</p>
+</div>
+
+<script src="{{ url_for('static', filename='day08/snake.js') }}" defer></script>
+{% endblock %}
