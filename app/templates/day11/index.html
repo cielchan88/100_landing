@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Pure Noise — Day 11 of 100 Days with Claude{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='day11/pure_noise.css') }}">
+
+<div class="pn-page">
+  <header class="pn-topbar">
+    <a href="/" aria-label="Back to all days">← All days</a>
+    <span>Day 11 · Pure Noise</span>
+  </header>
+
+  <section class="pn-visualizer-container" aria-hidden="true">
+    <canvas id="pn-visualizer" aria-label="Live waveform of synthesized soundscape."></canvas>
+  </section>
+
+  <section class="pn-sounds" id="pn-sounds" aria-label="Six sound controls"></section>
+
+  <div class="pn-actions">
+    <button class="pn-btn" id="pn-reset-btn" type="button">Reset</button>
+    <button class="pn-btn" id="pn-share-btn" type="button">Copy share link</button>
+    <button class="pn-btn" id="pn-random-btn" type="button">Random preset</button>
+  </div>
+
+  <footer class="pn-footer">
+    Day 11 · 100 Days with Claude
+    <div class="sub">All sounds synthesized live. No files. No tracking.</div>
+  </footer>
+
+  <div class="pn-toast" id="pn-toast" role="status" aria-live="polite">Link copied</div>
+
+  <div class="pn-overlay" id="pn-overlay" role="dialog" aria-label="Tap to begin">
+    <div class="pn-overlay-card">
+      <div class="pn-overlay-title">Pure Noise</div>
+      <div class="pn-overlay-tagline">Six sounds, fully synthesized in your browser.</div>
+      <div class="pn-overlay-prompt">tap anywhere to begin</div>
+    </div>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='day11/pure_noise.js') }}" defer></script>
+{% endblock %}

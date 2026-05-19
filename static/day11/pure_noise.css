@@ -1,0 +1,324 @@
+/* Pure Noise — Day 11 */
+:root {
+  --pn-bg: #0F0F0E;
+  --pn-bg-mid: #1A1816;
+}
+
+.pn-page {
+  min-height: 100vh;
+  background: var(--pn-bg);
+  background-image: radial-gradient(ellipse at center, var(--pn-bg-mid) 0%, var(--pn-bg) 70%);
+  display: flex;
+  flex-direction: column;
+  color: var(--text);
+}
+
+.pn-topbar {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  font-size: 0.75rem;
+}
+
+.pn-topbar a,
+.pn-topbar span {
+  color: var(--muted);
+  text-decoration: none;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.05em;
+}
+
+.pn-topbar a:hover {
+  color: var(--accent);
+}
+
+.pn-visualizer-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  min-height: 280px;
+  height: 50vh;
+  max-height: 50vh;
+}
+
+#pn-visualizer {
+  width: 100%;
+  max-width: 800px;
+  height: 100%;
+  display: block;
+  border-radius: 8px;
+}
+
+.pn-sounds {
+  max-width: 700px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+}
+
+.pn-sound-row {
+  display: grid;
+  grid-template-columns: 110px 1fr 50px 40px;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid rgba(217, 119, 87, 0.08);
+}
+
+.pn-sound-name {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  transition: color 200ms;
+}
+
+.pn-sound-row[data-active="true"] .pn-sound-name {
+  color: var(--accent);
+}
+
+.pn-slider {
+  width: 100%;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.pn-volume-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--muted);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  transition: color 200ms;
+}
+
+.pn-sound-row[data-active="true"] .pn-volume-label {
+  color: var(--text);
+}
+
+.pn-expand-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: color 150ms, border-color 150ms;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  padding: 0;
+}
+
+.pn-expand-btn:hover,
+.pn-expand-btn[data-expanded="true"] {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.pn-sound-options {
+  grid-column: 1 / -1;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 250ms ease-out, padding 200ms;
+  padding: 0;
+}
+
+.pn-sound-options[data-expanded="true"] {
+  max-height: 220px;
+  padding: 0.75rem 0 1rem;
+}
+
+.pn-option-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.3rem 0;
+  font-size: 0.85rem;
+}
+
+.pn-option-label {
+  color: var(--muted);
+  font-size: 0.75rem;
+  min-width: 110px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.pn-option-slider {
+  flex: 1;
+  accent-color: var(--accent);
+}
+
+.pn-option-select {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.3rem 0.6rem;
+  border-radius: 0.3rem;
+  font-size: 0.85rem;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.pn-option-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  user-select: none;
+  color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+}
+
+.pn-option-toggle input {
+  accent-color: var(--accent);
+}
+
+.pn-actions {
+  max-width: 700px;
+  width: 100%;
+  margin: 1rem auto 0;
+  padding: 0 1rem;
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.pn-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 0.55rem 1.1rem;
+  border-radius: 0.4rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.05em;
+  transition: color 200ms, border-color 200ms;
+}
+
+.pn-btn:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.pn-footer {
+  text-align: center;
+  padding: 2rem 1rem 1.5rem;
+  font-size: 0.7rem;
+  color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.05em;
+  margin-top: auto;
+}
+
+.pn-footer .sub {
+  font-family: 'Inter', system-ui, sans-serif;
+  margin-top: 0.4rem;
+  opacity: 0.7;
+  letter-spacing: 0;
+}
+
+.pn-toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(0.5rem);
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  color: var(--text);
+  padding: 0.6rem 1.25rem;
+  border-radius: 0.5rem;
+  font-size: 0.85rem;
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms, transform 200ms;
+}
+
+.pn-toast.is-visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.pn-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 15, 14, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: opacity 400ms;
+}
+
+.pn-overlay.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.pn-overlay-card {
+  text-align: center;
+  padding: 2rem;
+  max-width: 360px;
+}
+
+.pn-overlay-title {
+  font-size: 2.5rem;
+  font-weight: 600;
+  margin-bottom: 0.8rem;
+  letter-spacing: -0.02em;
+}
+
+.pn-overlay-tagline {
+  color: var(--muted);
+  font-style: italic;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.pn-overlay-prompt {
+  color: var(--accent);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 640px) {
+  .pn-sound-row {
+    grid-template-columns: 80px 1fr 40px 30px;
+    gap: 0.6rem;
+  }
+  .pn-sound-name {
+    font-size: 0.65rem;
+  }
+  .pn-option-label {
+    min-width: 80px;
+    font-size: 0.7rem;
+  }
+  .pn-visualizer-container {
+    height: 35vh;
+    min-height: 200px;
+  }
+  .pn-overlay-title {
+    font-size: 2rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pn-sound-options,
+  .pn-overlay,
+  .pn-toast {
+    transition: opacity 100ms;
+  }
+}
