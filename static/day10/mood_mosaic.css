@@ -1,0 +1,202 @@
+/* Mood Mosaic — Day 10 */
+:root {
+  --mm-bg: #0F0F0E;
+}
+
+/* Full-bleed: take over the viewport. Header from base.html still renders
+   underneath in normal flow; we sit on top of it with position: fixed. */
+.mm-page {
+  position: fixed;
+  inset: 0;
+  background: var(--mm-bg);
+  overflow: hidden;
+  z-index: 50;
+}
+
+.mm-topbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.85rem 1.5rem;
+  background: rgba(15, 15, 14, 0.35);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+}
+.mm-back-link {
+  color: rgba(168, 162, 158, 0.75);
+  text-decoration: none;
+  transition: color 200ms;
+}
+.mm-back-link:hover { color: rgba(250, 250, 247, 0.95); }
+.mm-day-label {
+  color: rgba(168, 162, 158, 0.75);
+  font-family: 'JetBrains Mono', monospace;
+  text-transform: uppercase;
+}
+
+@media (max-width: 640px) {
+  .mm-topbar { padding: 0.7rem 1rem; font-size: 0.7rem; }
+}
+
+.mm-stage {
+  position: absolute;
+  inset: 0;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.mm-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  transition: opacity 400ms;
+}
+.mm-canvas-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.mm-region {
+  transition: opacity 250ms, filter 250ms;
+}
+
+/* Hover card */
+.mm-card {
+  position: absolute;
+  z-index: 20;
+  padding: 0.9rem 1.1rem;
+  background: rgba(20, 18, 16, 0.86);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius: 0.65rem;
+  pointer-events: auto;
+  color: rgba(250, 250, 247, 0.95);
+  font-size: 0.85rem;
+  max-width: 280px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  transition: opacity 180ms, transform 180ms;
+  opacity: 1;
+  border: 1px solid rgba(217, 119, 87, 0.18);
+}
+.mm-card-hidden {
+  opacity: 0;
+  transform: translateY(4px);
+  pointer-events: none;
+}
+.mm-card-day {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.3rem;
+}
+.mm-card-title {
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 0.35rem;
+  line-height: 1.2;
+}
+.mm-card-tagline {
+  color: rgba(168, 162, 158, 0.92);
+  font-style: italic;
+  margin-bottom: 0.55rem;
+  line-height: 1.4;
+  font-size: 0.82rem;
+}
+.mm-card-link {
+  display: inline-block;
+  color: var(--accent);
+  font-size: 0.75rem;
+  text-decoration: none;
+  font-family: 'JetBrains Mono', monospace;
+}
+.mm-card-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@media (max-width: 640px) {
+  .mm-card {
+    position: fixed;
+    top: 4.5rem;
+    left: 1rem;
+    right: 1rem;
+    max-width: none;
+  }
+}
+
+/* Mode indicator */
+.mm-mode-indicator {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  text-align: center;
+  color: rgba(168, 162, 158, 0.55);
+  font-size: 0.65rem;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  pointer-events: none;
+  transition: opacity 300ms;
+}
+.mm-mode-dots {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+.mm-mode-dots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(168, 162, 158, 0.3);
+  transition: background 200ms, transform 200ms;
+}
+.mm-mode-dots span.is-active {
+  background: var(--accent);
+  transform: scale(1.4);
+}
+.mm-mode-caption strong {
+  color: rgba(250, 250, 247, 0.9);
+  font-weight: 600;
+}
+.mm-mode-hint {
+  margin-top: 0.35rem;
+  opacity: 0.65;
+}
+@media (max-width: 640px) {
+  .mm-mode-hint { display: none; }
+}
+
+.mm-footer {
+  position: absolute;
+  bottom: 0.5rem;
+  right: 1rem;
+  z-index: 10;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  color: rgba(168, 162, 158, 0.32);
+  pointer-events: none;
+}
+@media (max-width: 640px) {
+  .mm-footer { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mm-canvas, .mm-card, .mm-mode-dots span, .mm-region {
+    transition: opacity 100ms ease;
+    transform: none !important;
+  }
+}

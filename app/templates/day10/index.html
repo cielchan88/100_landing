@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}Mood Mosaic — Day 10 of 100 Days with Claude{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='day10/mood_mosaic.css') }}">
+
+<div class="mm-page">
+  <header class="mm-topbar">
+    <a href="/" class="mm-back-link" aria-label="Back to all days">← All days</a>
+    <span class="mm-day-label">Day 10 · Mood Mosaic</span>
+  </header>
+
+  <main class="mm-stage" id="mm-stage">
+    <svg id="mm-svg" class="mm-canvas" preserveAspectRatio="xMidYMid slice"
+         viewBox="0 0 1200 900" aria-label="A nine-region color composition.">
+      <defs id="mm-defs"></defs>
+      <g id="mm-regions"></g>
+    </svg>
+    <canvas id="mm-canvas" class="mm-canvas mm-canvas-hidden"
+            aria-label="Particle composition of nine palettes."></canvas>
+  </main>
+
+  <div id="mm-card" class="mm-card mm-card-hidden" role="tooltip" aria-live="polite">
+    <div class="mm-card-day"></div>
+    <div class="mm-card-title"></div>
+    <div class="mm-card-tagline"></div>
+    <a class="mm-card-link" href="">Visit →</a>
+  </div>
+
+  <div class="mm-mode-indicator" aria-hidden="true">
+    <div class="mm-mode-dots">
+      <span data-mode="1" class="is-active"></span>
+      <span data-mode="2"></span>
+      <span data-mode="3"></span>
+    </div>
+    <div class="mm-mode-caption"><strong>soft</strong> · architectural · particles</div>
+    <div class="mm-mode-hint">click anywhere · press space</div>
+  </div>
+
+  <div class="mm-footer">100 Days with Claude · Day 10</div>
+</div>
+
+<script src="{{ url_for('static', filename='day10/mood_mosaic.js') }}" defer></script>
+{% endblock %}
