@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %}Read Time — Day 9 of 100 Days with Claude{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='day09/read_time.css') }}">
+
+<div class="rt-container">
+  <div class="rt-topbar">
+    <a href="/" aria-label="Back to all days">← Back to all days</a>
+  </div>
+
+  <header class="rt-header">
+    <p class="rt-eyebrow">Day 09 · Read Time</p>
+    <h1 class="rt-headline">How long it takes to read what you wrote.</h1>
+    <p class="rt-subtitle">Paste any text below. Updates as you type.</p>
+  </header>
+
+  <div class="rt-textarea-wrapper">
+    <textarea id="rt-text" placeholder="Paste your text here..." aria-label="Text to analyze" autofocus></textarea>
+    <p class="rt-privacy-note">
+      <span aria-hidden="true">🔒</span>
+      Your text never leaves this page. Calculations happen in your browser.
+    </p>
+  </div>
+
+  <section class="rt-stats-grid" aria-label="Text statistics">
+    <div class="rt-stat-card">
+      <div class="rt-stat-label">Words</div>
+      <div class="rt-stat-value" id="rt-stat-words">0</div>
+    </div>
+    <div class="rt-stat-card">
+      <div class="rt-stat-label">Characters</div>
+      <div class="rt-stat-value" id="rt-stat-chars">0</div>
+      <div class="rt-stat-sub" id="rt-stat-chars-sub">0 without spaces</div>
+    </div>
+    <div class="rt-stat-card">
+      <div class="rt-stat-label">Paragraphs</div>
+      <div class="rt-stat-value" id="rt-stat-paragraphs">0</div>
+    </div>
+    <div class="rt-stat-card">
+      <div class="rt-stat-label">Sentences</div>
+      <div class="rt-stat-value" id="rt-stat-sentences">0</div>
+    </div>
+    <div class="rt-stat-card">
+      <div class="rt-stat-label">Reading time</div>
+      <div class="rt-stat-value" id="rt-stat-read-time">—</div>
+      <div class="rt-stat-sub" id="rt-stat-read-time-sub">at 250 wpm</div>
+    </div>
+    <div class="rt-stat-card">
+      <div class="rt-stat-label">Speaking time</div>
+      <div class="rt-stat-value" id="rt-stat-speak-time">—</div>
+      <div class="rt-stat-sub" id="rt-stat-speak-time-sub">at 130 wpm</div>
+    </div>
+    <div class="rt-stat-card">
+      <div class="rt-stat-label">Tweets</div>
+      <div class="rt-stat-value" id="rt-stat-tweets">0</div>
+      <div class="rt-stat-sub">at 280 chars each</div>
+    </div>
+    <div class="rt-stat-card">
+      <div class="rt-stat-label">Threads</div>
+      <div class="rt-stat-value" id="rt-stat-threads">0</div>
+      <div class="rt-stat-sub">15 tweets per thread</div>
+    </div>
+  </section>
+
+  <section class="rt-speed-section" aria-label="Speed controls">
+    <div class="rt-speed-row">
+      <label class="rt-speed-label" id="rt-read-speed-label" for="rt-read-speed">Reading speed: 250 wpm</label>
+      <input id="rt-read-speed" class="rt-slider" type="range" min="150" max="500" step="50" value="250"
+             aria-label="Reading speed in words per minute">
+    </div>
+    <div class="rt-speed-row">
+      <label class="rt-speed-label" id="rt-speak-speed-label" for="rt-speak-speed">Speaking speed: 130 wpm</label>
+      <input id="rt-speak-speed" class="rt-slider" type="range" min="90" max="200" step="10" value="130"
+             aria-label="Speaking speed in words per minute">
+    </div>
+  </section>
+
+  <div class="rt-actions">
+    <button id="rt-copy-btn" class="rt-btn rt-btn-primary" type="button">Copy summary</button>
+    <button id="rt-clear-btn" class="rt-btn rt-btn-secondary" type="button">Clear text</button>
+    <button id="rt-sample-btn" class="rt-sample-link" type="button">Load sample</button>
+  </div>
+
+  <p class="rt-footer">
+    Day 09 · 100 Days with Claude
+    <span class="sub">All counts approximate. Reading times based on common research averages.</span>
+  </p>
+</div>
+
+<div id="rt-toast" class="rt-toast" role="status" aria-live="polite"></div>
+
+<script src="{{ url_for('static', filename='day09/read_time.js') }}" defer></script>
+{% endblock %}
