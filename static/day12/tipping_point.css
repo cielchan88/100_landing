@@ -1,0 +1,346 @@
+/* The Tipping Point — Day 12 */
+.tp-page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 1rem 1rem 4rem;
+}
+
+.tp-topbar {
+  padding: 1rem 0;
+}
+
+.tp-topbar a {
+  color: var(--muted);
+  font-size: 0.875rem;
+  text-decoration: none;
+}
+
+.tp-topbar a:hover {
+  color: var(--accent);
+}
+
+.tp-hero {
+  padding: 2rem 0 1.5rem;
+}
+
+.tp-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin-bottom: 0.75rem;
+}
+
+.tp-headline {
+  font-size: clamp(2rem, 5vw, 3.25rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: 1rem;
+}
+
+.tp-subtitle {
+  color: var(--muted);
+  font-size: 1rem;
+  max-width: 36rem;
+  line-height: 1.5;
+}
+
+.tp-intro {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin: 2rem 0;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: var(--text);
+}
+
+.tp-intro p {
+  margin: 0;
+}
+
+.tp-intro p + p {
+  margin-top: 1rem;
+}
+
+.tp-sim {
+  margin: 2rem 0;
+  text-align: center;
+}
+
+#tp-canvas {
+  display: block;
+  margin: 0 auto;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  max-width: 100%;
+  height: auto;
+}
+
+.tp-status {
+  margin-top: 1rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--muted);
+  min-height: 1.2em;
+}
+
+.tp-controls {
+  margin: 1.5rem auto;
+  max-width: 500px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 1.25rem 1.5rem;
+}
+
+.tp-control-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem 0;
+}
+
+.tp-control-row + .tp-control-row {
+  border-top: 1px solid var(--border);
+  margin-top: 0.5rem;
+  padding-top: 1rem;
+}
+
+.tp-control-label {
+  font-size: 0.85rem;
+  color: var(--text);
+  min-width: 8rem;
+  font-variant-numeric: tabular-nums;
+  text-align: left;
+}
+
+.tp-control-label strong {
+  color: var(--accent);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.tp-slider {
+  flex: 1;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.tp-speed-toggle {
+  display: flex;
+  gap: 4px;
+}
+
+.tp-speed-btn {
+  background: var(--bg);
+  color: var(--muted);
+  border: 1px solid var(--border);
+  padding: 0.35rem 0.85rem;
+  font-size: 0.75rem;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.04em;
+  border-radius: 0.3rem;
+  cursor: pointer;
+  transition: all 150ms;
+}
+
+.tp-speed-btn[data-active="true"] {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+
+.tp-buttons {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.tp-btn {
+  padding: 0.7rem 2rem;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: filter 150ms, transform 100ms;
+  border: 1px solid transparent;
+  font-family: inherit;
+}
+
+.tp-btn-primary {
+  background: var(--accent);
+  color: var(--bg);
+  font-weight: 600;
+}
+
+.tp-btn-primary:hover {
+  filter: brightness(1.08);
+}
+
+.tp-btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.tp-btn-secondary {
+  background: transparent;
+  color: var(--muted);
+  border-color: var(--border);
+}
+
+.tp-btn-secondary:hover {
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+/* Annotation */
+.tp-annotation {
+  margin-top: 2.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 400ms, transform 400ms;
+  visibility: hidden;
+}
+
+.tp-annotation.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  visibility: visible;
+}
+
+.tp-annotation-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin-bottom: 0.75rem;
+}
+
+.tp-annotation-body {
+  color: var(--text);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.tp-segregation-meter {
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+}
+
+.tp-meter-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.tp-meter-bar {
+  height: 8px;
+  background: linear-gradient(to right, #5BAE6F 0%, #E8916F 50%, #C44569 100%);
+  border-radius: 4px;
+  position: relative;
+  overflow: visible;
+}
+
+.tp-meter-marker {
+  position: absolute;
+  top: -4px;
+  width: 4px;
+  height: 16px;
+  background: var(--text);
+  border-radius: 2px;
+  transform: translateX(-50%);
+  transition: left 600ms ease-out;
+  left: 0;
+}
+
+.tp-meter-numeric {
+  margin-top: 0.5rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  color: var(--accent);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.tp-learn-more {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border);
+}
+
+.tp-learn-more h2 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--text);
+}
+
+.tp-learn-more p {
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.tp-learn-more a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.tp-footer {
+  margin-top: 3rem;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+
+.tp-footer .sub {
+  margin-top: 0.5rem;
+  font-style: italic;
+  opacity: 0.7;
+}
+
+@media (max-width: 640px) {
+  .tp-control-row {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .tp-control-label {
+    min-width: auto;
+    flex: 1 0 100%;
+  }
+  .tp-buttons {
+    flex-direction: column;
+  }
+  .tp-btn {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tp-annotation {
+    transition: opacity 100ms;
+    transform: none !important;
+  }
+  .tp-meter-marker {
+    transition: none;
+  }
+}

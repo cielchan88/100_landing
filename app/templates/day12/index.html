@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}The Tipping Point — Day 12 of 100 Days with Claude{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='day12/tipping_point.css') }}">
+
+<div class="tp-page">
+  <header class="tp-topbar">
+    <a href="/" aria-label="Back to all days">← Back to all days</a>
+  </header>
+
+  <section class="tp-hero">
+    <div class="tp-eyebrow">Day 12 · The Tipping Point</div>
+    <h1 class="tp-headline">Mild preferences,<br><span style="color: var(--accent)">extreme outcomes.</span></h1>
+    <p class="tp-subtitle">Each agent wants some fraction of their neighbors to be the same group. The number sounds modest. Watch what happens.</p>
+  </section>
+
+  <div class="tp-intro">
+    <p>In 1971, economist Thomas Schelling proposed a thought experiment. Place two groups of people on a grid. Give each person a single preference: they want at least <em>some</em> percentage of their neighbors to be the same group as them. If they're unhappy, they move to a random empty spot. Then ask: what does this society look like after everyone settles?</p>
+    <p>The answer surprised him. It might surprise you too. Adjust the threshold below, click Start, and find out.</p>
+  </div>
+
+  <section class="tp-sim">
+    <canvas id="tp-canvas" width="600" height="600" aria-label="Schelling segregation grid simulation."></canvas>
+    <div class="tp-status" id="tp-status" role="status" aria-live="polite">Click Start to begin</div>
+
+    <div class="tp-controls">
+      <div class="tp-control-row">
+        <span class="tp-control-label" id="tp-threshold-label">Threshold: <strong>30%</strong></span>
+        <input type="range" class="tp-slider" id="tp-threshold" min="0" max="100" value="30" aria-label="Same-group neighbor threshold">
+      </div>
+      <div class="tp-control-row">
+        <span class="tp-control-label">Speed</span>
+        <div class="tp-speed-toggle">
+          <button type="button" class="tp-speed-btn" data-speed="slow">Slow</button>
+          <button type="button" class="tp-speed-btn" data-speed="fast" data-active="true">Fast</button>
+        </div>
+      </div>
+      <div class="tp-buttons">
+        <button type="button" class="tp-btn tp-btn-primary" id="tp-start-btn">Start</button>
+        <button type="button" class="tp-btn tp-btn-secondary" id="tp-reset-btn">Reset</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="tp-annotation" id="tp-annotation" aria-live="polite">
+    <div class="tp-annotation-label">What you just saw</div>
+    <div class="tp-annotation-body"></div>
+    <div class="tp-segregation-meter">
+      <div class="tp-meter-label">
+        <span>Mixed</span>
+        <span>Segregated</span>
+      </div>
+      <div class="tp-meter-bar">
+        <div class="tp-meter-marker"></div>
+      </div>
+      <div class="tp-meter-numeric"></div>
+    </div>
+  </section>
+
+  <section class="tp-learn-more">
+    <h2>About this model</h2>
+    <p>Thomas Schelling won the 2005 Nobel Prize in Economics partly for this work. The original paper was titled "Dynamic Models of Segregation" (Journal of Mathematical Sociology, 1971). What it showed: collective outcomes can emerge from individual decisions in ways that don't reflect anyone's individual preferences.</p>
+    <p>This isn't a perfect map of real-world segregation, which involves history, law, economics, and active discrimination. But it shows something genuine about how systems behave — and how easily collective patterns can form from individually defensible choices. <a href="https://en.wikipedia.org/wiki/Schelling%27s_model_of_segregation" target="_blank" rel="noopener">Read more on Wikipedia →</a></p>
+  </section>
+
+  <footer class="tp-footer">
+    Day 12 · 100 Days with Claude
+    <div class="sub">Based on Thomas Schelling, "Dynamic Models of Segregation," Journal of Mathematical Sociology, 1971.</div>
+  </footer>
+</div>
+
+<script src="{{ url_for('static', filename='day12/tipping_point.js') }}" defer></script>
+{% endblock %}
