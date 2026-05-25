@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}Type Speed Mirror — Day 15 of 100 Days with Claude{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='day15/type_speed_mirror.css') }}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<div class="tsm-page">
+  <header class="tsm-topbar"><a href="/" aria-label="Back to all days">← Back to all days</a></header>
+
+  <section class="tsm-hero">
+    <div class="tsm-eyebrow">Day 15 · Type Speed Mirror</div>
+    <h1 class="tsm-headline">Your typing rhythm, made visible.</h1>
+    <p class="tsm-subtitle">Most typing tests measure speed. This one measures rhythm.</p>
+  </section>
+
+  <div class="tsm-intro">
+    Standard typing tests give you WPM and accuracy at the end. This one gives you something different — a real-time view of your pace, with the specific moments where your rhythm broke. Not a competition. A mirror.
+  </div>
+
+  <div class="tsm-passage-selector"></div>
+
+  <div class="tsm-passage-container">
+    <div class="tsm-passage"></div>
+    <div class="tsm-status">
+      <span class="tsm-progress-label">0 / 0 characters</span>
+      <div class="tsm-progress-track"><div class="tsm-progress-fill"></div></div>
+    </div>
+    <input type="text" id="tsm-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-hidden="true" />
+  </div>
+
+  <div class="tsm-chart-container">
+    <div class="tsm-chart-title">Pace (chars/sec)</div>
+    <canvas id="tsm-chart"></canvas>
+  </div>
+
+  <div class="tsm-stats">
+    <div class="tsm-stat-primary">
+      <div class="tsm-stat-primary-value" id="tsm-consistency-value">—</div>
+      <div class="tsm-stat-primary-label">Consistency</div>
+    </div>
+    <div class="tsm-stats-grid">
+      <div class="tsm-stat-cell">
+        <div class="tsm-stat-value" id="tsm-total-time">—</div>
+        <div class="tsm-stat-label">Total time</div>
+      </div>
+      <div class="tsm-stat-cell">
+        <div class="tsm-stat-value" id="tsm-avg-pace">—</div>
+        <div class="tsm-stat-label">Avg chars/sec</div>
+      </div>
+      <div class="tsm-stat-cell">
+        <div class="tsm-stat-value" id="tsm-longest-pause">—</div>
+        <div class="tsm-stat-label">Longest pause</div>
+      </div>
+      <div class="tsm-stat-cell">
+        <div class="tsm-stat-value" id="tsm-fastest-streak">—</div>
+        <div class="tsm-stat-label">Fastest streak</div>
+      </div>
+    </div>
+    <div class="tsm-moments">
+      <div class="tsm-moments-heading">Moments</div>
+      <div id="tsm-moments-list"></div>
+    </div>
+  </div>
+
+  <div class="tsm-actions">
+    <button class="tsm-btn tsm-btn-primary" id="tsm-start-btn" type="button">Start</button>
+    <button class="tsm-btn" id="tsm-reset-btn" type="button">Reset</button>
+  </div>
+
+  <footer class="tsm-footer">Day 15 · 100 Days with Claude</footer>
+</div>
+
+<script src="{{ url_for('static', filename='day15/type_speed_mirror.js') }}" defer></script>
+{% endblock %}

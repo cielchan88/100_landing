@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}Decision Matrix — Day 14 of 100 Days with Claude{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='day14/decision_matrix.css') }}">
+
+<div class="dm-page">
+  <header class="dm-topbar"><a href="/" aria-label="Back to all days">← Back to all days</a></header>
+
+  <section class="dm-hero">
+    <div class="dm-eyebrow">Day 14 · Decision Matrix</div>
+    <h1 class="dm-headline">Make the decision visible.</h1>
+    <p class="dm-subtitle">Six options. Five criteria. Watch which one comes out on top.</p>
+  </section>
+
+  <div class="dm-intro">
+    When you're choosing between options, your intuition often beats you to a conclusion. Sometimes it's right. Sometimes it deserves a second look. This isn't a tool that decides for you — it surfaces the structure of how you'd weigh things. If your numbers disagree with your gut, that's data worth noticing.
+  </div>
+
+  <div id="dm-matrix-container"></div>
+
+  <div class="dm-results" id="dm-results-container"></div>
+
+  <div class="dm-actions">
+    <button class="dm-btn" id="dm-reset-btn" type="button">Reset to example</button>
+    <button class="dm-btn" id="dm-clear-btn" type="button">Clear all</button>
+    <button class="dm-btn dm-btn-primary" id="dm-share-btn" type="button">Share matrix</button>
+  </div>
+
+  <div class="dm-toast" id="dm-toast" role="status" aria-live="polite"></div>
+
+  <footer class="dm-footer">Day 14 · 100 Days with Claude</footer>
+</div>
+
+<script src="{{ url_for('static', filename='day14/decision_matrix.js') }}" defer></script>
+{% endblock %}

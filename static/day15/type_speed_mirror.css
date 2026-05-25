@@ -1,0 +1,349 @@
+/* Type Speed Mirror — Day 15 */
+.tsm-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1rem 1rem 4rem;
+}
+
+.tsm-topbar {
+  padding: 1rem 0;
+}
+
+.tsm-topbar a {
+  color: var(--muted);
+  font-size: 0.875rem;
+  text-decoration: none;
+}
+
+.tsm-topbar a:hover {
+  color: var(--accent);
+}
+
+.tsm-hero {
+  padding: 1.5rem 0;
+}
+
+.tsm-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+}
+
+.tsm-headline {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.5rem;
+}
+
+.tsm-subtitle {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.tsm-intro {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: var(--text);
+  max-width: 42rem;
+}
+
+.tsm-passage-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1.5rem 0;
+}
+
+.tsm-passage-chip {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-family: 'JetBrains Mono', monospace;
+  cursor: pointer;
+  transition: color 150ms, border-color 150ms, background 150ms;
+}
+
+.tsm-passage-chip[data-active="true"] {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+
+.tsm-passage-chip:hover:not([data-active="true"]) {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.tsm-passage-chip:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.tsm-passage-container {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 1.5rem 1.75rem;
+  margin: 1.5rem 0;
+  position: relative;
+}
+
+.tsm-passage {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1rem;
+  line-height: 1.85;
+  color: var(--muted);
+  letter-spacing: 0.01em;
+}
+
+.tsm-passage .char {
+  transition: color 80ms;
+}
+
+.tsm-passage .char.is-done {
+  color: var(--text);
+}
+
+.tsm-passage .char.is-current {
+  background: var(--accent);
+  color: var(--bg);
+  padding: 0 1px;
+  border-radius: 2px;
+}
+
+.tsm-passage .char.is-error {
+  background: rgba(255, 107, 71, 0.25);
+  color: #FF6B47;
+  animation: tsmShake 0.2s ease-out;
+}
+
+@keyframes tsmShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  75% { transform: translateX(2px); }
+}
+
+.tsm-status {
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.tsm-progress-track {
+  flex: 1;
+  height: 4px;
+  background: var(--bg);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.tsm-progress-fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 100ms ease-out;
+  border-radius: 2px;
+}
+
+#tsm-input {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.tsm-chart-container {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  height: 280px;
+}
+
+.tsm-chart-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin-bottom: 1rem;
+}
+
+#tsm-chart {
+  max-height: 220px;
+}
+
+.tsm-stats {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 1.75rem;
+  margin: 1.5rem 0;
+  display: none;
+}
+
+.tsm-stats.is-visible {
+  display: block;
+}
+
+.tsm-stat-primary {
+  text-align: center;
+  margin-bottom: 1.75rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.tsm-stat-primary-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 3rem;
+  font-weight: 600;
+  color: var(--accent);
+  line-height: 1;
+}
+
+.tsm-stat-primary-label {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.tsm-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.tsm-stat-cell {
+  text-align: center;
+}
+
+.tsm-stat-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.tsm-stat-label {
+  margin-top: 0.25rem;
+  font-size: 0.7rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tsm-moments {
+  border-top: 1px solid var(--border);
+  padding-top: 1.5rem;
+}
+
+.tsm-moments-heading {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin-bottom: 1rem;
+}
+
+.tsm-moment {
+  padding: 0.6rem 0;
+  font-size: 0.9rem;
+  color: var(--text);
+  line-height: 1.5;
+  border-bottom: 1px solid var(--border);
+}
+
+.tsm-moment:last-child {
+  border-bottom: none;
+}
+
+.tsm-moment em {
+  color: var(--accent);
+  font-style: normal;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.tsm-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 1.5rem 0;
+  justify-content: center;
+}
+
+.tsm-btn {
+  padding: 0.65rem 1.5rem;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  border-radius: 0.4rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.04em;
+  transition: color 150ms, border-color 150ms, background 150ms;
+}
+
+.tsm-btn:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.tsm-btn-primary {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+
+.tsm-btn-primary:hover {
+  filter: brightness(1.08);
+  color: var(--bg);
+}
+
+.tsm-footer {
+  margin-top: 3rem;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+@media (max-width: 640px) {
+  .tsm-passage {
+    font-size: 0.9rem;
+    line-height: 1.7;
+  }
+  .tsm-stat-primary-value {
+    font-size: 2.25rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tsm-passage .char.is-error {
+    animation: none;
+  }
+  .tsm-progress-fill {
+    transition: none;
+  }
+}

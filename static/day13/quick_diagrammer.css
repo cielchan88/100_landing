@@ -1,0 +1,325 @@
+/* Quick Diagrammer — Day 13 */
+.qd-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1rem 1rem 4rem;
+}
+
+.qd-topbar {
+  padding: 1rem 0;
+}
+
+.qd-topbar a {
+  color: var(--muted);
+  font-size: 0.875rem;
+  text-decoration: none;
+}
+
+.qd-topbar a:hover {
+  color: var(--accent);
+}
+
+.qd-hero {
+  padding: 1.5rem 0;
+}
+
+.qd-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+}
+
+.qd-headline {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.5rem;
+}
+
+.qd-subtitle {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.qd-input-section {
+  margin: 1.5rem 0 1rem;
+}
+
+.qd-hint {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+}
+
+.qd-hint code {
+  background: var(--surface);
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px;
+  color: var(--accent);
+}
+
+#qd-textarea {
+  width: 100%;
+  min-height: 160px;
+  max-height: 280px;
+  padding: 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  resize: vertical;
+  transition: border-color 200ms;
+}
+
+#qd-textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.qd-diagram-container {
+  margin: 1.5rem 0;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  min-height: 400px;
+  position: relative;
+  overflow: hidden;
+}
+
+#qd-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 380px;
+}
+
+.qd-empty-state {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-style: italic;
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 1rem;
+}
+
+.qd-empty-state.is-hidden {
+  display: none;
+}
+
+.qd-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 1rem 0;
+  align-items: center;
+}
+
+.qd-btn {
+  padding: 0.55rem 1.1rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  border-radius: 0.4rem;
+  font-size: 0.8rem;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: color 150ms, border-color 150ms;
+}
+
+.qd-btn:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.qd-privacy-note {
+  font-size: 0.7rem;
+  color: var(--muted);
+  font-style: italic;
+  margin-left: auto;
+}
+
+.qd-syntax-ref {
+  margin-top: 2rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.qd-syntax-ref summary {
+  padding: 1rem 1.25rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  list-style: none;
+  user-select: none;
+}
+
+.qd-syntax-ref summary::-webkit-details-marker {
+  display: none;
+}
+
+.qd-syntax-ref summary::before {
+  content: '▸ ';
+  color: var(--accent);
+  transition: transform 200ms;
+  display: inline-block;
+}
+
+.qd-syntax-ref[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.qd-syntax-content {
+  padding: 0 1.25rem 1.5rem;
+  font-size: 0.85rem;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+.qd-syntax-content pre {
+  background: var(--bg);
+  padding: 0.75rem 1rem;
+  border-radius: 0.4rem;
+  font-size: 0.8rem;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text);
+  margin: 0.5rem 0;
+  overflow-x: auto;
+}
+
+.qd-syntax-content code {
+  background: var(--bg);
+  color: var(--accent);
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85em;
+}
+
+.qd-toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(0.5rem);
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  color: var(--text);
+  padding: 0.6rem 1.25rem;
+  border-radius: 0.5rem;
+  font-size: 0.85rem;
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms;
+}
+
+.qd-toast.is-visible {
+  opacity: 1;
+}
+
+.qd-footer {
+  margin-top: 3rem;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* SVG node styling — applied via JS-set attributes */
+.qd-node-rect {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 1;
+  transition: stroke 150ms, fill 150ms;
+}
+
+.qd-node-rect.is-strong {
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+
+.qd-node-rect.is-dimmed {
+  opacity: 0.3;
+}
+
+.qd-node-text {
+  fill: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  pointer-events: none;
+}
+
+.qd-edge {
+  stroke: var(--muted);
+  stroke-width: 1.5;
+  fill: none;
+  marker-end: url(#qd-arrow);
+  transition: opacity 150ms, stroke 150ms;
+}
+
+.qd-edge.is-strong {
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+
+.qd-edge.is-dimmed {
+  opacity: 0.2;
+}
+
+.qd-edge-undirected {
+  marker-end: none;
+}
+
+.qd-edge-bidirected {
+  marker-start: url(#qd-arrow);
+}
+
+.qd-edge-label {
+  fill: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+
+.qd-edge-label-bg {
+  fill: var(--bg);
+}
+
+@media (max-width: 640px) {
+  .qd-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .qd-btn {
+    width: 100%;
+  }
+  .qd-privacy-note {
+    margin-left: 0;
+    text-align: center;
+    margin-top: 0.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .qd-node-rect, .qd-edge, .qd-toast {
+    transition: opacity 100ms;
+  }
+}

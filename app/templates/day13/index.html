@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}Quick Diagrammer — Day 13 of 100 Days with Claude{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='day13/quick_diagrammer.css') }}">
+
+<div class="qd-page">
+  <header class="qd-topbar">
+    <a href="/" aria-label="Back to all days">← Back to all days</a>
+  </header>
+
+  <section class="qd-hero">
+    <div class="qd-eyebrow">Day 13 · Quick Diagrammer</div>
+    <h1 class="qd-headline">Type relationships. See diagrams.</h1>
+    <p class="qd-subtitle">Plain text in. SVG out. No syntax to learn.</p>
+  </section>
+
+  <section class="qd-input-section">
+    <div class="qd-hint">Try: <code>A -&gt; B</code>, <code>A &lt;-&gt; B</code>, <code>A -- B</code>. One per line. Comments start with #.</div>
+    <textarea id="qd-textarea" spellcheck="false" aria-label="Diagram source text">Web app architecture
+
+User -> Frontend
+Frontend -> API
+API -> Database
+API -> Cache
+Cache -> Database: warmup
+
+# Add more relationships and watch the diagram update</textarea>
+  </section>
+
+  <div class="qd-diagram-container">
+    <svg id="qd-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Generated diagram"></svg>
+    <div class="qd-empty-state">Type at least one A -&gt; B relationship to see a diagram</div>
+  </div>
+
+  <div class="qd-actions">
+    <button class="qd-btn" id="qd-copy-svg" type="button">Copy as SVG</button>
+    <button class="qd-btn" id="qd-copy-png" type="button">Copy as PNG</button>
+    <button class="qd-btn" id="qd-share" type="button">Share via URL</button>
+    <span class="qd-privacy-note">Your text never leaves your browser. URL share encodes the text locally.</span>
+  </div>
+
+  <details class="qd-syntax-ref">
+    <summary>Syntax cheat sheet (click to expand)</summary>
+    <div class="qd-syntax-content">
+      <p>Each line is one relationship. Empty lines and lines starting with <code>#</code> are ignored.</p>
+      <pre>A -&gt; B          directed arrow
+A -&gt; B: label   directed with a label
+A &lt;-&gt; B         bidirectional
+A -- B          connected, no direction
+A =&gt; B          strong arrow (accent style)
+[Node]          emphasize a node (accent outline)
+Name: text      give a node a description</pre>
+    </div>
+  </details>
+
+  <div class="qd-toast" id="qd-toast" role="status" aria-live="polite"></div>
+
+  <footer class="qd-footer">Day 13 · 100 Days with Claude</footer>
+</div>
+
+<script src="{{ url_for('static', filename='day13/quick_diagrammer.js') }}" defer></script>
+{% endblock %}
