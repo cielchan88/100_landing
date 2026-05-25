@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+
+{% block title %}The 5-Whys Partner — Day 16 of 100 Days with Claude{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='day16/five_whys.css') }}">
+
+<div class="fw-page">
+  <header class="fw-topbar"><a href="/" aria-label="Back to all days">← Back to all days</a></header>
+
+  <section class="fw-hero">
+    <div class="fw-eyebrow">Day 16 · The 5-Whys Partner</div>
+    <h1 class="fw-headline">Most problems are not<br><span style="color: var(--accent)">the real problem.</span></h1>
+    <p class="fw-subtitle">Five careful "why" questions, then synthesis. A classic root-cause framework, run as a conversation.</p>
+  </section>
+
+  <div class="fw-intro">
+    <p>The Five Whys is one of the simplest and most powerful problem-solving frameworks ever created — Toyota, 1950s. State a problem. Ask why. Drill deeper. Five times. By the end, you have either reached the root or learned that what you thought was the problem isn't.</p>
+    <p>Doing it alone fails. Your own reasoning gives up before going deep enough. This is a partner that doesn't.</p>
+  </div>
+
+  <div class="fw-error is-hidden" role="alert"></div>
+
+  <div class="fw-setup">
+    <div class="fw-setup-heading">Configure your partner</div>
+
+    <div class="fw-setup-heading">Tone</div>
+    <div class="fw-radio-group">
+      <label class="fw-radio-option">
+        <input type="radio" name="fw-tone" value="Gentle">
+        <span class="fw-radio-label">Gentle</span>
+      </label>
+      <label class="fw-radio-option">
+        <input type="radio" name="fw-tone" value="Direct" checked>
+        <span class="fw-radio-label">Direct</span>
+      </label>
+      <label class="fw-radio-option">
+        <input type="radio" name="fw-tone" value="Socratic">
+        <span class="fw-radio-label">Socratic</span>
+      </label>
+      <label class="fw-radio-option">
+        <input type="radio" name="fw-tone" value="Investigative">
+        <span class="fw-radio-label">Investigative</span>
+      </label>
+    </div>
+
+    <div class="fw-setup-heading">Domain perspective</div>
+    <div class="fw-radio-group">
+      <label class="fw-radio-option">
+        <input type="radio" name="fw-domain" value="Business" checked>
+        <span class="fw-radio-label">Business</span>
+      </label>
+      <label class="fw-radio-option">
+        <input type="radio" name="fw-domain" value="Personal">
+        <span class="fw-radio-label">Personal</span>
+      </label>
+      <label class="fw-radio-option">
+        <input type="radio" name="fw-domain" value="Technical">
+        <span class="fw-radio-label">Technical</span>
+      </label>
+      <label class="fw-radio-option">
+        <input type="radio" name="fw-domain" value="Philosophical">
+        <span class="fw-radio-label">Philosophical</span>
+      </label>
+      <label class="fw-radio-option">
+        <input type="radio" name="fw-domain" value="Therapeutic">
+        <span class="fw-radio-label">Therapeutic</span>
+      </label>
+    </div>
+
+    <div class="fw-setup-heading">Depth style</div>
+    <div class="fw-radio-group">
+      <label class="fw-radio-option">
+        <input type="radio" name="fw-depth" value="Root cause" checked>
+        <span class="fw-radio-label">Root cause</span>
+      </label>
+      <label class="fw-radio-option">
+        <input type="radio" name="fw-depth" value="Hidden assumptions">
+        <span class="fw-radio-label">Hidden assumptions</span>
+      </label>
+      <label class="fw-radio-option">
+        <input type="radio" name="fw-depth" value="Underlying emotions">
+        <span class="fw-radio-label">Underlying emotions</span>
+      </label>
+    </div>
+
+    <div class="fw-setup-heading">Your problem</div>
+    <textarea class="fw-problem-input" placeholder="What's the problem you want to examine?"></textarea>
+
+    <button class="fw-begin-btn" type="button">Begin</button>
+  </div>
+
+  <div class="fw-conversation">
+    <div class="fw-progress">
+      <div class="fw-progress-label">Why 1 of 5</div>
+      <div class="fw-progress-dots">
+        <span class="fw-progress-dot is-active"></span>
+        <span class="fw-progress-dot"></span>
+        <span class="fw-progress-dot"></span>
+        <span class="fw-progress-dot"></span>
+        <span class="fw-progress-dot"></span>
+        <span class="fw-progress-synthesis-marker"></span>
+      </div>
+    </div>
+
+    <div class="fw-thread"></div>
+
+    <div class="fw-thinking-indicator is-hidden">Thinking</div>
+
+    <div class="fw-input-area">
+      <textarea class="fw-input" placeholder="Type your answer..."></textarea>
+      <div class="fw-input-bottom">
+        <div class="fw-input-hint">Press Enter to send · Shift+Enter for new line</div>
+        <button class="fw-send-btn" type="button">Send</button>
+      </div>
+    </div>
+
+    <div class="fw-end">
+      <div class="fw-end-buttons">
+        <button class="fw-end-btn fw-end-btn-primary fw-new-session-btn" type="button">Start new session</button>
+        <button class="fw-end-btn fw-copy-btn" type="button">Copy synthesis</button>
+      </div>
+      <p class="fw-end-note">This conversation isn't saved. Copy what matters to you.</p>
+    </div>
+  </div>
+
+  <div class="fw-toast" role="status" aria-live="polite"></div>
+
+  <footer class="fw-footer">
+    Day 16 · 100 Days with Claude
+    <div class="sub">Powered by Gemini 2.0 Flash · Daily quota limited</div>
+  </footer>
+</div>
+
+<script src="{{ url_for('static', filename='day16/five_whys.js') }}" defer></script>
+{% endblock %}
