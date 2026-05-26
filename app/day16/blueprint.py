@@ -66,17 +66,69 @@ def _increment_quota():
     daily_quota["count"] += 1
 
 
-DEFAULT_MODEL = "gemini-1.5-flash"
+DEFAULT_MODEL = "gemini-2.0-flash"
+
+# Preference order when auto-selecting from the models the key actually supports.
+# Earlier = preferred. Flash-lite variants tend to have the most generous free tier.
+_MODEL_PREFERENCE = [
+    "flash-lite",
+    "2.0-flash",
+    "2.5-flash",
+    "flash",
+    "pro",
+]
+
+_resolved_model_cache = None
+
+
+def _list_generate_models():
+    """Return model ids (e.g. 'models/gemini-2.0-flash') that support generateContent."""
+    if genai is None:
+        return []
+    try:
+        out = []
+        for m in genai.list_models():
+            methods = getattr(m, "supported_generation_methods", []) or []
+            if "generateContent" in methods:
+                out.append(m.name)
+        return out
+    except Exception:
+        log.exception("list_models failed")
+        return []
 
 
 def _get_model_name() -> str:
-    """Model id, overridable via GEMINI_MODEL env var.
+    """Resolve the model id.
 
-    Default is gemini-1.5-flash because it has broad free-tier availability.
-    Some projects/regions report a free-tier limit of 0 for gemini-2.0-flash,
-    so the model is kept configurable rather than hardcoded.
+    - If GEMINI_MODEL is set, use it verbatim (lets the operator force a choice).
+    - Otherwise ask the API which models the key supports and pick the most
+      free-tier-friendly one, caching the result. Falls back to DEFAULT_MODEL.
+
+    This avoids hardcoding a model id that a given key/region may not have
+    (e.g. gemini-1.5-flash is retired for newer keys; gemini-2.0-flash may have
+    a free-tier limit of 0 in some projects).
     """
-    return os.environ.get("GEMINI_MODEL", DEFAULT_MODEL).strip() or DEFAULT_MODEL
+    explicit = os.environ.get("GEMINI_MODEL", "").strip()
+    if explicit:
+        return explicit
+
+    global _resolved_model_cache
+    if _resolved_model_cache:
+        return _resolved_model_cache
+
+    available = _list_generate_models()
+    if not available:
+        return DEFAULT_MODEL
+
+    for pref in _MODEL_PREFERENCE:
+        for name in available:
+            low = name.lower()
+            if pref in low and "vision" not in low:
+                _resolved_model_cache = name
+                return name
+
+    _resolved_model_cache = available[0]
+    return available[0]
 
 
 def _friendly_error(exc, model_name: str) -> str:
@@ -91,7 +143,10 @@ def _friendly_error(exc, model_name: str) -> str:
             "(e.g. gemini-1.5-flash)."
         )
     if name == "NotFound" or "not found" in lower:
-        return f"The model '{model_name}' isn't available for this API key. Set GEMINI_MODEL to a supported model."
+        return (
+            f"The model '{model_name}' isn't available for this API key. "
+            "Open /day-16/five-whys-partner/models to see supported models, then set GEMINI_MODEL."
+        )
     if name in ("PermissionDenied", "Unauthenticated") or "api key" in lower or "permission" in lower:
         return "The API key was rejected. Check the GEMINI_API_KEY value."
     return "The AI service returned an error. Please try again in a moment."
@@ -260,6 +315,22 @@ def healthz():
         "model": _get_model_name(),
         "daily_quota_used": daily_quota["count"],
         "daily_quota_max": daily_quota["max_per_day"],
+    })
+
+
+@bp.route("/models")
+def models():
+    """Diagnostic: list the models this API key can use for generateContent."""
+    if genai is None:
+        return jsonify({"error": "library_missing", "message": "google-generativeai is not installed."}), 503
+    if not os.environ.get("GEMINI_API_KEY"):
+        return jsonify({"error": "no_key", "message": "GEMINI_API_KEY is not set."}), 503
+    genai.configure(api_key=os.environ["GEMINI_API_KEY"])
+    available = _list_generate_models()
+    return jsonify({
+        "selected": _get_model_name(),
+        "env_override": os.environ.get("GEMINI_MODEL", "").strip() or None,
+        "available_for_generateContent": available,
     })
 
 
