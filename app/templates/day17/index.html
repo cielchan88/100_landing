@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}The Adventure Engine — Day 17 of 100 Days with Claude{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='day17/adventure_engine.css') }}">
+
+<div class="ae-page">
+  <header class="ae-topbar"><a href="/" aria-label="Back to all days">← Back to all days</a></header>
+
+  <section class="ae-hero">
+    <div class="ae-eyebrow">Day 17 · The Adventure Engine</div>
+    <h1 class="ae-headline">Six turns.<br>Three choices.<br><span style="color: var(--accent)">One story.</span></h1>
+    <p class="ae-subtitle">AI writes interactive fiction. Pick a genre, describe a protagonist, step through a story that ends in under ten minutes.</p>
+  </section>
+
+  <div class="ae-intro">
+    Choose-your-own-adventure books are out of print. Their digital descendants are usually massive multi-hour interactive fiction. The Adventure Engine sits in the middle — a story that feels substantial but ends in six turns. You'll get an ending. The AI will write it.
+  </div>
+
+  <div class="ae-error is-hidden" role="alert"></div>
+
+  <div class="ae-setup">
+    <div class="ae-setup-heading">Pick a genre</div>
+    <div class="ae-genre-grid">
+      <button class="ae-genre-btn" type="button" data-genre="Sci-fi">Sci-fi</button>
+      <button class="ae-genre-btn" type="button" data-genre="Fantasy">Fantasy</button>
+      <button class="ae-genre-btn" type="button" data-genre="Noir">Noir</button>
+      <button class="ae-genre-btn" type="button" data-genre="Horror">Horror</button>
+      <button class="ae-genre-btn" type="button" data-genre="Romance">Romance</button>
+      <button class="ae-genre-btn" type="button" data-genre="Adventure">Adventure</button>
+    </div>
+
+    <div class="ae-setup-heading">Describe your protagonist</div>
+    <textarea class="ae-protagonist-input" placeholder="A retired cartographer haunted by a map that shouldn't exist."></textarea>
+    <p class="ae-protagonist-hint">1-2 sentences. The more vivid, the better.</p>
+
+    <button class="ae-begin-btn" type="button" disabled>Begin</button>
+  </div>
+
+  <div class="ae-story-screen">
+    <div class="ae-progress">
+      <div class="ae-progress-label">Turn 1 of 6</div>
+      <div class="ae-progress-dots">
+        <span class="ae-progress-dot"></span>
+        <span class="ae-progress-dot"></span>
+        <span class="ae-progress-dot"></span>
+        <span class="ae-progress-dot"></span>
+        <span class="ae-progress-dot"></span>
+        <span class="ae-progress-dot is-end"></span>
+      </div>
+    </div>
+
+    <div class="ae-story-content"></div>
+
+    <div class="ae-thinking is-hidden">The story unfolds</div>
+
+    <div class="ae-choices is-hidden"></div>
+
+    <div class="ae-end">
+      <div class="ae-end-title">The End</div>
+      <div class="ae-end-buttons">
+        <button class="ae-end-btn ae-end-btn-primary ae-new-adventure-btn" type="button">Start new adventure</button>
+        <button class="ae-end-btn ae-copy-btn" type="button">Copy story</button>
+      </div>
+      <p class="ae-end-note">This story isn't saved. Copy what you'd like to keep.</p>
+    </div>
+  </div>
+
+  <div class="ae-toast" role="status" aria-live="polite"></div>
+
+  <footer class="ae-footer">
+    Day 17 · 100 Days with Claude
+    <div class="sub">Powered by Google Gemini · Daily quota limited</div>
+  </footer>
+</div>
+
+<script src="{{ url_for('static', filename='day17/adventure_engine.js') }}" defer></script>
+{% endblock %}
