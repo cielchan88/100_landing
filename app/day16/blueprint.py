@@ -66,6 +66,37 @@ def _increment_quota():
     daily_quota["count"] += 1
 
 
+DEFAULT_MODEL = "gemini-1.5-flash"
+
+
+def _get_model_name() -> str:
+    """Model id, overridable via GEMINI_MODEL env var.
+
+    Default is gemini-1.5-flash because it has broad free-tier availability.
+    Some projects/regions report a free-tier limit of 0 for gemini-2.0-flash,
+    so the model is kept configurable rather than hardcoded.
+    """
+    return os.environ.get("GEMINI_MODEL", DEFAULT_MODEL).strip() or DEFAULT_MODEL
+
+
+def _friendly_error(exc, model_name: str) -> str:
+    """Map an SDK/gRPC exception to a short, user-facing message."""
+    name = type(exc).__name__
+    text = str(exc)
+    lower = text.lower()
+    if name == "ResourceExhausted" or "resource_exhausted" in lower or "quota" in lower or "429" in text:
+        return (
+            f"No free-tier quota available for the current model ({model_name}). "
+            "Wait a minute and retry, or set GEMINI_MODEL to a model your key supports "
+            "(e.g. gemini-1.5-flash)."
+        )
+    if name == "NotFound" or "not found" in lower:
+        return f"The model '{model_name}' isn't available for this API key. Set GEMINI_MODEL to a supported model."
+    if name in ("PermissionDenied", "Unauthenticated") or "api key" in lower or "permission" in lower:
+        return "The API key was rejected. Check the GEMINI_API_KEY value."
+    return "The AI service returned an error. Please try again in a moment."
+
+
 def _get_gemini():
     """Returns the configured genai module, or None if unavailable."""
     if genai is None:
@@ -178,10 +209,12 @@ def chat():
 
     _increment_quota()
 
+    model_name = _get_model_name()
+
     def generate():
         try:
             model = genai.GenerativeModel(
-                model_name="gemini-2.0-flash",
+                model_name=model_name,
                 system_instruction=system_prompt,
                 generation_config={
                     "temperature": 0.6,
@@ -206,8 +239,8 @@ def chat():
                 yield f"data: {json.dumps({'error': 'empty_response', 'message': 'The model returned no text (the response may have been blocked).'})}\n\n"
             yield f"data: {json.dumps({'done': True})}\n\n"
         except Exception as exc:
-            log.exception("Gemini stream failed")
-            yield f"data: {json.dumps({'error': 'stream_failed', 'message': str(exc)})}\n\n"
+            log.exception("Gemini stream failed (model=%s)", model_name)
+            yield f"data: {json.dumps({'error': 'stream_failed', 'message': _friendly_error(exc, model_name)})}\n\n"
 
     return Response(
         stream_with_context(generate()),
@@ -224,6 +257,7 @@ def healthz():
     return jsonify({
         "ok": True,
         "api_configured": bool(genai is not None and os.environ.get("GEMINI_API_KEY")),
+        "model": _get_model_name(),
         "daily_quota_used": daily_quota["count"],
         "daily_quota_max": daily_quota["max_per_day"],
     })
