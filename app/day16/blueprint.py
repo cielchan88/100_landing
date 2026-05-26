@@ -192,11 +192,18 @@ def chat():
 
             response = model.generate_content(gemini_messages, stream=True)
 
+            any_text = False
             for chunk in response:
-                text = getattr(chunk, "text", None)
+                try:
+                    text = chunk.text
+                except Exception:
+                    text = None  # final/blocked chunks raise on .text
                 if text:
+                    any_text = True
                     yield f"data: {json.dumps({'text': text})}\n\n"
 
+            if not any_text:
+                yield f"data: {json.dumps({'error': 'empty_response', 'message': 'The model returned no text (the response may have been blocked).'})}\n\n"
             yield f"data: {json.dumps({'done': True})}\n\n"
         except Exception as exc:
             log.exception("Gemini stream failed")

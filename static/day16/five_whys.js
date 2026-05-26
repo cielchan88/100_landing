@@ -116,6 +116,10 @@
     dom.thinkingIndicator.classList.remove('is-hidden');
     dom.error.classList.add('is-hidden');
 
+    let botContainer = null;
+    let fullText = '';
+    let failed = false;
+
     try {
       const response = await fetch('/day-16/five-whys-partner/chat', {
         method: 'POST',
@@ -134,19 +138,18 @@
       }
 
       const labelText = isSynthesis ? 'Synthesis' : `Why ${state.currentQuestion} of 5`;
-      const messageEl = appendBotMessage(labelText, isSynthesis);
-      const contentEl = messageEl.querySelector('.fw-message-bot');
+      botContainer = appendBotMessage(labelText, isSynthesis);
+      const contentEl = botContainer.querySelector('.fw-message-bot');
       const cursor = document.createElement('span');
       cursor.className = 'fw-typing-cursor';
       contentEl.appendChild(cursor);
 
       dom.thinkingIndicator.classList.add('is-hidden');
 
-      let fullText = '';
-
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let buffer = '';
+      let streamError = null;
 
       while (true) {
         const { done, value } = await reader.read();
@@ -154,33 +157,37 @@
 
         buffer += decoder.decode(value, { stream: true });
 
-        const lines = buffer.split('\n\n');
-        buffer = lines.pop();
+        const parts = buffer.split('\n\n');
+        buffer = parts.pop();
 
-        for (const line of lines) {
+        for (const line of parts) {
           if (!line.startsWith('data: ')) continue;
+          let data;
           try {
-            const data = JSON.parse(line.slice(6));
-            if (data.text) {
-              fullText += data.text;
-              cursor.insertAdjacentText('beforebegin', data.text);
-              messageEl.scrollIntoView({ behavior: 'smooth', block: 'end' });
-            }
-            if (data.done) {
-              cursor.remove();
-            }
-            if (data.error) {
-              throw new Error(data.message || 'Stream error');
-            }
+            data = JSON.parse(line.slice(6));
           } catch (e) {
-            if (e.message && e.message !== 'Unexpected end of JSON input') {
-              console.error('Parse error:', e);
-            }
+            continue; // skip malformed/incomplete chunk, don't abort
+          }
+          if (data.error) {
+            streamError = data.message || 'The AI service returned an error.';
+            continue;
+          }
+          if (data.text) {
+            fullText += data.text;
+            cursor.insertAdjacentText('beforebegin', data.text);
+            botContainer.scrollIntoView({ behavior: 'smooth', block: 'end' });
+          }
+          if (data.done) {
+            cursor.remove();
           }
         }
       }
 
       cursor.remove();
+
+      if (streamError && !fullText) {
+        throw new Error(streamError);
+      }
 
       state.messages.push({ role: 'model', content: fullText });
 
@@ -188,19 +195,32 @@
         endSession();
       }
     } catch (e) {
+      failed = true;
       console.error('Stream failed:', e);
       dom.thinkingIndicator.classList.add('is-hidden');
-      showError(e.message || 'Something went wrong. Try again.');
-      // Roll back the failed turn so the user can retry.
-      if (state.messages.length && state.messages[state.messages.length - 1].role === 'user' && !isSynthesis) {
-        // keep the user message; just allow retry by re-enabling input
+      // Remove the empty bot bubble so a retry doesn't leave a blank message.
+      if (botContainer && !fullText) botContainer.remove();
+
+      if (state.messages.length === 1 && state.messages[0].role === 'user') {
+        // Failed on the very first question — return to setup, keep the problem text.
+        const problem = state.messages[0].content;
+        resetToSetup();
+        dom.problemInput.value = problem;
+        dom.beginBtn.disabled = !problem.trim();
+      } else if (state.messages.length && state.messages[state.messages.length - 1].role === 'user') {
+        // Roll back the typed answer so the user can retry cleanly.
+        state.messages.pop();
+        state.currentQuestion = Math.max(1, state.currentQuestion - 1);
+        updateProgress(state.currentQuestion);
       }
+      showError(e.message || 'Something went wrong. Please try again.');
     } finally {
       state.streaming = false;
-      if (!isSynthesis) {
+      // On failure, always restore the input so the user can retry — even mid-synthesis.
+      if (!isSynthesis || failed) {
+        dom.inputArea.classList.remove('is-hidden');
         dom.input.disabled = false;
         dom.sendBtn.disabled = false;
-        dom.input.focus();
       }
     }
   }
