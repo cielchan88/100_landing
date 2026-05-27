@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}Plant Doctor — Day 18 of 100 Days with Claude{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='day18/plant_doctor.css') }}">
+
+<div class="pd-page">
+  <header class="pd-topbar"><a href="/" aria-label="Back to all days">← Back to all days</a></header>
+
+  <section class="pd-hero">
+    <div class="pd-eyebrow">Day 18 · Plant Doctor</div>
+    <h1 class="pd-headline">Show me<br><span style="color: var(--accent)">your plant.</span></h1>
+    <p class="pd-subtitle">AI-powered plant identification and care advice. Upload a photo or use your camera.</p>
+  </section>
+
+  <div class="pd-intro">
+    <p>Plant care advice on the internet is mostly written at the species level — "water your Pothos when the top inch is dry." That's fine if you already know it's a Pothos. If you don't, or if it's stressed in a way generic advice doesn't address, you're stuck.</p>
+    <p>Plant Doctor gives you a fast first read: what it probably is, how it's doing, what's worth knowing. Not a replacement for a real horticulturist on serious cases — but a useful starting point.</p>
+  </div>
+
+  <div class="pd-error is-hidden" role="alert"></div>
+
+  <div class="pd-setup">
+    <div class="pd-setup-heading">Upload your plant photo</div>
+
+    <div class="pd-dropzone">
+      <div class="pd-dropzone-content">
+        <div class="pd-dropzone-icon">🌿</div>
+        <div class="pd-dropzone-text">Drag photo here or click to upload</div>
+        <div class="pd-dropzone-hint">JPG, PNG, or HEIC · max 15MB</div>
+      </div>
+    </div>
+
+    <input type="file" id="pd-input-browse" accept="image/*" style="display:none">
+    <input type="file" id="pd-input-camera" accept="image/*" capture="environment" style="display:none">
+
+    <div class="pd-action-buttons">
+      <button class="pd-action-btn" id="pd-browse-btn" type="button">Browse files</button>
+      <button class="pd-action-btn" id="pd-camera-btn" type="button">Take photo</button>
+    </div>
+
+    <button class="pd-remove-image" type="button" style="display:none;">Remove image</button>
+
+    <div class="pd-or-divider">
+      or <button class="pd-examples-toggle" type="button">try an example</button>
+    </div>
+
+    <div class="pd-examples is-hidden"></div>
+
+    <div class="pd-context-section is-hidden">
+      <div class="pd-setup-heading">Anything you've noticed?</div>
+      <textarea class="pd-context-input" placeholder="Optional. e.g., leaves yellowing for 2 weeks, recent move, change in routine..."></textarea>
+      <p class="pd-context-hint">Optional. Helps the AI give more relevant advice.</p>
+    </div>
+
+    <button class="pd-diagnose-btn" type="button" style="display:none;">Diagnose</button>
+  </div>
+
+  <div class="pd-analyzing">
+    <img class="pd-analyzing-preview" alt="Your plant">
+    <div class="pd-analyzing-text">Analyzing your plant</div>
+    <div class="pd-analyzing-hint">Usually takes 3-8 seconds</div>
+  </div>
+
+  <div class="pd-results">
+    <div class="pd-results-header">
+      <img class="pd-results-preview" alt="Your plant">
+    </div>
+
+    <div class="pd-results-cards"></div>
+
+    <div class="pd-result-actions">
+      <button class="pd-result-btn pd-result-btn-primary pd-try-another-btn" type="button">Try another plant</button>
+      <button class="pd-result-btn pd-copy-btn" type="button">Copy assessment</button>
+    </div>
+  </div>
+
+  <div class="pd-toast" role="status" aria-live="polite"></div>
+
+  <footer class="pd-footer">
+    Day 18 · 100 Days with Claude
+    <div class="sub">Powered by Google Gemini Vision · Daily quota limited</div>
+  </footer>
+</div>
+
+<script src="{{ url_for('static', filename='day18/plant_doctor.js') }}" defer></script>
+{% endblock %}
