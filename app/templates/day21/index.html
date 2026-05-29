@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}The Question Volley — Day 21 of 100 Days with Claude{% endblock %}
+
+{% block content %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='day21/question_volley.css') }}">
+
+<div class="qv-page">
+  <header class="qv-topbar"><a href="/" aria-label="Back to all days">← Back to all days</a></header>
+
+  <div class="qv-error is-hidden" role="alert"></div>
+
+  <!-- Screen 1: Intro -->
+  <section class="qv-screen is-active" data-screen="intro">
+    <div class="qv-hero">
+      <div class="qv-eyebrow">Day 21 · The Question Volley</div>
+      <h1 class="qv-headline">A conversation,<br><span style="color: var(--accent)">one question at a time.</span></h1>
+      <p class="qv-subtitle">Ask one good question. Send the link. They answer and ask one back. No app, no account — the whole conversation lives in the link you pass between you.</p>
+    </div>
+    <div class="qv-intro">
+      Group chats are fast and shallow. Feeds are performances. The Question Volley is the opposite: a private, unhurried exchange between exactly two people. You ask, they answer and ask back, and the rhythm carries you somewhere real. Take your time — that's the point.
+    </div>
+    <button class="qv-primary-btn" id="qv-start-btn" type="button">Start a volley</button>
+  </section>
+
+  <!-- Screen 2: Compose first question -->
+  <section class="qv-screen" data-screen="compose" id="qv-compose">
+    <div class="qv-section-label">Your name (optional)</div>
+    <input type="text" class="qv-name-input" id="qv-compose-name" maxlength="40" placeholder="e.g. Sarah">
+
+    <div class="qv-section-label">Pick a question — or write your own</div>
+    <div class="qv-picker">
+      <div class="qv-categories"></div>
+      <div class="qv-questions"></div>
+      <div class="qv-custom-wrap is-hidden">
+        <textarea class="qv-text-input qv-custom-input" maxlength="400" placeholder="Write your own question (max 280 characters)"></textarea>
+        <div class="qv-char-counter qv-custom-counter">0 / 280</div>
+      </div>
+    </div>
+
+    <button class="qv-primary-btn" id="qv-create-btn" type="button" disabled>Create link to send</button>
+  </section>
+
+  <!-- Screen 3: Link ready -->
+  <section class="qv-screen" data-screen="link-ready">
+    <div class="qv-section-label">Ready to send</div>
+    <div class="qv-question-card is-selected" id="qv-link-question" style="cursor:default"></div>
+
+    <div class="qv-section-label">Your link</div>
+    <div class="qv-link-box">
+      <input type="text" class="qv-link-field" readonly>
+      <button class="qv-copy-btn" type="button">Copy link</button>
+    </div>
+    <p style="color: var(--muted); font-size: 0.9rem; line-height: 1.5;">Send this link to one person. When they reply, they'll send you a new link back.</p>
+
+    <div class="qv-privacy-note">
+      Your conversation lives entirely in the link — nothing is saved on any server. Anyone with the link can read the exchange, so keep it light.
+    </div>
+
+    <button class="qv-primary-btn" id="qv-new-volley-btn" type="button" style="background:transparent;border:1px solid var(--border);color:var(--muted);">Start a new volley</button>
+  </section>
+
+  <!-- Screen 4: Received / your turn -->
+  <section class="qv-screen" data-screen="received" id="qv-received">
+    <div class="qv-section-label">The conversation so far</div>
+    <div class="qv-thread"></div>
+
+    <div id="qv-ended-note" class="qv-softcap-note is-hidden">
+      This conversation has wrapped up. Thanks for volleying.
+    </div>
+
+    <div id="qv-answer-section">
+      <div class="qv-section-label">Your answer to: <span id="qv-answer-prompt" style="color:var(--text);text-transform:none;letter-spacing:0;"></span></div>
+      <textarea class="qv-text-input" id="qv-answer-input" maxlength="400" placeholder="Take your time… (max 280 characters)"></textarea>
+      <div class="qv-char-counter" id="qv-answer-counter">0 / 280</div>
+
+      <div id="qv-received-name-wrap" class="is-hidden">
+        <div class="qv-section-label">Your name (optional)</div>
+        <input type="text" class="qv-name-input" id="qv-received-name" maxlength="40" placeholder="e.g. Alex">
+      </div>
+    </div>
+
+    <div id="qv-ask-section">
+      <div class="qv-section-label">Ask one back</div>
+      <div class="qv-ask-picker">
+        <div class="qv-categories"></div>
+        <div class="qv-questions"></div>
+        <div class="qv-custom-wrap is-hidden">
+          <textarea class="qv-text-input qv-custom-input" maxlength="400" placeholder="Write your own question (max 280 characters)"></textarea>
+          <div class="qv-char-counter qv-custom-counter">0 / 280</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qv-softcap-note is-hidden">
+      This conversation has had a good run — ten volleys deep. You can send one last reply, but the question deck is resting now.
+    </div>
+
+    <button class="qv-primary-btn" id="qv-send-btn" type="button" disabled>Send back</button>
+  </section>
+
+  <div class="qv-toast" role="status" aria-live="polite"></div>
+
+  <footer class="qv-footer">
+    Day 21 · 100 Days with Claude
+    <div class="sub">No accounts. No servers. Just a link between two people.</div>
+  </footer>
+</div>
+
+<script src="{{ url_for('static', filename='day21/question_volley.js') }}" defer></script>
+{% endblock %}
