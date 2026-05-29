@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}Bend the Beam — Day 19 of 100 Days with Claude{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='day19/bend_the_beam.css') }}">
+
+<div class="btb-page">
+  <header class="btb-topbar">
+    <a href="/" aria-label="Back to all days">← Back to all days</a>
+    <div>
+      <button class="btb-icon-btn btb-back-to-levels-btn" type="button" title="Level select" aria-label="Level select">≡</button>
+      <button class="btb-icon-btn btb-reset-btn" type="button" title="Reset level" aria-label="Reset level">↻</button>
+    </div>
+  </header>
+
+  <section class="btb-intro-screen">
+    <div class="btb-eyebrow">Day 19 · Bend the Beam</div>
+    <h1 class="btb-headline">Twelve puzzles,<br><span style="color: var(--accent)">all about light.</span></h1>
+    <p class="btb-subtitle">Place prisms. Rotate mirrors. Get the beam to its target.</p>
+
+    <div class="btb-intro">
+      Most puzzle games invent their own rules. Bend the Beam uses real physics — light bends when it enters glass, reflects off mirrors, gets blocked by walls. Once you understand that, you understand the entire game. The puzzles do the rest of the work.
+    </div>
+
+    <button class="btb-begin-btn" type="button">Begin</button>
+
+    <div class="btb-level-selector">
+      <div class="btb-level-selector-heading">Or jump to a level</div>
+      <div class="btb-level-grid"></div>
+    </div>
+  </section>
+
+  <section class="btb-game-screen">
+    <div class="btb-level-info">
+      <div class="btb-level-title" id="btb-level-title">First Bend</div>
+      <div class="btb-level-counter" id="btb-level-counter">Level 1 of 12</div>
+    </div>
+
+    <div class="btb-canvas-container">
+      <canvas id="btb-canvas"></canvas>
+      <div class="btb-rotate-controls">
+        <button class="btb-rotate-btn btb-rotate-left" type="button" aria-label="Rotate left">←</button>
+        <button class="btb-rotate-btn btb-rotate-right" type="button" aria-label="Rotate right">→</button>
+      </div>
+    </div>
+
+    <p class="btb-hint" id="btb-hint">Drag the prism to make the light hit the target.</p>
+
+    <div class="btb-level-actions">
+      <button class="btb-action-btn btb-prev-btn" type="button">← Prev</button>
+      <button class="btb-action-btn btb-next-btn" type="button">Next →</button>
+    </div>
+  </section>
+
+  <div class="btb-overlay">
+    <div class="btb-overlay-card">
+      <div class="btb-overlay-title">Level Complete</div>
+      <div class="btb-overlay-subtitle"></div>
+      <button class="btb-overlay-btn" type="button">Next Level</button>
+    </div>
+  </div>
+
+  <div class="btb-toast" role="status" aria-live="polite"></div>
+
+  <footer class="btb-footer">Day 19 · 100 Days with Claude</footer>
+</div>
+
+<script src="{{ url_for('static', filename='day19/bend_the_beam.js') }}" defer></script>
+{% endblock %}
