@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}Forty — Day 20 of 100 Days with Claude{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='day20/forty.css') }}">
+
+<div class="forty-page">
+  <header class="forty-topbar"><a href="/" aria-label="Back to all days">← Back to all days</a></header>
+
+  <section class="forty-hero">
+    <div class="forty-eyebrow">Day 20 · Forty</div>
+    <h1 class="forty-headline">When do you turn forty<br><span style="color: var(--accent)">in Hijri years?</span></h1>
+    <p class="forty-subtitle">A lunar year is eleven days shorter than a solar one. So the fortieth Hijri year arrives more than a year before your fortieth birthday. Enter your birthdate to find the date.</p>
+  </section>
+
+  <div class="forty-intro">
+    The age of forty is a milestone across many traditions. In the Qur'an, Surah Al-Ahqaf (46:15) describes it as the age of full maturity — the moment a person is called to gratitude and reflection. Measured by the lunar Hijri calendar, that fortieth year comes sooner than the Gregorian count suggests. This tool finds exactly when.
+  </div>
+
+  <div class="forty-error is-hidden" role="alert"></div>
+
+  <div class="forty-input-section">
+    <label class="forty-input-label" for="forty-date">Your birthdate (Gregorian / Masehi)</label>
+    <input type="date" id="forty-date" class="forty-date-input" min="1900-01-01">
+  </div>
+
+  <div class="forty-results" id="forty-results">
+    <div class="forty-card forty-card-accent">
+      <div class="forty-card-label">Your 40th Hijri birthday</div>
+      <div class="forty-big-date" id="forty-hijri40-greg"></div>
+      <div class="forty-hijri-date" id="forty-hijri40-hijri"></div>
+      <div class="forty-framing" id="forty-hijri40-framing"></div>
+      <div class="forty-comparison" id="forty-hijri40-comparison"></div>
+    </div>
+
+    <div class="forty-card">
+      <div class="forty-card-label">Today</div>
+      <div class="forty-today-grid">
+        <div class="forty-stat">
+          <div class="forty-stat-value" id="forty-age-greg"></div>
+          <div class="forty-stat-unit">years</div>
+          <div class="forty-stat-label">Gregorian · Masehi</div>
+        </div>
+        <div class="forty-stat">
+          <div class="forty-stat-value" id="forty-age-hijri"></div>
+          <div class="forty-stat-unit">years</div>
+          <div class="forty-stat-label">Hijri · Hijriah</div>
+        </div>
+      </div>
+      <div class="forty-highlight is-hidden" id="forty-age-highlight"></div>
+    </div>
+
+    <div class="forty-card">
+      <div class="forty-card-label">Your birth, two ways</div>
+      <div class="forty-two-ways-row">
+        <span class="forty-two-ways-cal">Gregorian</span>
+        <span class="forty-two-ways-date" id="forty-birth-greg"></span>
+      </div>
+      <div class="forty-two-ways-row">
+        <span class="forty-two-ways-cal">Hijri</span>
+        <span class="forty-two-ways-date" id="forty-birth-hijri"></span>
+      </div>
+    </div>
+
+    <div class="forty-note">
+      A Hijri year averages about 354 days; a Gregorian year about 365. Over forty years the difference accumulates to roughly fourteen months. Hijri dates here use the Umm al-Qura calendar; actual moon-sighting dates may differ by a day.
+    </div>
+
+    <div class="forty-actions">
+      <button class="forty-btn" id="forty-share-btn" type="button">Share this result</button>
+      <button class="forty-btn" id="forty-reset-btn" type="button">Try another date</button>
+    </div>
+  </div>
+
+  <div class="forty-toast" role="status" aria-live="polite"></div>
+
+  <footer class="forty-footer">
+    Day 20 · 100 Days with Claude
+    <div class="sub">Hijri dates via the Umm al-Qura calendar, computed in your browser.</div>
+  </footer>
+</div>
+
+<script src="{{ url_for('static', filename='day20/forty.js') }}" defer></script>
+{% endblock %}

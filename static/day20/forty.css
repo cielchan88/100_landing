@@ -1,0 +1,280 @@
+/* Forty — Day 20 */
+.forty-page {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 1rem 1rem 4rem;
+}
+
+.forty-topbar { padding: 1rem 0; }
+.forty-topbar a {
+  color: var(--muted);
+  font-size: 0.875rem;
+  text-decoration: none;
+}
+.forty-topbar a:hover { color: var(--accent); }
+
+.forty-hero { padding: 2rem 0 1.5rem; }
+
+.forty-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin-bottom: 0.75rem;
+}
+
+.forty-headline {
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: 1rem;
+}
+
+.forty-subtitle {
+  color: var(--muted);
+  font-size: 1rem;
+  max-width: 38rem;
+  line-height: 1.55;
+}
+
+.forty-intro {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin: 2rem 0;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: var(--text);
+}
+
+.forty-input-section { margin: 2rem 0; }
+
+.forty-input-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin-bottom: 0.6rem;
+  display: block;
+}
+
+.forty-date-input {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 1.05rem;
+  transition: border-color 200ms;
+  color-scheme: dark;
+}
+.forty-date-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.forty-results {
+  margin-top: 2rem;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 400ms, transform 400ms;
+  display: none;
+}
+.forty-results.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  display: block;
+}
+
+.forty-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.forty-card-accent { border-left: 3px solid var(--accent); }
+
+.forty-card-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin-bottom: 0.85rem;
+}
+
+.forty-big-date {
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.15;
+  margin-bottom: 0.4rem;
+}
+
+.forty-hijri-date {
+  font-size: 1rem;
+  color: var(--muted);
+  margin-bottom: 0.85rem;
+}
+
+.forty-framing {
+  font-size: 1rem;
+  color: var(--accent);
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.forty-comparison {
+  font-size: 0.9rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.forty-today-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.forty-stat {
+  text-align: center;
+  padding: 1rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+}
+.forty-stat-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 2.25rem;
+  font-weight: 600;
+  color: var(--accent);
+  line-height: 1;
+}
+.forty-stat-unit {
+  font-size: 0.85rem;
+  color: var(--text);
+  margin-top: 0.35rem;
+}
+.forty-stat-label {
+  font-size: 0.7rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-top: 0.25rem;
+}
+
+.forty-highlight {
+  margin-top: 1rem;
+  padding: 0.85rem 1rem;
+  background: rgba(217, 119, 87, 0.1);
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--text);
+  line-height: 1.5;
+}
+.forty-highlight.is-hidden { display: none; }
+
+.forty-two-ways-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.forty-two-ways-row:last-child { border-bottom: none; }
+.forty-two-ways-cal {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+.forty-two-ways-date {
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.forty-note {
+  font-size: 0.8rem;
+  color: var(--muted);
+  font-style: italic;
+  line-height: 1.55;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px dashed var(--border);
+}
+
+.forty-actions {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: center;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+.forty-btn {
+  padding: 0.65rem 1.5rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  border-radius: 0.4rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.04em;
+  transition: color 150ms, border-color 150ms;
+}
+.forty-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+.forty-error {
+  background: rgba(255, 107, 71, 0.1);
+  border: 1px solid #FF6B47;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin: 1rem 0;
+  color: #FF6B47;
+  font-size: 0.85rem;
+}
+.forty-error.is-hidden { display: none; }
+
+.forty-toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  color: var(--text);
+  padding: 0.6rem 1.25rem;
+  border-radius: 0.5rem;
+  font-size: 0.85rem;
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms;
+}
+.forty-toast.is-visible { opacity: 1; }
+
+.forty-footer {
+  margin-top: 3rem;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-family: 'JetBrains Mono', monospace;
+}
+.forty-footer .sub { margin-top: 0.3rem; font-style: italic; opacity: 0.7; }
+
+@media (max-width: 640px) {
+  .forty-today-grid { grid-template-columns: 1fr; }
+  .forty-big-date { font-size: 1.6rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .forty-results { transition: opacity 100ms; transform: none !important; }
+}
