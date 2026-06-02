@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block title %}Riba &amp; Risk: Open Economy — Day 23 of 100 Days with Claude{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='day23/open_economy.css') }}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<div class="oe-page">
+  <header class="oe-topbar"><a href="/" aria-label="Back to all days">← Back to all days</a></header>
+
+  <section>
+    <div class="oe-eyebrow">Day 23 · Riba &amp; Risk: Open Economy</div>
+    <h1 class="oe-headline">Now open<br><span style="color: var(--accent)">the borders.</span></h1>
+    <p class="oe-subtitle">Day 22 ran two monetary systems behind closed borders. Open them — let the exchange rate float and capital cross — and the sharpest differences appear.</p>
+    <div class="oe-context-link">New here? Start with the closed-economy version → <a href="/day-22/riba-and-risk">/day-22/riba-and-risk</a></div>
+  </section>
+
+  <div class="oe-framing">
+    A stylized teaching model, not a forecast and not a verdict. Open-economy comparison is where it's easiest to cheat — especially by making the interest-free system look immune to capital flight. It isn't. Both systems face real trade-offs under a floating exchange rate and the impossible trinity. Treat the curves as intuition about mechanisms, not predictions about any country.
+  </div>
+
+  <div class="oe-controls">
+    <div class="oe-control-label">Choose a shock</div>
+    <div class="oe-shock-buttons">
+      <button class="oe-shock-btn" type="button" data-shock="demand">Demand</button>
+      <button class="oe-shock-btn" type="button" data-shock="supply">Supply / oil</button>
+      <button class="oe-shock-btn" type="button" data-shock="financial">Financial crisis</button>
+      <button class="oe-shock-btn" type="button" data-shock="global_rate">Global rate shock</button>
+      <button class="oe-shock-btn" type="button" data-shock="sudden_stop">Sudden stop</button>
+    </div>
+
+    <div class="oe-slider-row">
+      <label for="oe-severity">Shock severity <span id="oe-severity-val">5</span></label>
+      <input class="oe-slider" type="range" id="oe-severity" min="1" max="10" step="1" value="5">
+    </div>
+    <div class="oe-slider-row">
+      <label for="oe-responsiveness">Authority responsiveness (passive → aggressive) <span id="oe-responsiveness-val">1.00</span></label>
+      <input class="oe-slider" type="range" id="oe-responsiveness" min="0.3" max="2.0" step="0.05" value="1.0">
+    </div>
+    <div class="oe-slider-row">
+      <label for="oe-linkage">Real-economy linkage (weak → strong) <span id="oe-linkage-val">0.70</span></label>
+      <input class="oe-slider" type="range" id="oe-linkage" min="0.2" max="1.0" step="0.05" value="0.7">
+    </div>
+    <div class="oe-slider-row">
+      <label for="oe-capmob">Capital mobility (low → high) <span id="oe-capmob-val">0.70</span></label>
+      <input class="oe-slider" type="range" id="oe-capmob" min="0.2" max="1.0" step="0.05" value="0.7">
+    </div>
+
+    <button class="oe-run-btn" type="button" id="oe-run-btn">Run simulation</button>
+  </div>
+
+  <section class="oe-dashboard">
+    <div class="oe-country oe-country-c">
+      <div class="oe-country-title">Country C — Conventional</div>
+      <div class="oe-country-sub">Interest-based</div>
+      <div class="oe-chart-wrap"><div class="oe-chart-title">Output gap (%)</div><div class="oe-chart-h"><canvas id="oe-c-y"></canvas></div></div>
+      <div class="oe-chart-wrap"><div class="oe-chart-title">Inflation (%)</div><div class="oe-chart-h"><canvas id="oe-c-pi"></canvas></div></div>
+      <div class="oe-chart-wrap"><div class="oe-chart-title">Private debt / GDP (%)</div><div class="oe-chart-h"><canvas id="oe-c-debt"></canvas></div></div>
+      <div class="oe-chart-wrap"><div class="oe-chart-title">Exchange rate (index, ↑ = depreciation)</div><div class="oe-chart-h"><canvas id="oe-c-e"></canvas></div></div>
+      <div class="oe-chart-wrap"><div class="oe-chart-title">Capital flow &amp; current account (% GDP)</div><div class="oe-chart-h"><canvas id="oe-c-ext"></canvas></div></div>
+      <div class="oe-mechanism-caption">The policy rate manages demand AND attracts capital. Defending the currency means raising rates — at a domestic cost. FX-denominated debt makes sharp depreciation expensive on the balance sheet.</div>
+    </div>
+
+    <div class="oe-country oe-country-i">
+      <div class="oe-country-title">Country I — Islamic</div>
+      <div class="oe-country-sub">Profit-sharing · asset-backed</div>
+      <div class="oe-chart-wrap"><div class="oe-chart-title">Output gap (%)</div><div class="oe-chart-h"><canvas id="oe-i-y"></canvas></div></div>
+      <div class="oe-chart-wrap"><div class="oe-chart-title">Inflation (%)</div><div class="oe-chart-h"><canvas id="oe-i-pi"></canvas></div></div>
+      <div class="oe-chart-wrap"><div class="oe-chart-title">Cumulative risk-sharing absorption</div><div class="oe-chart-h"><canvas id="oe-i-abs"></canvas></div></div>
+      <div class="oe-chart-wrap"><div class="oe-chart-title">Exchange rate (index, ↑ = depreciation)</div><div class="oe-chart-h"><canvas id="oe-i-e"></canvas></div></div>
+      <div class="oe-chart-wrap"><div class="oe-chart-title">Capital flow &amp; current account (% GDP)</div><div class="oe-chart-h"><canvas id="oe-i-ext"></canvas></div></div>
+      <div class="oe-mechanism-caption">No policy rate to pull. Capital follows expected real returns; equity-like flows are stickier, but there's no lever to defend the currency. A portion of flows still flees in a sudden stop.</div>
+    </div>
+  </section>
+
+  <section class="oe-narrative is-hidden" id="oe-narrative">
+    <div class="oe-narrative-label">What happened, and why</div>
+    <div class="oe-thinking" id="oe-thinking">Thinking…</div>
+    <div class="oe-narrative-body" id="oe-narrative-body"></div>
+  </section>
+
+  <details class="oe-assumptions">
+    <summary>Model assumptions (click to expand)</summary>
+    <div class="oe-assumptions-body">
+      <p>Floating exchange-rate regime only. The model does not simulate pegs, managed floats, or capital controls — and so does not simulate regime choice under the impossible trinity. Capital flows follow an uncovered-interest-parity intuition (chasing return differentials) scaled by capital mobility; the Islamic side's response is dampened by an equity-stickiness factor, and a fixed share of any capital-flow shock still hits it regardless. The current account is a simplified function of the exchange rate and the output gap (no proper J-curve).</p>
+      <p>The conventional side adds an FX-augmented Taylor rule (rates rise to defend the currency under depreciation) and a balance-sheet output drag on sharp depreciation, representing the FX-debt fragility. The Islamic side carries a smaller symmetric depreciation drag — equity financing dodges the balance-sheet spiral, but real purchasing-power loss still hits both. Inflation persistence is anchored to target on both sides so the Taylor rule isn't fighting a phantom deflation between shocks. Cost-push inflation (supply shocks) passes through unchanged to the Islamic side — profit-and-loss sharing absorbs financial losses, not the price level.</p>
+      <p>World variables are exogenous (no foreign feedback). There is no banking-sector microstructure, no foreign-reserve management, no heterogeneity across agents. Real Islamic finance is dual-banking, full of instruments that mimic debt, and operates under FX regimes the model doesn't represent. Every simplification here is something a real model would handle with far more care. The model is built to show mechanism, not to forecast.</p>
+    </div>
+  </details>
+
+  <footer class="oe-footer">
+    Day 23 · 100 Days with Claude
+    <div class="sub">Open-economy stylized model, floating FX. Narrative by Google Gemini.</div>
+  </footer>
+</div>
+
+<script src="{{ url_for('static', filename='day23/open_economy.js') }}" defer></script>
+{% endblock %}
