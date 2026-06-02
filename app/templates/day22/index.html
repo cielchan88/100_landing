@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}Riba & Risk — Day 22 of 100 Days with Claude{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='day22/riba_and_risk.css') }}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<div class="rr-page">
+  <header class="rr-topbar"><a href="/" aria-label="Back to all days">← Back to all days</a></header>
+
+  <section>
+    <div class="rr-eyebrow">Day 22 · Riba &amp; Risk</div>
+    <h1 class="rr-headline">Two systems.<br>One shock.<br><span style="color: var(--accent)">Watch the mechanics.</span></h1>
+    <p class="rr-subtitle">A conventional, interest-based economy and an Islamic, profit-sharing economy face the same shock — side by side. Not to crown a winner, but to see how their mechanics differ.</p>
+  </section>
+
+  <div class="rr-framing">
+    This is a stylized teaching model, not a forecast and not a verdict. Both systems carry genuine trade-offs that economists still debate. Real Islamic finance operates within dual-banking systems with imperfect risk-sharing. Treat the curves as intuition about mechanisms, not predictions about any real country.
+  </div>
+
+  <div class="rr-controls">
+    <div class="rr-control-label">Choose a shock</div>
+    <div class="rr-shock-buttons">
+      <button class="rr-shock-btn" type="button" data-shock="demand">Demand shock</button>
+      <button class="rr-shock-btn" type="button" data-shock="supply">Supply / oil shock</button>
+      <button class="rr-shock-btn" type="button" data-shock="financial">Financial crisis</button>
+    </div>
+
+    <div class="rr-slider-row">
+      <label for="rr-severity">Shock severity <span id="rr-severity-val">5</span></label>
+      <input class="rr-slider" type="range" id="rr-severity" min="1" max="10" step="1" value="5">
+    </div>
+    <div class="rr-slider-row">
+      <label for="rr-responsiveness">Authority responsiveness (passive → aggressive) <span id="rr-responsiveness-val">1.00</span></label>
+      <input class="rr-slider" type="range" id="rr-responsiveness" min="0.3" max="2.0" step="0.05" value="1.0">
+    </div>
+    <div class="rr-slider-row">
+      <label for="rr-linkage">Real-economy linkage (weak → strong) <span id="rr-linkage-val">0.70</span></label>
+      <input class="rr-slider" type="range" id="rr-linkage" min="0.2" max="1.0" step="0.05" value="0.7">
+    </div>
+
+    <button class="rr-run-btn" type="button" id="rr-run-btn">Run simulation</button>
+  </div>
+
+  <section class="rr-dashboard">
+    <div class="rr-country rr-country-c">
+      <div class="rr-country-title">Country C — Conventional</div>
+      <div class="rr-country-sub">Interest-based</div>
+      <div class="rr-chart-wrap">
+        <div class="rr-chart-title">Output gap (%)</div>
+        <div style="height:180px;"><canvas id="rr-c-y"></canvas></div>
+      </div>
+      <div class="rr-chart-wrap">
+        <div class="rr-chart-title">Inflation (%)</div>
+        <div style="height:180px;"><canvas id="rr-c-pi"></canvas></div>
+      </div>
+      <div class="rr-chart-wrap">
+        <div class="rr-chart-title">Private debt / GDP (%)</div>
+        <div style="height:180px;"><canvas id="rr-c-debt"></canvas></div>
+      </div>
+      <div class="rr-mechanism-caption">Policy works through the interest rate. Money expands through interest-bearing debt.</div>
+    </div>
+
+    <div class="rr-country rr-country-i">
+      <div class="rr-country-title">Country I — Islamic</div>
+      <div class="rr-country-sub">Profit-sharing · asset-backed</div>
+      <div class="rr-chart-wrap">
+        <div class="rr-chart-title">Output gap (%)</div>
+        <div style="height:180px;"><canvas id="rr-i-y"></canvas></div>
+      </div>
+      <div class="rr-chart-wrap">
+        <div class="rr-chart-title">Inflation (%)</div>
+        <div style="height:180px;"><canvas id="rr-i-pi"></canvas></div>
+      </div>
+      <div class="rr-chart-wrap">
+        <div class="rr-chart-title">Cumulative risk-sharing absorption</div>
+        <div style="height:180px;"><canvas id="rr-i-abs"></canvas></div>
+      </div>
+      <div class="rr-mechanism-caption">No policy interest rate. Returns track the real economy; losses are shared through profit-and-loss financing.</div>
+    </div>
+  </section>
+
+  <section class="rr-narrative is-hidden" id="rr-narrative">
+    <div class="rr-narrative-label">What happened, and why</div>
+    <div class="rr-thinking" id="rr-thinking">Thinking…</div>
+    <div class="rr-narrative-body" id="rr-narrative-body"></div>
+  </section>
+
+  <details class="rr-assumptions">
+    <summary>Model assumptions (click to expand)</summary>
+    <div class="rr-assumptions-body">
+      <p>The model is a transparent discrete-time dynamic system run for 20 periods. The conventional economy uses a Taylor-style policy rule, an IS curve reacting to deviations of the real interest rate from neutral, a Phillips curve linking inflation to the output gap, and a debt path that compounds at the policy rate and grows during expansions. The Islamic economy has no policy rate; the rate of return on financing scales with the real-economy linkage, and a fixed share of each output shock is absorbed by profit-and-loss sharing instead of being pushed through to a default.</p>
+      <p>Simplifications include: closed economy (no exchange rate), no banking sector microstructure, no heterogeneity across agents or sectors, identical potential output in both economies, identical persistence parameters, and a single stylized PLS specification. The supply-side price-shock channel passes through in both systems — risk-sharing dampens losses, not the cost-push price level. Real Islamic finance operates in dual-banking systems where many products mimic debt, so the absorption parameter is best read as an upper bound.</p>
+      <p>Every one of these is a simplification a real model would treat with far more care. The model is built to show mechanism, not to forecast.</p>
+    </div>
+  </details>
+
+  <footer class="rr-footer">
+    Day 22 · 100 Days with Claude
+    <div class="sub">A stylized teaching model. Narrative by Google Gemini.</div>
+  </footer>
+</div>
+
+<script src="{{ url_for('static', filename='day22/riba_and_risk.js') }}" defer></script>
+{% endblock %}
