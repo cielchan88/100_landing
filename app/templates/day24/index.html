@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}Flock — Day 24 of 100 Days with Claude{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='day24/flock.css') }}">
+
+<div class="flk-page">
+  <header class="flk-topbar"><a href="/" aria-label="Back to all days">← Back to all days</a></header>
+
+  <section class="flk-hero">
+    <div class="flk-eyebrow">Day 24 · Flock</div>
+    <h1 class="flk-headline">Three rules. <span style="color: var(--accent)">One living flock.</span></h1>
+    <p class="flk-subtitle">Separation, alignment, cohesion — and a whole murmuration emerges. Reach in and shape it.</p>
+  </section>
+
+  <div class="flk-canvas-wrap">
+    <canvas id="flk-canvas" aria-label="Interactive flock of boids."></canvas>
+    <div class="flk-perf-badge" id="flk-perf-badge"></div>
+  </div>
+
+  <div class="flk-controls">
+    <div class="flk-modes" role="group" aria-label="Pointer mode">
+      <button class="flk-mode-btn" type="button" data-mode="attract" aria-pressed="true">Attract</button>
+      <button class="flk-mode-btn" type="button" data-mode="repel" aria-pressed="false">Repel</button>
+      <button class="flk-mode-btn flk-mode-predator" type="button" data-mode="predator" aria-pressed="false">Predator</button>
+    </div>
+
+    <div class="flk-sliders">
+      <div class="flk-slider-row">
+        <label for="flk-cohesion">Cohesion <span id="flk-cohesion-val">1.00</span></label>
+        <input class="flk-slider" type="range" id="flk-cohesion" min="0" max="2" step="0.05" value="1.0">
+      </div>
+      <div class="flk-slider-row">
+        <label for="flk-separation">Separation <span id="flk-separation-val">1.40</span></label>
+        <input class="flk-slider" type="range" id="flk-separation" min="0" max="3" step="0.05" value="1.4">
+      </div>
+      <div class="flk-slider-row">
+        <label for="flk-alignment">Alignment <span id="flk-alignment-val">1.00</span></label>
+        <input class="flk-slider" type="range" id="flk-alignment" min="0" max="2" step="0.05" value="1.0">
+      </div>
+      <div class="flk-slider-row">
+        <label for="flk-speed">Speed <span id="flk-speed-val">3.20</span></label>
+        <input class="flk-slider" type="range" id="flk-speed" min="1.5" max="6" step="0.1" value="3.2">
+      </div>
+      <div class="flk-slider-row">
+        <label for="flk-vision">Vision <span id="flk-vision-val">60</span></label>
+        <input class="flk-slider" type="range" id="flk-vision" min="30" max="120" step="2" value="60">
+      </div>
+    </div>
+
+    <div class="flk-buttons">
+      <button class="flk-btn" type="button" id="flk-capture-btn">Capture moment</button>
+      <button class="flk-btn" type="button" id="flk-reset-btn">Reset</button>
+    </div>
+  </div>
+
+  <div class="flk-about">
+    A murmuration looks choreographed, but no bird leads. Each follows three rules — stay close, match heading, don't crowd — and the whole emerges from the parts. This is Craig Reynolds' 1986 "boids" model, running 500-strong in your browser.
+  </div>
+
+  <div class="flk-toast" role="status" aria-live="polite"></div>
+
+  <footer class="flk-footer">
+    Day 24 · 100 Days with Claude
+    <div class="sub">Boids: separation, alignment, cohesion. Rendered with a spatial hash grid.</div>
+  </footer>
+</div>
+
+<script src="{{ url_for('static', filename='day24/flock.js') }}" defer></script>
+{% endblock %}

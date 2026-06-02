@@ -1,0 +1,134 @@
+/* Flock — Day 24 */
+.flk-page { max-width: 1000px; margin: 0 auto; padding: 1rem 1rem 4rem; }
+
+.flk-topbar { padding: 0.75rem 0; }
+.flk-topbar a { color: var(--muted); font-size: 0.875rem; text-decoration: none; }
+.flk-topbar a:hover { color: var(--accent); }
+
+.flk-hero { padding: 1.25rem 0 1rem; }
+.flk-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--accent); margin-bottom: 0.6rem;
+}
+.flk-headline {
+  font-size: clamp(1.6rem, 4vw, 2.25rem);
+  font-weight: 600; letter-spacing: -0.02em; line-height: 1.15; margin-bottom: 0.6rem;
+}
+.flk-subtitle { color: var(--muted); font-size: 0.95rem; max-width: 42rem; line-height: 1.55; }
+
+.flk-canvas-wrap {
+  position: relative;
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  overflow: hidden;
+  touch-action: none;
+  margin: 1rem 0;
+}
+#flk-canvas {
+  display: block;
+  width: 100%;
+  height: 540px;
+  cursor: crosshair;
+}
+@media (max-width: 640px) { #flk-canvas { height: 70vh; max-height: 640px; } }
+
+.flk-perf-badge {
+  position: absolute; bottom: 0.5rem; right: 0.6rem;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
+  color: var(--muted); opacity: 0.55; pointer-events: none;
+  letter-spacing: 0.05em;
+}
+
+.flk-controls {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 0.75rem; padding: 1rem 1.25rem; margin: 1rem 0;
+}
+
+.flk-modes {
+  display: flex; gap: 0.5rem; flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+.flk-mode-btn {
+  flex: 1 1 100px;
+  padding: 0.6rem 1rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+  transition: color 150ms, border-color 150ms, background 150ms;
+}
+.flk-mode-btn:hover { color: var(--accent); border-color: var(--accent); }
+.flk-mode-btn[aria-pressed="true"] {
+  background: var(--accent); color: var(--bg); border-color: var(--accent);
+}
+.flk-mode-btn.flk-mode-predator[aria-pressed="true"] {
+  background: #C44569; border-color: #C44569; color: var(--bg);
+}
+
+.flk-sliders {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.85rem 1.2rem;
+}
+.flk-slider-row label {
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-size: 0.8rem; color: var(--text); margin-bottom: 0.3rem;
+}
+.flk-slider-row label span { font-family: 'JetBrains Mono', monospace; color: var(--accent); font-size: 0.75rem; }
+.flk-slider { width: 100%; accent-color: var(--accent); cursor: pointer; }
+
+.flk-buttons {
+  display: flex; gap: 0.6rem; margin-top: 1rem; flex-wrap: wrap;
+  justify-content: center;
+}
+.flk-btn {
+  padding: 0.55rem 1.25rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  border-radius: 0.4rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: color 150ms, border-color 150ms;
+}
+.flk-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+.flk-about {
+  margin-top: 1.25rem; padding: 1.1rem 1.25rem;
+  background: var(--surface); border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 0.5rem;
+  font-size: 0.9rem; line-height: 1.6; color: var(--text);
+  font-style: italic;
+}
+
+.flk-toast {
+  position: fixed; bottom: 2rem; left: 50%;
+  transform: translateX(-50%);
+  background: var(--surface); border: 1px solid var(--accent);
+  color: var(--text); padding: 0.6rem 1.25rem;
+  border-radius: 0.5rem; font-size: 0.85rem;
+  z-index: 100;
+  opacity: 0; pointer-events: none; transition: opacity 200ms;
+}
+.flk-toast.is-visible { opacity: 1; }
+
+.flk-footer {
+  margin-top: 2rem; text-align: center;
+  color: var(--muted); font-size: 0.7rem;
+  font-family: 'JetBrains Mono', monospace;
+}
+.flk-footer .sub { margin-top: 0.3rem; font-style: italic; opacity: 0.7; }
+
+@media (prefers-reduced-motion: reduce) {
+  .flk-toast { transition: opacity 100ms; }
+}

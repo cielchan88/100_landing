@@ -107,6 +107,9 @@ def create_app() -> Flask:
     from .day23.blueprint import bp as day23_bp
     app.register_blueprint(day23_bp)
 
+    from .day24.blueprint import bp as day24_bp
+    app.register_blueprint(day24_bp)
+
     from .content import get_live_count
 
     @app.context_processor
