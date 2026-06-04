@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}Permadeath — Day 25 of 100 Days with Claude{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='day25/permadeath.css') }}">
+
+<div class="pd-page">
+  <header class="pd-topbar">
+    <a href="/" aria-label="Back to all days">← Back to all days</a>
+    <button class="pd-abandon-btn" type="button" id="pd-abandon-btn" style="display:none">Abandon run</button>
+  </header>
+
+  <!-- Title view -->
+  <section class="pd-view is-active" data-view="title">
+    <div class="pd-eyebrow">Day 25 · Permadeath</div>
+    <h1 class="pd-headline">Descend. Build your deck.<br><span style="color: var(--accent)">Die. Again.</span></h1>
+    <p class="pd-subtitle">A small roguelike deckbuilder. One floor, real card combat with telegraphed enemy intents, a handful of relics, permadeath. Win the boss to clear the run.</p>
+
+    <div class="pd-title-card">
+      <p>You start with a humble deck and a single life. Pick your way through the dungeon. Each fight is a small puzzle — read the enemy's intent, spend your energy, play your hand. Win and choose a card to add. Die and start fresh.</p>
+      <div class="pd-best-score" id="pd-best-score"></div>
+      <button class="pd-primary-btn" id="pd-begin-btn" type="button">Begin run</button>
+    </div>
+
+    <details class="pd-help">
+      <summary>How to play</summary>
+      <div class="pd-help-body">
+        <p><strong>Map:</strong> click an adjacent room to move. Combat rooms (⚔) trigger fights, treasure (💎) gives a relic, rest (☾) heals.</p>
+        <p><strong>Combat:</strong> each turn you draw cards. Click a card to play it (some cards target an enemy — click the enemy after). Spend energy (top-left). Block (🛡) resets at the start of every turn. Enemies show what they'll do next: ⚔ = attack, 🛡 = block, ✦ = buff/debuff.</p>
+        <p><strong>Status:</strong> Vulnerable = takes +50% damage. Weak = deals -25% damage. Strength = +damage on each attack.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- Map view -->
+  <section class="pd-view" data-view="map">
+    <div class="pd-hud" id="pd-hud-map"></div>
+    <div class="pd-floor-label" id="pd-floor-label">Floor 1</div>
+    <div class="pd-map" id="pd-map"></div>
+    <p class="pd-map-hint">Click an adjacent room to move.</p>
+  </section>
+
+  <!-- Combat view -->
+  <section class="pd-view" data-view="combat">
+    <div class="pd-hud" id="pd-hud-combat"></div>
+    <div class="pd-enemies" id="pd-enemies"></div>
+    <div class="pd-player-info">
+      <div class="pd-pile-counts" id="pd-pile-counts"></div>
+      <button class="pd-end-turn-btn" id="pd-end-turn-btn" type="button">End turn</button>
+    </div>
+    <div class="pd-hand" id="pd-hand"></div>
+    <div class="pd-targeting-hint is-hidden" id="pd-targeting-hint">Click an enemy to target</div>
+  </section>
+
+  <!-- Reward view -->
+  <section class="pd-view" data-view="reward">
+    <div class="pd-hud" id="pd-hud-reward"></div>
+    <div class="pd-reward-title" id="pd-reward-title">Victory — choose a card</div>
+    <div class="pd-rewards" id="pd-rewards"></div>
+    <button class="pd-secondary-btn" id="pd-skip-reward-btn" type="button">Skip</button>
+  </section>
+
+  <!-- Treasure / rest view -->
+  <section class="pd-view" data-view="event">
+    <div class="pd-hud" id="pd-hud-event"></div>
+    <div class="pd-event" id="pd-event"></div>
+  </section>
+
+  <!-- Game over / victory view -->
+  <section class="pd-view" data-view="end">
+    <div class="pd-end-title" id="pd-end-title"></div>
+    <div class="pd-end-body" id="pd-end-body"></div>
+    <button class="pd-primary-btn" id="pd-runagain-btn" type="button">Run again</button>
+  </section>
+
+  <div class="pd-toast" role="status" aria-live="polite"></div>
+  <div class="pd-floaters" id="pd-floaters"></div>
+
+  <footer class="pd-footer">Day 25 · 100 Days with Claude</footer>
+</div>
+
+<script src="{{ url_for('static', filename='day25/permadeath.js') }}" defer></script>
+{% endblock %}
