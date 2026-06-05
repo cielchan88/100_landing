@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}Pitch — Day 26 of 100 Days with Claude{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='day26/pitch.css') }}">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<div class="ptch-page">
+  <header class="ptch-topbar"><a href="/" aria-label="Back to all days">← Back to all days</a></header>
+
+  <div class="ptch-stage">
+    <canvas id="ptch-canvas"></canvas>
+
+    <!-- HUD -->
+    <div class="ptch-hud" id="ptch-hud">
+      <div class="ptch-score">
+        <span class="ptch-team-name ptch-team-home">YOU</span>
+        <span class="ptch-score-nums"><span id="ptch-score-home">0</span> · <span id="ptch-score-away">0</span></span>
+        <span class="ptch-team-name ptch-team-away">AI</span>
+      </div>
+      <div class="ptch-timer" id="ptch-timer">1:30</div>
+    </div>
+
+    <!-- Power meter (shoot) -->
+    <div class="ptch-power-wrap" id="ptch-power-wrap">
+      <div class="ptch-power-bar" id="ptch-power-bar"></div>
+    </div>
+
+    <!-- Mobile controls -->
+    <div class="ptch-touch-only" id="ptch-touch-controls">
+      <div class="ptch-joystick" id="ptch-joystick">
+        <div class="ptch-joystick-thumb" id="ptch-joystick-thumb"></div>
+      </div>
+      <div class="ptch-action-buttons">
+        <button class="ptch-action-btn ptch-pass-btn" id="ptch-pass-btn" type="button">Pass</button>
+        <button class="ptch-action-btn ptch-shoot-btn" id="ptch-shoot-btn" type="button">Shoot</button>
+      </div>
+    </div>
+
+    <!-- Desktop hint -->
+    <div class="ptch-kb-hint" id="ptch-kb-hint">
+      <span>WASD</span> move &nbsp;·&nbsp; <span>J</span> pass &nbsp;·&nbsp; <span>K</span> shoot (hold)
+    </div>
+
+    <!-- Menu overlay -->
+    <div class="ptch-overlay is-visible" id="ptch-menu">
+      <div class="ptch-overlay-card">
+        <div class="ptch-eyebrow">Day 26 · Pitch</div>
+        <h1 class="ptch-title">Pitch</h1>
+        <p class="ptch-tagline">Three a side. Winner stays on.</p>
+        <div class="ptch-how">
+          <div><strong>Move</strong> WASD / joystick</div>
+          <div><strong>Pass</strong> J / Pass button</div>
+          <div><strong>Shoot</strong> K (hold to charge) / Shoot button</div>
+        </div>
+        <div class="ptch-best" id="ptch-best"></div>
+        <button class="ptch-primary-btn" id="ptch-kickoff-btn" type="button">Kick off</button>
+      </div>
+    </div>
+
+    <!-- Goal flash -->
+    <div class="ptch-goal-flash is-hidden" id="ptch-goal-flash">GOAL!</div>
+
+    <!-- Result overlay -->
+    <div class="ptch-overlay" id="ptch-result">
+      <div class="ptch-overlay-card">
+        <div class="ptch-result-title" id="ptch-result-title">Full time</div>
+        <div class="ptch-result-score" id="ptch-result-score">0 — 0</div>
+        <div class="ptch-result-msg" id="ptch-result-msg"></div>
+        <button class="ptch-primary-btn" id="ptch-rematch-btn" type="button">Rematch</button>
+        <a href="/" class="ptch-back-link">Back to all days</a>
+      </div>
+    </div>
+  </div>
+
+  <footer class="ptch-footer">Day 26 · 100 Days with Claude</footer>
+</div>
+
+<script src="{{ url_for('static', filename='day26/pitch.js') }}" defer></script>
+{% endblock %}
