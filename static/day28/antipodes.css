@@ -1,0 +1,128 @@
+/* Antipodes — Day 28 */
+.ap-page { max-width: 960px; margin: 0 auto; padding: 0.75rem 1rem 4rem; }
+
+.ap-topbar { padding: 0.5rem 0; }
+.ap-topbar a { color: var(--muted); font-size: 0.875rem; text-decoration: none; }
+.ap-topbar a:hover { color: var(--accent); }
+
+.ap-hero { padding: 1.25rem 0 1rem; }
+.ap-eyebrow {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.7rem;
+  text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent);
+  margin-bottom: 0.6rem;
+}
+.ap-headline {
+  font-size: clamp(1.6rem, 4vw, 2.25rem);
+  font-weight: 600; letter-spacing: -0.02em; line-height: 1.15;
+  margin-bottom: 0.6rem;
+}
+.ap-subtitle { color: var(--muted); font-size: 0.95rem; max-width: 42rem; line-height: 1.55; }
+
+.ap-maps {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+@media (min-width: 820px) { .ap-maps { grid-template-columns: 1fr 1fr; } }
+
+.ap-map-wrap {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 0.5rem; padding: 0.4rem; position: relative;
+}
+.ap-map-label {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.7rem;
+  text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent);
+  position: absolute; top: 0.5rem; left: 0.7rem;
+  background: rgba(15,15,14,0.7);
+  padding: 0.15rem 0.5rem; border-radius: 0.3rem;
+  z-index: 2;
+}
+.ap-map {
+  width: 100%; height: auto;
+  display: block; cursor: crosshair;
+  background: #0E1B26;
+  border-radius: 0.35rem;
+  touch-action: none;
+}
+
+.ap-readout {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 0.5rem; padding: 1rem 1.25rem; margin: 1rem 0;
+}
+.ap-readout-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 0.3rem 0;
+}
+.ap-readout-label {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.7rem;
+  text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted);
+}
+.ap-readout-coord {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.88rem;
+  color: var(--text);
+}
+.ap-readout-what {
+  margin-top: 0.75rem; padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+  font-size: 1rem; color: var(--text);
+}
+.ap-readout-what strong { color: var(--accent); }
+.ap-readout-fun {
+  margin-top: 0.4rem;
+  font-style: italic; color: var(--muted); font-size: 0.85rem;
+}
+
+.ap-cities { margin: 1rem 0; }
+.ap-section-label {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.7rem;
+  text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent);
+  margin-bottom: 0.5rem;
+}
+.ap-city-row { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.ap-city-chip {
+  padding: 0.4rem 0.85rem;
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--text); border-radius: 999px;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;
+  cursor: pointer; transition: all 150ms;
+}
+.ap-city-chip:hover { color: var(--accent); border-color: var(--accent); }
+
+.ap-game {
+  display: flex; align-items: center; gap: 1rem;
+  margin: 1rem 0;
+  padding: 0.85rem 1rem;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  flex-wrap: wrap;
+}
+.ap-toggle-wrap {
+  display: flex; align-items: center; gap: 0.5rem;
+  cursor: pointer;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;
+  color: var(--text);
+}
+.ap-toggle-wrap input { accent-color: var(--accent); }
+.ap-game-status {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.78rem;
+  color: var(--muted);
+  margin-left: auto;
+}
+.ap-game-status strong { color: var(--accent); }
+
+.ap-about {
+  margin: 1rem 0; padding: 1rem 1.25rem;
+  background: var(--surface); border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 0.5rem;
+  font-size: 0.88rem; line-height: 1.6; color: var(--text);
+  font-style: italic;
+}
+
+.ap-footer {
+  margin-top: 2rem; text-align: center;
+  color: var(--muted); font-size: 0.7rem;
+  font-family: 'JetBrains Mono', monospace;
+}
+.ap-footer .sub { margin-top: 0.3rem; font-style: italic; opacity: 0.7; }

@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}Antipodes — Day 28 of 100 Days with Claude{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='day28/antipodes.css') }}">
+
+<div class="ap-page">
+  <header class="ap-topbar"><a href="/" aria-label="Back to all days">← Back to all days</a></header>
+
+  <section class="ap-hero">
+    <div class="ap-eyebrow">Day 28 · Antipodes</div>
+    <h1 class="ap-headline">Dig straight down. <span style="color: var(--accent)">Where do you come out?</span></h1>
+    <p class="ap-subtitle">Tap a place. See its exact opposite — and what (if anything) is there. Spoiler: usually the ocean.</p>
+  </section>
+
+  <div class="ap-maps">
+    <div class="ap-map-wrap">
+      <div class="ap-map-label">Here</div>
+      <canvas class="ap-map" id="ap-map-here" data-side="here" aria-label="Click anywhere to choose a point on Earth."></canvas>
+    </div>
+    <div class="ap-map-wrap">
+      <div class="ap-map-label" id="ap-map-anti-label">Antipode</div>
+      <canvas class="ap-map" id="ap-map-anti" data-side="anti" aria-label="The opposite point on Earth."></canvas>
+    </div>
+  </div>
+
+  <div class="ap-readout" id="ap-readout">
+    <div class="ap-readout-row"><span class="ap-readout-label">Here</span><span class="ap-readout-coord" id="ap-here-coord">—</span></div>
+    <div class="ap-readout-row"><span class="ap-readout-label">Antipode</span><span class="ap-readout-coord" id="ap-anti-coord">—</span></div>
+    <div class="ap-readout-what" id="ap-readout-what">Tap any point on the top map.</div>
+    <div class="ap-readout-fun" id="ap-readout-fun"></div>
+  </div>
+
+  <div class="ap-cities">
+    <div class="ap-section-label">Try a city</div>
+    <div class="ap-city-row" id="ap-cities-row"></div>
+  </div>
+
+  <div class="ap-game">
+    <label class="ap-toggle-wrap">
+      <input type="checkbox" id="ap-game-toggle">
+      <span>Guess first (game mode)</span>
+    </label>
+    <div class="ap-game-status" id="ap-game-status"></div>
+  </div>
+
+  <div class="ap-about">
+    Most of the land you can tap comes out in the ocean — the Earth's continents and oceans don't quite mirror each other. Land-to-land antipodes are rare. The map is a Natural Earth simplified outline (177 countries) drawn straight onto a canvas with an equirectangular projection. No tiles, no map service, no network calls after the page loads.
+  </div>
+
+  <footer class="ap-footer">
+    Day 28 · 100 Days with Claude
+    <div class="sub">Equirectangular world map, computed offline in your browser.</div>
+  </footer>
+</div>
+
+<script src="{{ url_for('static', filename='day28/antipodes.js') }}" defer></script>
+{% endblock %}
