@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}Pluck — Day 29 of 100 Days with Claude{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='day29/pluck.css') }}">
+
+<div class="plk-page">
+  <header class="plk-topbar"><a href="/" aria-label="Back to all days">← Back to all days</a></header>
+
+  <section class="plk-hero">
+    <div class="plk-eyebrow">Day 29 · Pluck</div>
+    <h1 class="plk-headline">Strings, <span style="color: var(--accent)">synthesized from physics.</span></h1>
+    <p class="plk-subtitle">Karplus-Strong synthesis — a burst of noise becomes a plucked string. No samples, no files. Strum to play.</p>
+  </section>
+
+  <div class="plk-stage-wrap">
+    <canvas id="plk-stage" aria-label="Strings. Click or tap a string to pluck; drag across to strum."></canvas>
+    <div class="plk-overlay is-visible" id="plk-overlay">
+      <div class="plk-overlay-card">
+        <div class="plk-overlay-title">Tap to play</div>
+        <div class="plk-overlay-sub">Browsers need a gesture to start audio.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="plk-controls">
+    <div class="plk-control-row">
+      <label class="plk-control">
+        <span class="plk-control-label">Scale</span>
+        <select id="plk-scale">
+          <option value="majorPenta">Major pentatonic</option>
+          <option value="minorPenta">Minor pentatonic</option>
+          <option value="major">Major</option>
+          <option value="dorian">Dorian</option>
+        </select>
+      </label>
+      <label class="plk-control">
+        <span class="plk-control-label">Root</span>
+        <select id="plk-root"></select>
+      </label>
+      <label class="plk-control">
+        <span class="plk-control-label">Strings <span id="plk-count-val" class="plk-val">8</span></span>
+        <input type="range" id="plk-count" min="5" max="12" step="1" value="8">
+      </label>
+    </div>
+    <div class="plk-control-row">
+      <label class="plk-control">
+        <span class="plk-control-label">Decay <span id="plk-decay-val" class="plk-val">0.995</span></span>
+        <input type="range" id="plk-decay" min="0.970" max="0.999" step="0.001" value="0.995">
+      </label>
+      <label class="plk-control">
+        <span class="plk-control-label">Brightness <span id="plk-bright-val" class="plk-val">0.50</span></span>
+        <input type="range" id="plk-bright" min="0.30" max="0.65" step="0.01" value="0.50">
+      </label>
+      <label class="plk-control plk-checkbox">
+        <input type="checkbox" id="plk-reverb">
+        <span>Reverb</span>
+      </label>
+    </div>
+  </div>
+
+  <div class="plk-about">
+    Karplus-Strong (1983): fill a short delay line with noise, then on each pass average two adjacent samples and feed them back at a tiny loss. The noise quickly collapses into a pitched, decaying tone. The delay length sets the pitch (sample rate ÷ frequency). The averaging strength is brightness. The feedback loss is decay. Default tuning is pentatonic so a random strum always sounds musical.
+  </div>
+
+  <footer class="plk-footer">
+    Day 29 · 100 Days with Claude
+    <div class="sub">Karplus-Strong string synthesis — no samples, all physics.</div>
+  </footer>
+</div>
+
+<script src="{{ url_for('static', filename='day29/pluck.js') }}" defer></script>
+{% endblock %}
