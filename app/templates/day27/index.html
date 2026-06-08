@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}Bloom — Day 27 of 100 Days with Claude{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='day27/bloom.css') }}">
+
+<div class="blm-page">
+  <header class="blm-topbar"><a href="/" aria-label="Back to all days">← Back to all days</a></header>
+
+  <section class="blm-hero">
+    <div class="blm-eyebrow">Day 27 · Bloom</div>
+    <h1 class="blm-headline">Two chemicals. <span style="color: var(--accent)">Endless patterns.</span></h1>
+    <p class="blm-subtitle">Paint a seed, turn two dials, and watch a Turing pattern come alive. The Gray-Scott reaction-diffusion model — biology's favorite trick — runs entirely in your browser.</p>
+  </section>
+
+  <div class="blm-canvas-wrap">
+    <canvas id="blm-canvas" aria-label="Reaction-diffusion simulation. Drag to paint seeds."></canvas>
+    <div class="blm-perf-badge" id="blm-perf-badge"></div>
+  </div>
+
+  <div class="blm-controls">
+    <div class="blm-row">
+      <div class="blm-section-label">Preset</div>
+      <div class="blm-chip-row" id="blm-preset-chips"></div>
+    </div>
+
+    <div class="blm-row">
+      <div class="blm-section-label">Palette</div>
+      <div class="blm-chip-row" id="blm-palette-chips"></div>
+    </div>
+
+    <div class="blm-row blm-sliders">
+      <div class="blm-slider-row">
+        <label for="blm-feed">Feed (f) <span id="blm-feed-val">0.0545</span></label>
+        <input class="blm-slider" type="range" id="blm-feed" min="0.010" max="0.090" step="0.001" value="0.0545">
+      </div>
+      <div class="blm-slider-row">
+        <label for="blm-kill">Kill (k) <span id="blm-kill-val">0.062</span></label>
+        <input class="blm-slider" type="range" id="blm-kill" min="0.045" max="0.075" step="0.001" value="0.062">
+      </div>
+      <div class="blm-slider-row">
+        <label for="blm-speed">Speed (steps/frame) <span id="blm-speed-val">8</span></label>
+        <input class="blm-slider" type="range" id="blm-speed" min="1" max="20" step="1" value="8">
+      </div>
+    </div>
+
+    <div class="blm-row blm-buttons">
+      <button class="blm-btn" id="blm-playpause-btn" type="button">Pause</button>
+      <button class="blm-btn" id="blm-clear-btn" type="button">Clear</button>
+      <button class="blm-btn" id="blm-reseed-btn" type="button">Reseed</button>
+      <button class="blm-btn" id="blm-capture-btn" type="button">Capture</button>
+    </div>
+  </div>
+
+  <div class="blm-about">
+    Drag on the field to paint chemical B — wherever you seed it, a pattern grows. The Feed slider keeps the field alive; the Kill slider eats it. Two numbers, completely different worlds: nudge the dials and watch spots become stripes become endlessly dividing cells. Alan Turing, 1952; Pearson, 1993.
+  </div>
+
+  <div class="blm-toast" role="status" aria-live="polite"></div>
+
+  <footer class="blm-footer">
+    Day 27 · 100 Days with Claude
+    <div class="sub">Gray-Scott reaction-diffusion, computed in your browser.</div>
+  </footer>
+</div>
+
+<script src="{{ url_for('static', filename='day27/bloom.js') }}" defer></script>
+{% endblock %}
