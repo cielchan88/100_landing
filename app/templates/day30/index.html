@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+
+{% block title %}QR Studio — Day 30 of 100 Days with Claude{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='day30/qr_studio.css') }}">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+
+<div class="qrs-page">
+  <header class="qrs-topbar"><a href="/" aria-label="Back to all days">← Back to all days</a></header>
+
+  <section class="qrs-hero">
+    <div class="qrs-eyebrow">Day 30 · QR Studio</div>
+    <h1 class="qrs-headline">QR codes <span style="color: var(--accent)">worth looking at.</span></h1>
+    <p class="qrs-subtitle">Static, styleable, generated entirely in your browser. Your content and logo never leave the page.</p>
+  </section>
+
+  <div class="qrs-app">
+    <!-- Content panel -->
+    <section class="qrs-panel qrs-content-panel">
+      <div class="qrs-section-label">Content</div>
+      <div class="qrs-tabs" role="tablist">
+        <button class="qrs-tab" type="button" data-tab="url" role="tab" aria-selected="true">URL</button>
+        <button class="qrs-tab" type="button" data-tab="text" role="tab" aria-selected="false">Text</button>
+        <button class="qrs-tab" type="button" data-tab="wifi" role="tab" aria-selected="false">Wi-Fi</button>
+      </div>
+
+      <div class="qrs-tab-body" id="qrs-tab-url">
+        <label class="qrs-field">
+          <span class="qrs-field-label">URL</span>
+          <input type="text" id="qrs-url" placeholder="https://example.com" value="https://100dayswithclaude.pythonanywhere.com">
+        </label>
+      </div>
+
+      <div class="qrs-tab-body is-hidden" id="qrs-tab-text">
+        <label class="qrs-field">
+          <span class="qrs-field-label">Text</span>
+          <textarea id="qrs-text" rows="4" placeholder="Any text…">Hello from QR Studio.</textarea>
+        </label>
+      </div>
+
+      <div class="qrs-tab-body is-hidden" id="qrs-tab-wifi">
+        <label class="qrs-field">
+          <span class="qrs-field-label">Network name (SSID)</span>
+          <input type="text" id="qrs-wifi-ssid" placeholder="MyNetwork">
+        </label>
+        <label class="qrs-field">
+          <span class="qrs-field-label">Password</span>
+          <input type="text" id="qrs-wifi-pass" placeholder="">
+        </label>
+        <div class="qrs-row">
+          <label class="qrs-field">
+            <span class="qrs-field-label">Encryption</span>
+            <select id="qrs-wifi-enc">
+              <option value="WPA">WPA / WPA2</option>
+              <option value="WEP">WEP</option>
+              <option value="nopass">None</option>
+            </select>
+          </label>
+          <label class="qrs-checkbox">
+            <input type="checkbox" id="qrs-wifi-hidden">
+            <span>Hidden network</span>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <!-- Preview -->
+    <section class="qrs-panel qrs-preview-panel">
+      <div class="qrs-section-label">Preview</div>
+      <div class="qrs-preview-frame">
+        <div class="qrs-preview-checker">
+          <canvas id="qrs-canvas" width="640" height="640"></canvas>
+        </div>
+      </div>
+      <div class="qrs-scan-hint">Test-scan it with your phone. If it doesn't scan, dial back the styling or raise error correction.</div>
+      <div class="qrs-warning is-hidden" id="qrs-warning"></div>
+    </section>
+
+    <!-- Style panel -->
+    <section class="qrs-panel qrs-style-panel">
+      <div class="qrs-section-label">Style</div>
+
+      <div class="qrs-field">
+        <span class="qrs-field-label">Module shape</span>
+        <div class="qrs-chip-row" id="qrs-shape-chips"></div>
+      </div>
+
+      <div class="qrs-field">
+        <span class="qrs-field-label">Foreground</span>
+        <div class="qrs-fg-mode">
+          <label><input type="radio" name="qrs-fg-mode" value="solid" checked> Solid</label>
+          <label><input type="radio" name="qrs-fg-mode" value="gradient"> Gradient</label>
+        </div>
+        <div class="qrs-row">
+          <input type="color" id="qrs-fg-color1" value="#0F0F0E">
+          <input type="color" id="qrs-fg-color2" value="#D97757" class="qrs-fg-color2">
+          <label class="qrs-angle-wrap qrs-fg-color2">
+            <span class="qrs-small">angle</span>
+            <input type="range" id="qrs-fg-angle" min="0" max="360" step="5" value="135">
+          </label>
+        </div>
+      </div>
+
+      <div class="qrs-field">
+        <span class="qrs-field-label">Background</span>
+        <div class="qrs-row">
+          <input type="color" id="qrs-bg-color" value="#FFFFFF">
+          <label class="qrs-checkbox">
+            <input type="checkbox" id="qrs-bg-transparent">
+            <span>Transparent</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="qrs-field">
+        <span class="qrs-field-label">Eyes</span>
+        <div class="qrs-row">
+          <div class="qrs-chip-row qrs-shrink" id="qrs-eye-chips"></div>
+          <input type="color" id="qrs-eye-color" value="#0F0F0E" title="Eye color">
+        </div>
+      </div>
+
+      <div class="qrs-row">
+        <label class="qrs-field qrs-grow">
+          <span class="qrs-field-label">Quiet zone <span class="qrs-val" id="qrs-quiet-val">4</span></span>
+          <input type="range" id="qrs-quiet" min="0" max="10" step="1" value="4">
+        </label>
+        <label class="qrs-field qrs-grow">
+          <span class="qrs-field-label">Error correction</span>
+          <div class="qrs-ec-row" id="qrs-ec-chips"></div>
+        </label>
+      </div>
+
+      <div class="qrs-field">
+        <span class="qrs-field-label">Logo (optional)</span>
+        <div class="qrs-row">
+          <label class="qrs-file-btn">
+            <input type="file" id="qrs-logo-input" accept="image/*" hidden>
+            <span>Upload logo</span>
+          </label>
+          <button class="qrs-secondary-btn" type="button" id="qrs-logo-remove" disabled>Remove</button>
+        </div>
+        <div class="qrs-small qrs-muted">A logo auto-bumps error correction to H so the code keeps scanning.</div>
+      </div>
+
+      <div class="qrs-field">
+        <span class="qrs-field-label">Presets</span>
+        <div class="qrs-chip-row" id="qrs-preset-chips"></div>
+      </div>
+    </section>
+  </div>
+
+  <div class="qrs-export-bar">
+    <label class="qrs-field qrs-grow">
+      <span class="qrs-field-label">PNG resolution</span>
+      <select id="qrs-png-res">
+        <option value="256">256 px</option>
+        <option value="512">512 px</option>
+        <option value="1024" selected>1024 px</option>
+        <option value="2048">2048 px</option>
+      </select>
+    </label>
+    <button class="qrs-primary-btn" type="button" id="qrs-export-png">Download PNG</button>
+    <button class="qrs-secondary-btn" type="button" id="qrs-export-svg">Download SVG</button>
+  </div>
+
+  <div class="qrs-about">
+    A static QR holds its data inside the code itself, so it works forever and answers to no server. Most "free" QR services hand you a dynamic redirect through theirs — it dies when they decide to charge, and tracks scans in the meantime. This one is local, vector-quality, and yours.
+  </div>
+
+  <footer class="qrs-footer">
+    Day 30 · 100 Days with Claude
+    <div class="sub">Static QR codes, styled and generated entirely in your browser.</div>
+  </footer>
+</div>
+
+<script src="{{ url_for('static', filename='day30/qr_studio.js') }}" defer></script>
+{% endblock %}
