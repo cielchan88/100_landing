@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+
+{% block title %}Nusa TCG — Day 32 of 100 Days with Claude{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='day32/nusa_tcg.css') }}">
+
+<div class="nt-page">
+  <header class="nt-topbar"><a href="/" aria-label="Back to all days">← Back to all days</a></header>
+
+  <section class="nt-hero">
+    <div class="nt-eyebrow">Day 32 · Nusa TCG</div>
+    <h1 class="nt-headline">Satwa dan legenda Nusantara, <span style="color: var(--accent)">dalam satu deck.</span></h1>
+    <p class="nt-subtitle">Battler kartu saku dengan roster orisinal — Komodo, Harimau, Garuda, Barong, Naga. Duel lawan AI, buka booster, isi binder. Semua di browser.</p>
+  </section>
+
+  <div class="nt-shell">
+
+    <!-- HOME -->
+    <section class="nt-view" id="nt-view-home">
+      <div class="nt-wordmark">NUSA <span>TCG</span></div>
+      <div class="nt-home-buttons">
+        <button class="nt-btn nt-btn-primary nt-btn-big" type="button" id="nt-go-deckpick">Main vs AI</button>
+        <button class="nt-btn nt-btn-big" type="button" id="nt-go-pack"><span id="nt-pack-count">Buka Pack</span></button>
+        <button class="nt-btn nt-btn-big" type="button" id="nt-go-binder">Binder</button>
+        <button class="nt-btn nt-btn-big" type="button" id="nt-go-rules">Cara Main</button>
+      </div>
+      <div class="nt-home-note">v1: kamu bertarung dengan dua deck bawaan — binder untuk koleksi (deck builder menyusul).</div>
+    </section>
+
+    <!-- DECK PICK -->
+    <section class="nt-view is-hidden" id="nt-view-deckpick">
+      <div class="nt-panel-label">Pilih deck-mu (AI memakai yang satunya)</div>
+      <div class="nt-deck-choices">
+        <button class="nt-deck-choice nt-deck-rimba" type="button" id="nt-pick-rimba">
+          <span class="nt-deck-emoji">🐅</span>
+          <span class="nt-deck-name">Deck Rimba</span>
+          <span class="nt-deck-desc">Satwa rimba: Komodo, Harimau, Badak. Pukulan keras, HP tebal.</span>
+        </button>
+        <button class="nt-deck-choice nt-deck-sakti" type="button" id="nt-pick-sakti">
+          <span class="nt-deck-emoji">🐲</span>
+          <span class="nt-deck-name">Deck Sakti</span>
+          <span class="nt-deck-desc">Roh legenda: Naga, Garuda, Barong. Trik, perisai, dan api.</span>
+        </button>
+      </div>
+      <button class="nt-btn nt-back-home" type="button">← Kembali</button>
+    </section>
+
+    <!-- MATCH -->
+    <section class="nt-view is-hidden" id="nt-view-match">
+      <div class="nt-board">
+        <div class="nt-opp-strip">
+          <span>AI · <b id="nt-opp-points">0</b> poin</span>
+          <span>Tangan: <b id="nt-opp-hand">0</b></span>
+          <span>Deck: <b id="nt-opp-deck">0</b></span>
+        </div>
+        <div class="nt-bench-row" id="nt-opp-bench"></div>
+        <div class="nt-active-row">
+          <div class="nt-slot nt-slot-active" id="nt-opp-active"></div>
+        </div>
+
+        <div class="nt-mid">
+          <div class="nt-banner" id="nt-banner">…</div>
+          <div class="nt-log" id="nt-log"></div>
+        </div>
+
+        <div class="nt-active-row">
+          <div class="nt-slot nt-slot-active" id="nt-my-active"></div>
+        </div>
+        <div class="nt-bench-row" id="nt-my-bench"></div>
+
+        <div class="nt-my-strip">
+          <span>Kamu · <b id="nt-my-points">0</b> poin</span>
+          <button class="nt-energy-chip is-hidden" type="button" id="nt-energy-chip" title="Energi zone — ketuk lalu pilih kartumu">
+            ⚡ <span class="nt-energy-letter">R</span>
+          </button>
+          <span>Deck: <b id="nt-my-deck">0</b></span>
+        </div>
+
+        <div class="nt-hand" id="nt-hand"></div>
+
+        <div class="nt-actionbar">
+          <button class="nt-btn nt-btn-primary is-hidden" type="button" id="nt-setup-done">Mulai!</button>
+          <button class="nt-btn is-hidden" type="button" id="nt-end-turn">Akhiri Giliran</button>
+          <button class="nt-btn is-hidden" type="button" id="nt-cancel-mode">Batal</button>
+          <button class="nt-btn nt-back-home" type="button">Keluar</button>
+        </div>
+      </div>
+
+      <!-- Match end overlay -->
+      <div class="nt-overlay is-hidden" id="nt-match-end">
+        <div class="nt-overlay-box">
+          <div class="nt-end-title" id="nt-end-title"></div>
+          <div class="nt-end-pts" id="nt-end-pts"></div>
+          <div class="nt-end-pack" id="nt-end-pack"></div>
+          <div class="nt-overlay-buttons">
+            <button class="nt-btn nt-btn-primary" type="button" id="nt-rematch">Rematch</button>
+            <button class="nt-btn" type="button" id="nt-end-home">Home</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PACK -->
+    <section class="nt-view is-hidden" id="nt-view-pack">
+      <div class="nt-panel-label">Booster Nusa</div>
+      <div class="nt-pack-hint" id="nt-pack-hint"></div>
+      <div class="nt-pack-stage" id="nt-pack-stage"></div>
+      <div class="nt-pack-actions">
+        <button class="nt-btn nt-btn-primary is-hidden" type="button" id="nt-pack-done">Ambil Semua</button>
+        <button class="nt-btn nt-back-home" type="button">← Kembali</button>
+      </div>
+    </section>
+
+    <!-- BINDER -->
+    <section class="nt-view is-hidden" id="nt-view-binder">
+      <div class="nt-panel-label">Binder Koleksi</div>
+      <div class="nt-binder-stats" id="nt-binder-stats"></div>
+      <div class="nt-binder-grid" id="nt-binder-grid"></div>
+      <button class="nt-btn nt-back-home" type="button">← Kembali</button>
+    </section>
+
+    <!-- RULES -->
+    <section class="nt-view is-hidden" id="nt-view-rules">
+      <div class="nt-panel-label">Cara Main</div>
+      <div class="nt-rules">
+        <p><b>Tujuan:</b> kumpulkan <b>3 poin</b>. KO kartu lawan = 1 poin; KO kartu <b>Legenda ★</b> = 2 poin. Kamu juga menang jika lawan tidak punya kartu di arena.</p>
+        <p><b>Deck:</b> 20 kartu, maksimal 2 kopi per nama. Tidak ada kartu energi di deck.</p>
+        <p><b>Setup:</b> masing-masing pegang 5 kartu (dijamin ada Basic), pasang 1 Basic sebagai Active, boleh isi Bench (maks 3). Lempar koin menentukan siapa duluan.</p>
+        <p><b>Energi Zone:</b> tiap awal giliranmu kamu menerima 1 energi sesuai tipe deck (Rimba → R, Sakti → S). Pasang ke salah satu kartumu, atau lewati (hangus). <b>Pengecualian:</b> pemain pertama tidak dapat energi di giliran pertamanya.</p>
+        <p><b>Giliran:</b> ambil 1 kartu → pasang energi → bebas: turunkan Basic, evolusi, pakai Item; maksimal <b>1 Supporter</b>; <b>mundur 1×</b> (buang energi sesuai biaya mundur) → serang (mengakhiri giliran) atau akhiri giliran.</p>
+        <p><b>Evolusi:</b> Stage 1 naik dari Basic bernama. Tidak bisa di giliran kartu itu turun, dan tidak ada evolusi di giliran pertama tiap pemain. Damage dan energi terbawa.</p>
+        <p><b>Serangan:</b> biaya pip energi — tipe (R/S) harus cocok; <b>C menerima energi apa saja</b>. Lempar koin 50/50.</p>
+        <p><b>Kelemahan:</b> Rimba lemah ke Sakti dan sebaliknya — <b>+20 damage</b> saat menyerang kelemahan (berlaku pada serangan ke Active).</p>
+        <p><b>KO:</b> damage ≥ HP → kartu dan energinya ke discard; pemilik wajib memajukan kartu bench. Penyerang dapat poin.</p>
+        <p><b>Pack:</b> 2 gratis per hari + 1 tiap menang lawan AI. 5 kartu per pack, minimal satu Uncommon ke atas.</p>
+      </div>
+      <button class="nt-btn nt-back-home" type="button">← Kembali</button>
+    </section>
+  </div>
+
+  <!-- Card zoom overlay -->
+  <div class="nt-overlay is-hidden" id="nt-zoom">
+    <div class="nt-zoom-box">
+      <div id="nt-zoom-card"></div>
+      <div class="nt-zoom-actions" id="nt-zoom-actions"></div>
+      <button class="nt-btn" type="button" id="nt-zoom-close">Tutup</button>
+    </div>
+  </div>
+
+  <div class="nt-toast" id="nt-toast"></div>
+
+  <div class="nt-about">
+    Nusa TCG memakai sistem ala pocket-TCG modern — mekanika permainan memang milik bersama — dengan roster, nama, dan teks yang sepenuhnya orisinal: satwa dan legenda Nusantara. Tanpa server, tanpa pelacakan; koleksimu tersimpan di browser ini.
+  </div>
+
+  <footer class="nt-footer">
+    Day 32 · 100 Days with Claude
+    <div class="sub">Roster orisinal Nusantara · mekanika pocket-TCG · semua di browser.</div>
+  </footer>
+</div>
+
+<script src="{{ url_for('static', filename='day32/nusa_cards.js') }}" defer></script>
+<script src="{{ url_for('static', filename='day32/nusa_tcg.js') }}" defer></script>
+{% endblock %}
