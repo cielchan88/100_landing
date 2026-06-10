@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block title %}Ember-8 — Day 31 of 100 Days with Claude{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='day31/ember8.css') }}">
+<script src="https://cdn.jsdelivr.net/npm/fengari-web@0.1.4/dist/fengari-web.js"></script>
+
+<div class="e8-page">
+  <header class="e8-topbar"><a href="/" aria-label="Back to all days">← Back to all days</a></header>
+
+  <section class="e8-hero">
+    <div class="e8-eyebrow">Day 31 · Ember-8</div>
+    <h1 class="e8-headline">A tiny console. <span style="color: var(--accent)">Real Lua.</span></h1>
+    <p class="e8-subtitle">128×128 pixels, sixteen colors, 8×8 sprites — and cartridges written in real Lua, running on a real Lua VM in your browser. Code editor, sprite editor, and two carts included.</p>
+  </section>
+
+  <div class="e8-console">
+    <div class="e8-tabs" role="tablist">
+      <button class="e8-tab" type="button" data-tab="play" role="tab" aria-selected="true">Play</button>
+      <button class="e8-tab" type="button" data-tab="code" role="tab" aria-selected="false">Code</button>
+      <button class="e8-tab" type="button" data-tab="sprites" role="tab" aria-selected="false">Sprites</button>
+      <button class="e8-tab" type="button" data-tab="carts" role="tab" aria-selected="false">Carts</button>
+    </div>
+
+    <!-- PLAY -->
+    <section class="e8-view" id="e8-view-play">
+      <div class="e8-screen-wrap" id="e8-screen-wrap">
+        <canvas id="e8-screen" width="128" height="128"></canvas>
+      </div>
+      <div class="e8-status-row">
+        <span class="e8-status" id="e8-status">BOOTING</span>
+        <span class="e8-keys-hint">arrows move · Z = O · X = X</span>
+      </div>
+      <div class="e8-touch">
+        <div class="e8-dpad">
+          <button class="e8-tb e8-tb-up" type="button" data-btn="2" aria-label="Up">▲</button>
+          <button class="e8-tb e8-tb-left" type="button" data-btn="0" aria-label="Left">◀</button>
+          <button class="e8-tb e8-tb-right" type="button" data-btn="1" aria-label="Right">▶</button>
+          <button class="e8-tb e8-tb-down" type="button" data-btn="3" aria-label="Down">▼</button>
+        </div>
+        <div class="e8-actions">
+          <button class="e8-tb e8-tb-round" type="button" data-btn="4" aria-label="O button">O</button>
+          <button class="e8-tb e8-tb-round" type="button" data-btn="5" aria-label="X button">X</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- CODE -->
+    <section class="e8-view is-hidden" id="e8-view-code">
+      <div class="e8-toolbar">
+        <button class="e8-btn-primary" type="button" id="e8-run">▶ Run</button>
+        <button class="e8-btn" type="button" id="e8-stop">■ Stop</button>
+        <span class="e8-toolbar-hint">Ctrl+Enter runs</span>
+      </div>
+      <textarea id="e8-code" spellcheck="false" autocapitalize="off" autocomplete="off" rows="20"></textarea>
+      <div class="e8-error is-hidden" id="e8-error"></div>
+
+      <details class="e8-api">
+        <summary>API reference — the Ember-8 dialect</summary>
+        <table>
+          <tr><td><code>cls([c])</code></td><td>clear the screen to color c (default 0)</td></tr>
+          <tr><td><code>pset(x,y,c)</code> / <code>pget(x,y)</code></td><td>set / get a pixel. Out of bounds: ignored / returns 0</td></tr>
+          <tr><td><code>line(x0,y0,x1,y1,c)</code></td><td>line (Bresenham)</td></tr>
+          <tr><td><code>rect(x0,y0,x1,y1,c)</code> / <code>rectfill(…)</code></td><td>rectangle outline / filled</td></tr>
+          <tr><td><code>circ(x,y,r,c)</code> / <code>circfill(…)</code></td><td>circle outline / filled</td></tr>
+          <tr><td><code>spr(n,x,y,[w,h],[flip_x],[flip_y])</code></td><td>draw sprite n; w,h in sprites (default 1,1). <strong>Color 0 is transparent.</strong></td></tr>
+          <tr><td><code>print(s,x,y,[c])</code></td><td>3×5 pixel font, UPPERCASE only: A–Z 0–9 <code>. , : ; ! ? - + / ( )</code> and space. Coerces with tostring. Default color 7</td></tr>
+          <tr><td><code>btn(i)</code> / <code>btnp(i)</code></td><td>held / just-pressed. 0 ⬅ · 1 ➡ · 2 ⬆ · 3 ⬇ · 4 O (Z key) · 5 X (X key)</td></tr>
+          <tr><td><code>flr ceil rnd([n]) mid abs min max sqrt</code></td><td>helpers. <code>rnd(n)</code> = random float in [0,n), default 1</td></tr>
+          <tr><td><code>t()</code></td><td>seconds since cart start (float, 30 ticks = 1.0)</td></tr>
+          <tr><td><code>beep(freq,[dur],[wave])</code></td><td>beeper: wave 0 square · 1 triangle · 2 noise. Browsers unlock audio after your first tap or keypress</td></tr>
+          <tr><td><code>_init() _update() _draw()</code></td><td>your cart's hooks: once · 30×/s · after each update. Missing ones are skipped</td></tr>
+        </table>
+        <p class="e8-api-note">Everything else is standard Lua 5.3: <code>math.*</code>, <code>table.*</code>, <code>string.*</code>, and friends. Ember-8 is its own dialect, inspired by fantasy consoles but not PICO-8-compatible — trig is standard radians via <code>math.sin/cos</code>. Cart globals persist between runs until you reload the page.</p>
+      </details>
+    </section>
+
+    <!-- SPRITES -->
+    <section class="e8-view is-hidden" id="e8-view-sprites">
+      <div class="e8-sprites-grid">
+        <div class="e8-sprite-left">
+          <div class="e8-panel-label" id="e8-sprite-idx">SPRITE 1</div>
+          <canvas id="e8-sprite-edit" width="192" height="192"></canvas>
+          <div class="e8-palette" id="e8-palette"></div>
+          <div class="e8-hint">Color 0 draws black on screen but is transparent in <code>spr()</code>. Changes apply on the next Run.</div>
+        </div>
+        <div class="e8-sprite-right">
+          <div class="e8-panel-label">SHEET — 128 SPRITES</div>
+          <canvas id="e8-sheet-nav" width="128" height="64"></canvas>
+          <div class="e8-hint">Tap a slot to edit it. The editors are happiest on a desktop; the Play tab is happy anywhere.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CARTS -->
+    <section class="e8-view is-hidden" id="e8-view-carts">
+      <div class="e8-panel-label">Bundled examples</div>
+      <div class="e8-cart-list" id="e8-examples"></div>
+
+      <div class="e8-panel-label">Your carts</div>
+      <div class="e8-cart-list" id="e8-cart-list"></div>
+
+      <div class="e8-cart-actions">
+        <input type="text" id="e8-cart-name" placeholder="CART NAME" maxlength="64">
+        <button class="e8-btn" type="button" id="e8-save">Save</button>
+        <button class="e8-btn" type="button" id="e8-new">New</button>
+        <button class="e8-btn" type="button" id="e8-export">Export .json</button>
+        <label class="e8-btn e8-btn-file">
+          <input type="file" id="e8-import" accept=".json,application/json" hidden>
+          <span>Import .json</span>
+        </label>
+      </div>
+      <div class="e8-cart-msg is-hidden" id="e8-cart-msg"></div>
+      <div class="e8-hint">Saved carts live in this browser's localStorage. Export to a file to keep one forever or pass it around.</div>
+    </section>
+  </div>
+
+  <div class="e8-about">
+    Ember-8 is a fantasy console: an imaginary machine whose strict limits — 128×128 pixels, sixteen colors, 8×8 sprites — are the whole point. Cartridges are written in real Lua and run on Fengari, a Lua VM implemented in JavaScript (the one external library, pinned from a CDN). The dialect is Ember-8's own, inspired by fantasy consoles but not PICO-8-compatible. Carts run entirely client-side in your own browser, like any code playground; nothing is uploaded and nothing is tracked. One honest quirk: a cart's globals persist between runs until you reload the page — very much in the retro spirit.
+  </div>
+
+  <footer class="e8-footer">
+    Day 31 · 100 Days with Claude
+    <div class="sub">128×128 · 16 colors · Lua on Fengari, all in your browser.</div>
+  </footer>
+</div>
+
+<script src="{{ url_for('static', filename='day31/ember8_carts.js') }}" defer></script>
+<script src="{{ url_for('static', filename='day31/ember8.js') }}" defer></script>
+{% endblock %}
