@@ -91,34 +91,34 @@
 
   // ---- Setup phase ----
   function setupActive(st, sid, handIdx) {
-    if (st.phase !== 'setup') err('bukan fase setup');
+    if (st.phase !== 'setup') err('not in setup phase');
     var s = side(st, sid);
-    if (s.setupDone) err('setup sudah selesai');
+    if (s.setupDone) err('setup already done');
     var h = s.hand[handIdx];
-    if (!h || h.card.kind !== 'creature' || h.card.stage !== 0) err('Active harus kartu Basic');
+    if (!h || h.card.kind !== 'creature' || h.card.stage !== 0) err('Active must be a Basic creature');
     if (s.active) { s.hand.push({ uid: s.active.uid, card: s.active.card }); s.active = null; }
     s.hand.splice(handIdx, 1);
     s.active = mkInstFromCard(h.card, 0);
   }
   function setupBench(st, sid, handIdx) {
-    if (st.phase !== 'setup') err('bukan fase setup');
+    if (st.phase !== 'setup') err('not in setup phase');
     var s = side(st, sid);
-    if (!s.active) err('pilih Active dulu');
-    if (s.bench.length >= BENCH_MAX) err('bench penuh');
+    if (!s.active) err('pick an Active first');
+    if (s.bench.length >= BENCH_MAX) err('bench is full');
     var h = s.hand[handIdx];
-    if (!h || h.card.kind !== 'creature' || h.card.stage !== 0) err('hanya Basic ke bench');
+    if (!h || h.card.kind !== 'creature' || h.card.stage !== 0) err('only Basics can go to the bench');
     s.hand.splice(handIdx, 1);
     s.bench.push(mkInstFromCard(h.card, 0));
   }
   function setupDone(st, sid) {
-    if (st.phase !== 'setup') err('bukan fase setup');
+    if (st.phase !== 'setup') err('not in setup phase');
     var s = side(st, sid);
-    if (!s.active) err('harus ada Active');
+    if (!s.active) err('need an Active');
     s.setupDone = true;
     if (st.sides.P.setupDone && st.sides.O.setupDone) {
       st.first = st.rng() < 0.5 ? 'P' : 'O';
       st.phase = 'main';
-      pushLog(st, (st.first === 'P' ? 'Kamu' : 'AI') + ' jalan duluan (lempar koin).');
+      pushLog(st, (st.first === 'P' ? 'You' : 'AI') + ' go first (coin flip).');
       beginTurn(st, st.first);
     }
   }
@@ -138,30 +138,30 @@
   }
 
   function requireMain(st, sid) {
-    if (st.phase !== 'main') err('aksi tidak tersedia di fase ini');
-    if (st.current !== sid) err('bukan giliranmu');
+    if (st.phase !== 'main') err('action not available in this phase');
+    if (st.current !== sid) err('not your turn');
   }
 
   function attachEnergy(st, sid, loc) {
     requireMain(st, sid);
     var s = side(st, sid);
-    if (!s.energyAvail) err('energi zone sudah dipakai / belum tersedia');
+    if (!s.energyAvail) err('energy zone already used / not available');
     var inst = instAt(s, loc);
-    if (!inst) err('target tidak ada');
+    if (!inst) err('no such target');
     inst.energy.push(s.type);
     s.energyAvail = false;
-    pushLog(st, sideName(sid) + ' pasang energi ke ' + inst.card.name + '.');
+    pushLog(st, sideName(sid) + ' attached energy to ' + inst.card.name + '.');
   }
 
   function playBasic(st, sid, handIdx) {
     requireMain(st, sid);
     var s = side(st, sid);
     var h = s.hand[handIdx];
-    if (!h || h.card.kind !== 'creature' || h.card.stage !== 0) err('bukan kartu Basic');
-    if (s.bench.length >= BENCH_MAX) err('bench penuh');
+    if (!h || h.card.kind !== 'creature' || h.card.stage !== 0) err('not a Basic card');
+    if (s.bench.length >= BENCH_MAX) err('bench is full');
     s.hand.splice(handIdx, 1);
     s.bench.push(mkInstFromCard(h.card, st.globalTurn));
-    pushLog(st, sideName(sid) + ' menurunkan ' + h.card.name + ' ke bench.');
+    pushLog(st, sideName(sid) + ' played ' + h.card.name + ' to the bench.');
   }
 
   function canEvolveOnto(st, sid, card, inst) {
@@ -177,13 +177,13 @@
     var s = side(st, sid);
     var h = s.hand[handIdx];
     var inst = instAt(s, loc);
-    if (!h || !canEvolveOnto(st, sid, h.card, inst)) err('evolusi tidak sah');
+    if (!h || !canEvolveOnto(st, sid, h.card, inst)) err('illegal evolution');
     s.hand.splice(handIdx, 1);
     inst.stack.push(h.card);
     inst.card = h.card;             // keeps dmg + energy
     inst.enteredTurn = st.globalTurn;
     inst.shieldUntil = -1;
-    pushLog(st, sideName(sid) + ': evolusi menjadi ' + h.card.name + '!');
+    pushLog(st, sideName(sid) + ': evolved into ' + h.card.name + '!');
   }
 
   function heal(inst, n) { inst.dmg = Math.max(0, inst.dmg - n); }
@@ -196,15 +196,15 @@
     requireMain(st, sid);
     var s = side(st, sid);
     var h = s.hand[handIdx];
-    if (!h || h.card.type !== 'T') err('bukan kartu Trainer');
-    if (h.card.kind === 'supporter' && s.supporterPlayed) err('hanya 1 Supporter per giliran');
+    if (!h || h.card.type !== 'T') err('not a Trainer card');
+    if (h.card.kind === 'supporter' && s.supporterPlayed) err('only 1 Supporter per turn');
     var fx = h.card.fx, inst;
     if (fx === 'heal50' || fx === 'heal20') {
       inst = instAt(s, targetLoc);
-      if (!inst) err('pilih target untuk dipulihkan');
+      if (!inst) err('pick a target to heal');
     }
     if (fx === 'switch') {
-      if (targetLoc == null || targetLoc.zone !== 'bench' || !s.bench[targetLoc.idx]) err('pilih kartu bench untuk ditukar');
+      if (targetLoc == null || targetLoc.zone !== 'bench' || !s.bench[targetLoc.idx]) err('pick a bench card to switch in');
     }
     s.hand.splice(handIdx, 1);
     s.discard.push(h);
@@ -218,23 +218,23 @@
       s.bench[targetLoc.idx] = s.active;
       s.active = b;
     }
-    pushLog(st, sideName(sid) + ' memakai ' + h.card.name + '.');
+    pushLog(st, sideName(sid) + ' used ' + h.card.name + '.');
   }
 
   function retreat(st, sid, benchIdx) {
     requireMain(st, sid);
     var s = side(st, sid);
-    if (s.retreated) err('sudah mundur giliran ini');
-    if (!s.active) err('tidak ada Active');
-    if (!s.bench[benchIdx]) err('target bench tidak ada');
+    if (s.retreated) err('already retreated this turn');
+    if (!s.active) err('no Active');
+    if (!s.bench[benchIdx]) err('no such bench target');
     var cost = s.active.card.retreat;
-    if (s.active.energy.length < cost) err('energi kurang untuk mundur (butuh ' + cost + ')');
+    if (s.active.energy.length < cost) err('not enough energy to retreat (need ' + cost + ')');
     for (var i = 0; i < cost; i++) s.active.energy.pop();
     var b = s.bench[benchIdx];
     s.bench[benchIdx] = s.active;
     s.active = b;
     s.retreated = true;
-    pushLog(st, sideName(sid) + ' mundur: ' + b.card.name + ' maju.');
+    pushLog(st, sideName(sid) + ' retreated: ' + b.card.name + ' steps up.');
   }
 
   function countType(arr, t) {
@@ -265,7 +265,7 @@
   function scoreKO(st, scorerSid, koInst) {
     var pts = koInst.card.rarity === 'L' ? 2 : 1;
     side(st, scorerSid).points += pts;
-    pushLog(st, koInst.card.name + ' KO! ' + sideName(scorerSid) + ' +' + pts + ' poin.');
+    pushLog(st, koInst.card.name + ' KO! ' + sideName(scorerSid) + ' +' + pts + ' point' + (pts > 1 ? 's' : '') + '.');
   }
 
   function discardInst(s, inst) {
@@ -288,35 +288,35 @@
   function attack(st, sid, atkIdx, targetLoc) {
     requireMain(st, sid);
     var s = side(st, sid), o = side(st, foe(sid));
-    if (!s.active) err('tidak ada Active');
+    if (!s.active) err('no Active');
     var atk = s.active.card.attacks[atkIdx];
-    if (!atk) err('serangan tidak ada');
-    if (!canAfford(s.active, atk.cost)) err('energi tidak cukup');
+    if (!atk) err('no such attack');
+    if (!canAfford(s.active, atk.cost)) err('not enough energy');
 
-    pushLog(st, sideName(sid) + ': ' + s.active.card.name + ' memakai ' + atk.name + '!');
+    pushLog(st, sideName(sid) + ': ' + s.active.card.name + ' used ' + atk.name + '!');
 
     var koList = []; // [{sid of owner, inst, wasActive}]
 
     if (atk.fx === 'snipe') {
       var t = (targetLoc && targetLoc.zone === 'bench') ? o.bench[targetLoc.idx] : null;
-      if (!t) err('Patuk Jauh butuh target di bench lawan');
+      if (!t) err('Far Peck needs a bench target on the opponent’s side');
       applyDamage(st, t, atk.dmg); // no weakness on bench hits
       if (isKO(t)) koList.push({ owner: foe(sid), inst: t, loc: targetLoc });
     } else if (atk.fx === 'healAny20') {
       var mine = instAt(s, targetLoc) || s.active;
       heal(mine, 20);
-      pushLog(st, 'Pulih 20: ' + mine.card.name + '.');
+      pushLog(st, 'Healed 20: ' + mine.card.name + '.');
     } else {
-      if (!o.active) err('lawan tidak punya Active');
+      if (!o.active) err('opponent has no Active');
       var amount = atk.dmg;
       if (atk.fx === 'coin20' || atk.fx === 'coin10') {
         var heads = st.rng() < 0.5;
-        pushLog(st, 'Koin: ' + (heads ? 'GAMBAR' : 'ANGKA') + '.');
+        pushLog(st, 'Coin: ' + (heads ? 'HEADS' : 'TAILS') + '.');
         if (heads) amount += (atk.fx === 'coin20' ? 20 : 10);
       }
       amount += weaknessBonus(s.active.card, o.active.card);
       var dealt = applyDamage(st, o.active, amount);
-      pushLog(st, o.active.card.name + ' kena ' + dealt + ' damage.');
+      pushLog(st, o.active.card.name + ' took ' + dealt + ' damage.');
       if (atk.fx === 'healSelf10') heal(s.active, 10);
       if (atk.fx === 'shield10') s.active.shieldUntil = st.globalTurn + 1;
       if (atk.fx === 'discardS') {
@@ -349,11 +349,11 @@
   }
 
   function promote(st, sid, benchIdx) {
-    if (st.phase !== 'promote' || st.pendingPromote !== sid) err('tidak perlu promosi');
+    if (st.phase !== 'promote' || st.pendingPromote !== sid) err('no promotion needed');
     var s = side(st, sid);
-    if (!s.bench[benchIdx]) err('target bench tidak ada');
+    if (!s.bench[benchIdx]) err('no such bench target');
     s.active = s.bench.splice(benchIdx, 1)[0];
-    pushLog(st, sideName(sid) + ' memajukan ' + s.active.card.name + '.');
+    pushLog(st, sideName(sid) + ' promoted ' + s.active.card.name + '.');
     st.phase = 'main';
     st.pendingPromote = null;
     if (st.promoteThenEnd) {
@@ -363,7 +363,7 @@
   }
 
   function endTurn(st, sid) {
-    if (st.phase !== 'main' || st.current !== sid) err('tidak bisa mengakhiri giliran');
+    if (st.phase !== 'main' || st.current !== sid) err('cannot end turn now');
     var s = side(st, sid);
     s.energyAvail = false; // unattached zone energy is lost
     checkWinner(st);
@@ -371,7 +371,7 @@
     beginTurn(st, foe(sid));
   }
 
-  function sideName(sid) { return sid === 'P' ? 'Kamu' : 'AI'; }
+  function sideName(sid) { return sid === 'P' ? 'You' : 'AI'; }
 
   // =====================================================================
   // Packs + economy (pure)
@@ -569,7 +569,7 @@
     if (card.rarity === 'L' && !opts.silhouette) {
       var badge = document.createElement('div');
       badge.className = 'nt-legend-badge';
-      badge.textContent = 'LEGENDA · KO = 2 POIN';
+      badge.textContent = 'LEGEND · KO = 2 PTS';
       el.appendChild(badge);
     }
     if (opts.count != null) {
@@ -631,7 +631,7 @@
   }
 
   function renderHome() {
-    $('#nt-pack-count').textContent = 'Buka Pack (' + packsAvailable(store, todayStr()) + ' tersedia)';
+    $('#nt-pack-count').textContent = 'Open Packs (' + packsAvailable(store, todayStr()) + ' available)';
   }
 
   // ---- Match state + rendering ----
@@ -647,7 +647,7 @@
     aiSetup();
     showView('match');
     renderMatch();
-    toast('Pilih kartu Basic dari tanganmu sebagai Active.');
+    toast('Pick a Basic card from your hand as your Active.');
   }
 
   function aiSetup() {
@@ -717,11 +717,11 @@
 
     // Banner
     var banner = $('#nt-banner');
-    if (match.phase === 'setup') banner.textContent = 'SETUP — pilih Active (lalu bench), tekan Mulai';
-    else if (match.phase === 'over') banner.textContent = match.winner === 'P' ? 'KAMU MENANG!' : 'AI MENANG';
-    else if (match.phase === 'promote') banner.textContent = match.pendingPromote === 'P' ? 'Pilih kartu bench untuk maju!' : 'AI memilih...';
+    if (match.phase === 'setup') banner.textContent = 'SETUP — pick an Active (then bench), tap Start';
+    else if (match.phase === 'over') banner.textContent = match.winner === 'P' ? 'YOU WIN!' : 'AI WINS';
+    else if (match.phase === 'promote') banner.textContent = match.pendingPromote === 'P' ? 'Pick a bench card to promote!' : 'AI is choosing...';
     else if (uiMode) banner.textContent = uiModeLabel();
-    else banner.textContent = match.current === 'P' ? 'GILIRANMU' : 'GILIRAN AI...';
+    else banner.textContent = match.current === 'P' ? 'YOUR TURN' : 'AI TURN...';
 
     // Log line
     $('#nt-log').textContent = match.log.length ? match.log[match.log.length - 1] : '';
@@ -735,9 +735,9 @@
     var over = $('#nt-match-end');
     if (match.phase === 'over') {
       over.classList.remove('is-hidden');
-      $('#nt-end-title').textContent = match.winner === 'P' ? 'KAMU MENANG!' : 'AI MENANG';
-      $('#nt-end-pts').textContent = 'Poin: Kamu ' + P.points + ' — AI ' + O.points;
-      $('#nt-end-pack').textContent = match.winner === 'P' ? '+1 pack dikreditkan! \u{1F381}' : '';
+      $('#nt-end-title').textContent = match.winner === 'P' ? 'YOU WIN!' : 'AI WINS';
+      $('#nt-end-pts').textContent = 'Points: You ' + P.points + ' — AI ' + O.points;
+      $('#nt-end-pack').textContent = match.winner === 'P' ? '+1 pack credited! \u{1F381}' : '';
     } else {
       over.classList.add('is-hidden');
     }
@@ -745,12 +745,12 @@
 
   function uiModeLabel() {
     switch (uiMode.type) {
-      case 'attach': return 'Pilih kartumu untuk dipasangi energi';
-      case 'retreat': return 'Pilih kartu bench untuk maju (mundur)';
-      case 'healTarget': return 'Pilih kartumu yang dipulihkan';
-      case 'switch': return 'Pilih kartu bench untuk ditukar';
-      case 'snipe': return 'Pilih target di bench lawan';
-      case 'evolve': return 'Pilih kartu yang dievolusi';
+      case 'attach': return 'Pick a card of yours to attach energy to';
+      case 'retreat': return 'Pick a bench card to switch in (retreat)';
+      case 'healTarget': return 'Pick a card of yours to heal';
+      case 'switch': return 'Pick a bench card to switch with';
+      case 'snipe': return 'Pick a target on the opponent’s bench';
+      case 'evolve': return 'Pick a card to evolve';
       default: return '';
     }
   }
@@ -826,10 +826,10 @@
     if (!h) return;
     if (match.phase === 'setup') {
       // Tap basics to place: first becomes Active, rest bench.
-      if (h.card.kind !== 'creature' || h.card.stage !== 0) { toast('Saat setup, hanya kartu Basic.'); return; }
+      if (h.card.kind !== 'creature' || h.card.stage !== 0) { toast('During setup, Basic cards only.'); return; }
       if (!P.active) tryAction(function () { setupActive(match, 'P', i); });
       else if (P.bench.length < BENCH_MAX) tryAction(function () { setupBench(match, 'P', i); });
-      else toast('Bench penuh.');
+      else toast('Bench is full.');
       renderMatch();
       return;
     }
@@ -844,26 +844,26 @@
     var card = h.card;
     if (card.kind === 'creature' && card.stage === 0) {
       acts.push({
-        label: 'Turunkan ke Bench',
-        disabled: P.bench.length >= BENCH_MAX ? 'Bench penuh' : null,
+        label: 'Play to Bench',
+        disabled: P.bench.length >= BENCH_MAX ? 'Bench is full' : null,
         run: function () { tryAction(function () { playBasic(match, 'P', i); }); },
       });
     }
     if (card.kind === 'creature' && card.stage === 1) {
       var anyTarget = creatures(P).some(function (c) { return canEvolveOnto(match, 'P', card, c.inst); });
       acts.push({
-        label: 'Evolusi',
-        disabled: anyTarget ? null : 'Tidak ada target yang sah (cek waktu evolusi)',
+        label: 'Evolve',
+        disabled: anyTarget ? null : 'No legal target (check evolution timing)',
         run: function () { uiMode = { type: 'evolve', handIdx: i }; },
       });
     }
     if (card.type === 'T') {
       var disabled = null;
-      if (card.kind === 'supporter' && P.supporterPlayed) disabled = 'Sudah pakai Supporter giliran ini';
-      if (card.fx === 'switch' && P.bench.length === 0) disabled = 'Bench kosong';
-      if ((card.fx === 'heal20' || card.fx === 'heal50') && !creatures(P).some(function (c) { return c.inst.dmg > 0; })) disabled = 'Tidak ada yang terluka';
+      if (card.kind === 'supporter' && P.supporterPlayed) disabled = 'Already used a Supporter this turn';
+      if (card.fx === 'switch' && P.bench.length === 0) disabled = 'Bench is empty';
+      if ((card.fx === 'heal20' || card.fx === 'heal50') && !creatures(P).some(function (c) { return c.inst.dmg > 0; })) disabled = 'No one is hurt';
       acts.push({
-        label: 'Pakai',
+        label: 'Use',
         disabled: disabled,
         run: function () {
           if (card.fx === 'heal20' || card.fx === 'heal50') uiMode = { type: 'healTarget', handIdx: i };
@@ -913,7 +913,7 @@
     var P = match.sides.P;
     if (P.energyAvail) {
       acts.push({
-        label: 'Pasang Energi (' + P.type + ') ke kartu ini',
+        label: 'Attach Energy (' + P.type + ') here',
         disabled: null,
         run: function () { tryAction(function () { attachEnergy(match, 'P', loc); }); },
       });
@@ -922,17 +922,17 @@
       inst.card.attacks.forEach(function (a, ai) {
         var afford = canAfford(inst, a.cost);
         var disabled = null;
-        if (!afford) disabled = 'Energi kurang';
-        if (a.fx === 'snipe' && match.sides.O.bench.length === 0) disabled = 'Tidak ada target di bench lawan';
+        if (!afford) disabled = 'Not enough energy';
+        if (a.fx === 'snipe' && match.sides.O.bench.length === 0) disabled = 'No target on opponent’s bench';
         var dmgNote = '';
         if (a.dmg && a.fx !== 'snipe' && match.sides.O.active) {
           var w = weaknessBonus(inst.card, match.sides.O.active.card);
-          dmgNote = ' — ' + (a.dmg + w) + ' dmg' + (w ? ' (lemah +20)' : '');
+          dmgNote = ' — ' + (a.dmg + w) + ' dmg' + (w ? ' (weakness +20)' : '');
         } else if (a.fx === 'snipe') {
-          dmgNote = ' — ' + a.dmg + ' ke bench';
+          dmgNote = ' — ' + a.dmg + ' to bench';
         }
         acts.push({
-          label: 'Serang: ' + a.name + dmgNote,
+          label: 'Attack: ' + a.name + dmgNote,
           disabled: disabled,
           run: function () {
             if (a.fx === 'snipe') { uiMode = { type: 'snipe', atkIdx: ai }; return; }
@@ -944,10 +944,10 @@
       });
       var cost = inst.card.retreat;
       acts.push({
-        label: 'Mundur (buang ' + cost + ' energi)',
-        disabled: P.retreated ? 'Sudah mundur giliran ini'
-          : P.bench.length === 0 ? 'Bench kosong'
-          : inst.energy.length < cost ? 'Energi kurang' : null,
+        label: 'Retreat (discard ' + cost + ' energy)',
+        disabled: P.retreated ? 'Already retreated this turn'
+          : P.bench.length === 0 ? 'Bench is empty'
+          : inst.energy.length < cost ? 'Not enough energy' : null,
         run: function () { uiMode = { type: 'retreat' }; },
       });
     }
@@ -968,7 +968,7 @@
     if (inst && inst.dmg > 0) {
       var d = document.createElement('div');
       d.className = 'nt-zoom-dmg';
-      d.textContent = 'Damage: ' + inst.dmg + ' · Sisa HP: ' + Math.max(0, card.hp - inst.dmg);
+      d.textContent = 'Damage: ' + inst.dmg + ' · HP left: ' + Math.max(0, card.hp - inst.dmg);
       slot.appendChild(d);
     }
     var btns = $('#nt-zoom-actions');
@@ -1097,7 +1097,7 @@
     aiBusy = false;
     renderMatch();
     if (match.phase === 'promote' && match.pendingPromote === 'P') {
-      toast('Kartumu KO — pilih kartu bench untuk maju.');
+      toast('Your card got KO\'d — pick a bench card to promote.');
     }
     onMatchMaybeOver();
   }
@@ -1264,7 +1264,7 @@
   function openPackFlow() {
     var avail = packsAvailable(store, todayStr());
     if (avail <= 0) {
-      toast('Pack habis — besok lagi! (2 gratis per hari, +1 tiap menang)');
+      toast('No packs available — come back tomorrow! (2 free per day, +1 per win)');
       return;
     }
     consumePack(store, todayStr());
@@ -1280,8 +1280,8 @@
     var stage = $('#nt-pack-stage');
     stage.innerHTML = '';
     $('#nt-pack-hint').textContent = packRevealed < PACK.size
-      ? 'Ketuk kartu untuk membuka (' + (PACK.size - packRevealed) + ' lagi)'
-      : 'Selesai!';
+      ? 'Tap a card to reveal (' + (PACK.size - packRevealed) + ' left)'
+      : 'Done!';
     $('#nt-pack-done').classList.toggle('is-hidden', packRevealed < PACK.size);
 
     // Already-revealed row
@@ -1325,7 +1325,7 @@
       newest.classList.add('nt-flip-in');
       if (card.rarity === 'L') {
         newest.classList.add('nt-gold-burst');
-        toast('✨ LEGENDA! ' + card.name + ' ✨');
+        toast('✨ LEGEND! ' + card.name + ' ✨');
       } else if (card.rarity === 'R') {
         toast('Rare! ' + card.name);
       }
@@ -1347,7 +1347,7 @@
       });
       grid.appendChild(c);
     });
-    $('#nt-binder-stats').textContent = 'Koleksi: ' + owned + '/' + CARDS.length + ' kartu';
+    $('#nt-binder-stats').textContent = 'Collection: ' + owned + '/' + CARDS.length + ' cards';
   }
 
   // ---- Boot ----

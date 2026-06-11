@@ -1,7 +1,7 @@
 ---
 day: 32
 title: "Nusa TCG"
-tagline: "Satwa dan legenda Nusantara, dalam satu deck."
+tagline: "Wildlife and legends of the archipelago, in one deck."
 date: 2026-06-11
 status: live
 live_url: /day-32/nusa-tcg
