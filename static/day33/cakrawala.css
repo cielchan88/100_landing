@@ -1,0 +1,287 @@
+/* Cakrawala — Day 33 */
+html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #000; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; }
+
+.cv-page { position: fixed; inset: 0; }
+#cv-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+.cv-topbar {
+  position: absolute; top: 0.7rem; left: 0.9rem; z-index: 10;
+  font-size: 0.78rem;
+}
+.cv-topbar a {
+  color: #fff; text-decoration: none;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+  padding: 0.3rem 0.6rem;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 0.3rem;
+  backdrop-filter: blur(4px);
+}
+.cv-topbar a:hover { color: #D97757; }
+
+/* ---- HUD ---- */
+.cv-hud { position: absolute; inset: 0; pointer-events: none; z-index: 8; }
+.cv-hud-row {
+  position: absolute; top: 0.7rem; left: 50%;
+  transform: translateX(-50%);
+  display: flex; gap: 0.45rem;
+  pointer-events: none;
+  flex-wrap: wrap; justify-content: center;
+  padding: 0 4rem;
+  max-width: 100%;
+}
+.cv-chip {
+  background: rgba(0, 0, 0, 0.35);
+  color: #fff;
+  border: 1px solid rgba(217, 119, 87, 0.55);
+  border-radius: 0.35rem;
+  padding: 0.32rem 0.55rem;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.78rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+  display: inline-flex; align-items: center; gap: 0.35rem;
+}
+.cv-lbl { color: #D97757; font-size: 0.62rem; letter-spacing: 0.06em; }
+.cv-chip b { font-weight: 700; }
+.cv-throttle { padding: 0.32rem 0.5rem; }
+.cv-throttle-bar {
+  width: 56px; height: 6px;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.cv-throttle-fill {
+  height: 100%; width: 70%;
+  background: linear-gradient(90deg, #D97757, #FFCB85);
+  transition: width 60ms linear;
+}
+.cv-stall {
+  position: absolute; top: 4rem; left: 50%;
+  transform: translateX(-50%);
+  padding: 0.3rem 0.7rem;
+  background: rgba(180, 30, 30, 0.85);
+  color: #fff; font-weight: 700;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.82rem;
+  letter-spacing: 0.1em;
+  border-radius: 0.3rem;
+  opacity: 0; pointer-events: none;
+  animation: cv-pulse 0.55s ease-in-out infinite alternate;
+}
+.cv-stall.active { opacity: 1; }
+@keyframes cv-pulse {
+  from { transform: translateX(-50%) scale(1); }
+  to { transform: translateX(-50%) scale(1.08); }
+}
+.cv-arrow {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 36px; height: 36px;
+  display: none;
+  background: rgba(217, 119, 87, 0.85);
+  color: #fff; border-radius: 50%;
+  align-items: center; justify-content: center;
+  font-size: 1.1rem; font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  display: none;
+}
+.cv-gear {
+  position: absolute; bottom: 1rem; right: 1rem;
+  width: 38px; height: 38px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  color: #fff; font-size: 1rem;
+  cursor: pointer;
+  pointer-events: auto;
+  backdrop-filter: blur(4px);
+}
+.cv-gear-2 { position: absolute; top: 0.7rem; right: 0.7rem; bottom: auto; }
+.cv-gear:hover { background: rgba(217, 119, 87, 0.6); }
+
+/* ---- Overlays ---- */
+.cv-overlay {
+  position: absolute; inset: 0; z-index: 20;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.55));
+  display: flex; align-items: center; justify-content: center;
+  padding: 1rem;
+  backdrop-filter: blur(2px);
+}
+.cv-menu-card, .cv-over-card {
+  background: rgba(20, 18, 16, 0.72);
+  border: 1px solid rgba(217, 119, 87, 0.55);
+  border-radius: 0.6rem;
+  padding: 1.5rem 1.6rem 1.3rem;
+  color: #fff;
+  text-align: center;
+  max-width: 360px; width: 100%;
+  backdrop-filter: blur(10px);
+  position: relative;
+}
+.cv-wordmark {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(1.6rem, 6vw, 2.2rem);
+  font-weight: 700; letter-spacing: 0.18em;
+  margin-bottom: 0.4rem;
+  background: linear-gradient(135deg, #D97757, #FFCB85);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.cv-tagline {
+  color: #f8d9c5; font-size: 0.92rem; font-style: italic;
+  margin-bottom: 1.2rem;
+}
+.cv-btn {
+  padding: 0.7rem 1.5rem;
+  border-radius: 0.4rem;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(0, 0, 0, 0.3);
+  color: #fff;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  cursor: pointer;
+  margin: 0.5rem 0;
+}
+.cv-btn:hover { border-color: #D97757; color: #D97757; }
+.cv-btn-primary {
+  background: linear-gradient(135deg, #D97757, #C56848);
+  border-color: #D97757; color: #fff;
+  font-weight: 700;
+  padding: 0.85rem 1.7rem; font-size: 0.95rem;
+}
+.cv-btn-primary:hover { filter: brightness(1.1); color: #fff; }
+.cv-controls-hint {
+  margin: 1rem 0 0.6rem;
+  color: #c8b9aa; font-size: 0.74rem;
+  font-family: 'JetBrains Mono', monospace;
+  line-height: 1.65;
+}
+.cv-bests {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.78rem;
+  color: #D97757; margin-top: 0.5rem;
+}
+.cv-corner-tag {
+  position: absolute; bottom: 0.5rem; left: 0;
+  width: 100%; text-align: center;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.6rem;
+  color: rgba(255, 255, 255, 0.35);
+  pointer-events: none;
+}
+
+.cv-over-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.4rem; font-weight: 700;
+  color: #D97757; letter-spacing: 0.08em;
+  margin-bottom: 0.9rem;
+}
+.cv-over-stats {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 0.6rem; margin-bottom: 0.9rem;
+}
+.cv-over-stats > div {
+  background: rgba(0, 0, 0, 0.35);
+  padding: 0.5rem 0.4rem;
+  border-radius: 0.3rem;
+}
+.cv-over-stats span {
+  display: block; font-size: 0.6rem; color: #D97757;
+  letter-spacing: 0.06em; margin-bottom: 0.25rem;
+  font-family: 'JetBrains Mono', monospace;
+}
+.cv-over-stats b { font-size: 0.92rem; }
+.cv-over-bests {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.78rem;
+  color: #f8d9c5; margin-bottom: 0.7rem;
+  line-height: 1.7;
+}
+.cv-over-bests b { color: #FFCB85; }
+.cv-over-hint {
+  margin-top: 0.6rem;
+  color: rgba(255, 255, 255, 0.5); font-size: 0.7rem;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ---- Settings popover ---- */
+.cv-settings {
+  position: absolute; right: 1rem; bottom: 4rem;
+  background: rgba(20, 18, 16, 0.92);
+  border: 1px solid rgba(217, 119, 87, 0.4);
+  border-radius: 0.4rem;
+  padding: 0.6rem 0.8rem;
+  display: none;
+  z-index: 30;
+  backdrop-filter: blur(8px);
+  pointer-events: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  color: #fff;
+}
+.cv-settings.open { display: block; }
+.cv-cb { display: flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0; cursor: pointer; }
+.cv-cb input { accent-color: #D97757; }
+
+/* ---- Crash flash ---- */
+.cv-flash {
+  position: absolute; inset: 0;
+  background: rgba(255, 255, 255, 0);
+  pointer-events: none; z-index: 5;
+  transition: background 200ms;
+}
+.cv-flash.on { background: rgba(255, 255, 255, 0.85); }
+
+/* ---- Mobile controls ---- */
+.cv-stick, .cv-throttle-slider { display: none; pointer-events: auto; touch-action: none; z-index: 9; }
+@media (pointer: coarse), (max-width: 720px) {
+  .cv-stick, .cv-throttle-slider { display: block; }
+}
+.cv-stick {
+  position: absolute; left: 0.8rem; bottom: 1rem;
+  width: 130px; height: 130px;
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.42) 0%, rgba(0, 0, 0, 0.18) 70%);
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-radius: 50%;
+}
+.cv-stick-thumb {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 56px; height: 56px;
+  background: linear-gradient(135deg, #D97757, #C56848);
+  border: 2px solid rgba(255, 255, 255, 0.55);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.cv-throttle-slider {
+  position: absolute; right: 0.8rem; bottom: 1rem;
+  width: 56px; height: 200px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-radius: 0.4rem;
+  overflow: hidden;
+}
+.cv-throttle-slider-fill {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 70%;
+  background: linear-gradient(0deg, #D97757, #FFCB85);
+  transition: height 50ms linear;
+}
+.cv-throttle-label {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%) rotate(-90deg);
+  color: #fff; font-size: 0.78rem;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.1em;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.65);
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cv-stall { animation: none; transform: translateX(-50%); }
+  .cv-flash, .cv-throttle-fill, .cv-throttle-slider-fill { transition: none; }
+}
+
+@media (max-width: 480px) {
+  .cv-chip { font-size: 0.7rem; padding: 0.25rem 0.45rem; }
+  .cv-throttle-bar { width: 38px; }
+  .cv-hud-row { gap: 0.3rem; padding: 0 1rem; }
+}

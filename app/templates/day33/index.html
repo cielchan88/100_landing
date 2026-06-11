@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}Cakrawala — Day 33 of 100 Days with Claude{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='day33/cakrawala.css') }}">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<div class="cv-page">
+  <canvas id="cv-canvas"></canvas>
+
+  <header class="cv-topbar"><a href="/" aria-label="Back to all days" id="cv-back-home">← Back to all days</a></header>
+
+  <!-- HUD -->
+  <div class="cv-hud" id="cv-hud">
+    <div class="cv-hud-row">
+      <div class="cv-chip"><span class="cv-lbl">SPD</span><b id="cv-hud-speed">0</b></div>
+      <div class="cv-chip"><span class="cv-lbl">ALT</span><b id="cv-hud-alt">0</b></div>
+      <div class="cv-chip cv-throttle">
+        <span class="cv-lbl">THR</span>
+        <div class="cv-throttle-bar"><div class="cv-throttle-fill" id="cv-hud-throttle-fill"></div></div>
+      </div>
+      <div class="cv-chip"><span class="cv-lbl">RINGS</span><b id="cv-hud-rings">0</b></div>
+      <div class="cv-chip"><span class="cv-lbl">KM</span><b id="cv-hud-dist">0.00</b></div>
+    </div>
+    <div class="cv-stall" id="cv-hud-stall">STALL</div>
+    <div class="cv-arrow" id="cv-hud-arrow">↑</div>
+    <button class="cv-gear" id="cv-gear" aria-label="Settings">⚙</button>
+  </div>
+
+  <!-- MENU -->
+  <div class="cv-overlay" id="cv-menu">
+    <div class="cv-menu-card">
+      <div class="cv-wordmark">CAKRAWALA</div>
+      <div class="cv-tagline">Seventeen thousand islands. One small plane.</div>
+      <button class="cv-btn cv-btn-primary" type="button" id="cv-takeoff">Take off</button>
+      <div class="cv-controls-hint">
+        <div>Arrows — pitch &amp; roll · Q/E — rudder</div>
+        <div>Shift/W — throttle up · Ctrl/S — throttle down</div>
+        <div>R — restart · H — toggle HUD</div>
+        <div>On phone — left stick + right throttle slider</div>
+      </div>
+      <div class="cv-bests">Best: <span id="cv-best-rings">0</span> rings · <span id="cv-best-dist">0.00</span> km</div>
+      <button class="cv-gear cv-gear-2" id="cv-gear-2" aria-label="Settings">⚙</button>
+      <div class="cv-corner-tag">Day 33 · 100 Days with Claude</div>
+    </div>
+  </div>
+
+  <!-- FLIGHT OVER -->
+  <div class="cv-overlay" id="cv-over" style="display:none">
+    <div class="cv-over-card">
+      <div class="cv-over-title">FLIGHT OVER</div>
+      <div class="cv-over-stats">
+        <div><span>Time</span><b id="cv-over-time">0.0 s</b></div>
+        <div><span>Distance</span><b id="cv-over-dist">0.00 km</b></div>
+        <div><span>Rings</span><b id="cv-over-rings">0</b></div>
+      </div>
+      <div class="cv-over-bests">
+        <div>Best rings: <b id="cv-over-best-rings">0</b></div>
+        <div>Best distance: <b id="cv-over-best-dist">0.00 km</b></div>
+      </div>
+      <button class="cv-btn cv-btn-primary" type="button" id="cv-flyagain">Fly again</button>
+      <div class="cv-over-hint">R or tap to restart</div>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="cv-settings" id="cv-settings">
+    <label class="cv-cb"><input type="checkbox" id="cv-cb-assist"> Assist (auto-level, stall guard)</label>
+    <label class="cv-cb"><input type="checkbox" id="cv-cb-invert"> Invert pitch (↑ = nose up)</label>
+    <label class="cv-cb"><input type="checkbox" id="cv-cb-hud"> Show HUD</label>
+  </div>
+
+  <!-- Crash flash -->
+  <div class="cv-flash" id="cv-flash"></div>
+
+  <!-- Mobile controls -->
+  <div class="cv-stick" id="cv-stick">
+    <div class="cv-stick-thumb" id="cv-stick-thumb"></div>
+  </div>
+  <div class="cv-throttle-slider" id="cv-throttle">
+    <div class="cv-throttle-slider-fill" id="cv-throttle-fill"></div>
+    <div class="cv-throttle-label">THR</div>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='day33/cakrawala.js') }}" defer></script>
+{% endblock %}
