@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Ink — Day 35 of 100 Days with Claude{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='day35/ink.css') }}">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<!-- r128 post-processing for tier-gated bloom. Exact-match version; if any
+     fail to load, ink.js detects the missing globals and runs without bloom. -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js" defer></script>
+
+<div class="ink-page">
+  <canvas id="ink-canvas"></canvas>
+
+  <header class="ink-topbar"><a href="/" aria-label="Back to all days">← Back to all days</a></header>
+
+  <div class="ink-hint" id="ink-hint">drag anywhere</div>
+
+  <button class="ink-gear" id="ink-gear" aria-label="Settings">⚙</button>
+  <div class="ink-settings" id="ink-settings">
+    <label class="ink-slider-row">
+      <span>Fade</span>
+      <input type="range" id="ink-s-fade" min="0" max="100" value="24">
+    </label>
+    <label class="ink-slider-row">
+      <span>Swirl</span>
+      <input type="range" id="ink-s-swirl" min="0" max="100" value="52">
+    </label>
+    <label class="ink-slider-row">
+      <span>Brush</span>
+      <input type="range" id="ink-s-brush" min="0" max="100" value="20">
+    </label>
+    <label class="ink-cb-row">
+      <input type="checkbox" id="ink-cb-bloom"> Bloom
+    </label>
+    <button class="ink-btn" type="button" id="ink-clear">Clear canvas</button>
+  </div>
+
+  <div class="ink-corner-tag">Day 35 · 100 Days with Claude</div>
+</div>
+
+<script src="{{ url_for('static', filename='day35/ink.js') }}" defer></script>
+{% endblock %}

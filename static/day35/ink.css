@@ -1,0 +1,122 @@
+/* Ink — Day 35 */
+html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #060608; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; }
+
+.ink-page { position: fixed; inset: 0; background: #060608; }
+#ink-canvas {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  display: block;
+  touch-action: none;
+  cursor: crosshair;
+}
+
+/* Faint gallery vignette — zero render cost. */
+.ink-page::after {
+  content: '';
+  position: absolute; inset: 0;
+  pointer-events: none;
+  z-index: 3;
+  background: radial-gradient(ellipse at center, transparent 58%, rgba(0, 0, 0, 0.5) 100%);
+}
+
+.ink-topbar {
+  position: absolute; top: 0.7rem; left: 0.9rem; z-index: 10;
+  font-size: 0.78rem;
+}
+.ink-topbar a {
+  color: rgba(255, 255, 255, 0.75); text-decoration: none;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  padding: 0.3rem 0.6rem;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 0.3rem;
+}
+.ink-topbar a:hover { color: #D97757; }
+
+.ink-hint {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+  color: rgba(255, 255, 255, 0.4);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.95rem;
+  letter-spacing: 0.25em;
+  text-transform: lowercase;
+  pointer-events: none;
+  transition: opacity 900ms ease;
+  animation: ink-breathe 3.2s ease-in-out infinite;
+}
+.ink-hint.gone { opacity: 0; animation: none; }
+@keyframes ink-breathe {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 0.6; }
+}
+
+.ink-gear {
+  position: absolute; bottom: 1rem; right: 1rem; z-index: 10;
+  width: 38px; height: 38px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 50%;
+  color: rgba(255, 255, 255, 0.6); font-size: 1rem;
+  cursor: pointer;
+}
+.ink-gear:hover { color: #D97757; border-color: #D97757; }
+
+.ink-settings {
+  position: absolute; bottom: 4rem; right: 1rem; z-index: 11;
+  background: rgba(12, 12, 14, 0.92);
+  border: 1px solid rgba(217, 119, 87, 0.4);
+  border-radius: 0.45rem;
+  padding: 0.8rem 1rem;
+  display: none;
+  min-width: 200px;
+  backdrop-filter: blur(8px);
+}
+.ink-settings.open { display: block; }
+.ink-slider-row {
+  display: flex; align-items: center; gap: 0.6rem;
+  padding: 0.3rem 0;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+.ink-slider-row span { width: 3.2rem; }
+.ink-slider-row input[type="range"] { flex: 1; accent-color: #D97757; cursor: pointer; }
+.ink-cb-row {
+  display: flex; align-items: center; gap: 0.45rem;
+  padding: 0.4rem 0;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+}
+.ink-cb-row input { accent-color: #D97757; }
+.ink-btn {
+  width: 100%;
+  margin-top: 0.4rem;
+  padding: 0.5rem 0.8rem;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.85);
+  border-radius: 0.35rem;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.72rem;
+  cursor: pointer;
+}
+.ink-btn:hover { border-color: #D97757; color: #D97757; }
+
+.ink-corner-tag {
+  position: absolute; bottom: 0.8rem; left: 0.9rem; z-index: 10;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.62rem;
+  color: rgba(255, 255, 255, 0.25);
+  pointer-events: none;
+}
+
+.ink-fatal {
+  position: fixed; top: 1rem; left: 1rem; right: 1rem; z-index: 99;
+  background: #2a1010; border: 1px solid #c44; color: #fbb;
+  padding: 1rem; border-radius: 0.5rem;
+  font: 14px/1.5 monospace;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ink-hint { animation: none; transition: none; }
+}
