@@ -87,13 +87,15 @@
 
     // Rings
     ringCount: 5,
-    ringRadius: 6,
-    ringTube: 0.5,
+    ringRadius: 11,           // up from 6: large enough to aim at 150-300u
+    ringTube: 0.7,
     ringSpawnMin: 150,
     ringSpawnMax: 300,
     ringConeDeg: 35,
     ringAltMin: 15,
     ringAltMax: 80,
+    ringFirstDist: 150,       // guaranteed-visible first ring on take-off
+    beaconHeight: 220,        // tall additive pillar so rings are findable from far away
 
     // Misc
     flightOverDelayMs: 600,
@@ -754,17 +756,101 @@
   var plane = makePlane();
 
   // ---- Rings ----
+  // Visibility is the priority (per the design brief): cyan-white core
+  // instead of orange (high-contrast against the warm sky), HDR-ish
+  // colors via toneMapped:false so they survive ACES tonemapping without
+  // any bloom dependency, additive glow corona behind the core, a tall
+  // additive vertical beacon so far rings are findable, and each ring's
+  // axis is oriented to face the incoming plane (player sees the opening,
+  // not the edge). fog:false keeps haze from washing them out.
   var ringGroup = new THREE.Group();
   scene.add(ringGroup);
-  var ringMat = new THREE.MeshBasicMaterial({ color: 0xD97757 });
-  var ringMatBright = new THREE.MeshBasicMaterial({ color: 0xffd9a8 });
-  var ringList = []; // {mesh, pos, normal, alive, pulsedT}
 
-  function spawnRingAhead() {
+  // Core ring material (the solid cyan-white ring you fly through). The
+  // higher the source color goes above 1.0 before tonemapping, the more
+  // it would bloom in a Layer-2 composer pass; with toneMapped:false the
+  // color stays bright even without bloom (Mobile).
+  var CORE_COL = 0xc0ffff;
+  var GLOW_COL = 0x7ff2ff;
+  var CORE_COL_NEAR = 0xffffff;
+  function makeRingCoreMat(near) {
+    return new THREE.MeshBasicMaterial({
+      color: near ? CORE_COL_NEAR : CORE_COL,
+      fog: false, toneMapped: false,
+    });
+  }
+  function makeRingGlowMat(near) {
+    return new THREE.MeshBasicMaterial({
+      color: GLOW_COL,
+      transparent: true,
+      opacity: near ? 0.65 : 0.45,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      fog: false, toneMapped: false,
+    });
+  }
+  function makeBeaconMat(near) {
+    return new THREE.MeshBasicMaterial({
+      color: GLOW_COL,
+      transparent: true,
+      opacity: near ? 0.32 : 0.16,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      fog: false, toneMapped: false,
+      side: THREE.DoubleSide,
+    });
+  }
+
+  // Shared geometries — built once, reused per ring (cheaper than rebuilding).
+  var RING_CORE_GEO = new THREE.TorusGeometry(CFG.ringRadius, CFG.ringTube, 10, 28);
+  var RING_GLOW_GEO = new THREE.TorusGeometry(CFG.ringRadius * 1.15, CFG.ringTube * 2.4, 10, 28);
+  var BEACON_GEO = new THREE.CylinderGeometry(0.9, 0.9, CFG.beaconHeight, 6, 1, true);
+
+  var ringList = []; // {grp, core, glow, beacon, pos, normal, t, scored, near}
+
+  // Orient a ring so its axis (local +Z) points at the plane. Keep Y locked
+  // so the ring's plane stays roughly vertical (player sees the round
+  // opening, not the edge).
+  function faceRingAtPlane(grp, rx, ry, rz) {
+    grp.lookAt(plane.pos.x, ry, plane.pos.z);
+  }
+
+  function spawnRingAt(pos, opts) {
+    opts = opts || {};
+    var grp = new THREE.Group();
+    var core = new THREE.Mesh(RING_CORE_GEO, makeRingCoreMat(false));
+    grp.add(core);
+    var glow = new THREE.Mesh(RING_GLOW_GEO, makeRingGlowMat(false));
+    grp.add(glow);
+    grp.position.set(pos.x, pos.y, pos.z);
+    faceRingAtPlane(grp, pos.x, pos.y, pos.z);
+
+    // Vertical beacon — its own group so it stays world-upright (the ring
+    // group will rotate to face the plane).
+    var beacon = new THREE.Mesh(BEACON_GEO, makeBeaconMat(false));
+    beacon.position.set(pos.x, CFG.beaconHeight * 0.5, pos.z);
+    beacon.renderOrder = 2;
+
+    // Compute the ring's plane-normal from its orientation for pass detection.
+    var nx = plane.pos.x - pos.x, nz = plane.pos.z - pos.z;
+    var nl = Math.sqrt(nx * nx + nz * nz) || 1;
+    var rec = {
+      grp: grp, core: core, glow: glow, beacon: beacon,
+      pos: { x: pos.x, y: pos.y, z: pos.z },
+      normal: { x: -nx / nl, y: 0, z: -nz / nl }, // toward "forward" past the ring
+      t: 0, scored: false, near: false,
+    };
+    ringGroup.add(grp);
+    ringGroup.add(beacon);
+    ringList.push(rec);
+    return rec;
+  }
+
+  function spawnRingAhead(opts) {
+    opts = opts || {};
     var fwd = vset(V(), 0, 0, -1); vapplyQ(fwd, fwd, plane.ori); vnorm(fwd, fwd);
-    // Base position: farthest existing ring or the plane.
-    var basePos = plane.pos, baseFwd = fwd;
-    if (ringList.length) {
+    var basePos = plane.pos;
+    if (!opts.fromPlane && ringList.length) {
       var farthest = null, bestD = -Infinity;
       for (var i = 0; i < ringList.length; i++) {
         var d = (ringList[i].pos.x - plane.pos.x) * fwd.x + (ringList[i].pos.z - plane.pos.z) * fwd.z;
@@ -774,32 +860,42 @@
     }
     var rng = Math.random;
     var pos = V();
-    for (var tries = 0; tries < 12; tries++) {
-      var dist = CFG.ringSpawnMin + rng() * (CFG.ringSpawnMax - CFG.ringSpawnMin);
-      var ang = (rng() - 0.5) * 2 * (CFG.ringConeDeg * Math.PI / 180);
-      var cos = Math.cos(ang), sin = Math.sin(ang);
-      var dx = fwd.x * cos - fwd.z * sin;
-      var dz = fwd.x * sin + fwd.z * cos;
+    var tries = opts.firstRing ? 1 : 14;
+    for (var k = 0; k < tries; k++) {
+      var dist, ang, altY;
+      if (opts.firstRing) {
+        // Guaranteed-visible first ring: straight ahead, at the plane's
+        // current altitude, fixed distance — never lost in the fog or buried.
+        dist = CFG.ringFirstDist;
+        ang = 0;
+        altY = clamp(plane.pos.y, CFG.ringAltMin + 5, CFG.ringAltMax);
+      } else {
+        dist = CFG.ringSpawnMin + rng() * (CFG.ringSpawnMax - CFG.ringSpawnMin);
+        ang = (rng() - 0.5) * 2 * (CFG.ringConeDeg * Math.PI / 180);
+        altY = CFG.ringAltMin + rng() * (CFG.ringAltMax - CFG.ringAltMin);
+      }
+      var c = Math.cos(ang), s = Math.sin(ang);
+      var dx = fwd.x * c - fwd.z * s;
+      var dz = fwd.x * s + fwd.z * c;
       pos.x = basePos.x + dx * dist;
       pos.z = basePos.z + dz * dist;
-      pos.y = CFG.ringAltMin + rng() * (CFG.ringAltMax - CFG.ringAltMin);
-      // Reject if it would be inside terrain or too low to be reachable.
+      pos.y = altY;
+      // Reject if buried in terrain.
       var hh = world.height(pos.x, pos.z);
-      if (pos.y < hh + 4) continue;
-      var geo = new THREE.TorusGeometry(CFG.ringRadius, CFG.ringTube, 8, 24);
-      var m = new THREE.Mesh(geo, ringMat);
-      m.position.set(pos.x, pos.y, pos.z);
-      // Face the ring along the spawn direction.
-      m.lookAt(pos.x + dx, pos.y, pos.z + dz);
-      var rec = { mesh: m, pos: { x: pos.x, y: pos.y, z: pos.z }, normal: { x: dx, y: 0, z: dz }, alive: true, t: 0, scored: false };
-      ringList.push(rec);
-      ringGroup.add(m);
-      return rec;
+      if (pos.y < hh + CFG.ringRadius + 2) {
+        if (opts.firstRing) { pos.y = hh + CFG.ringRadius + 8; }
+        else continue;
+      }
+      return spawnRingAt(pos, opts);
     }
     return null;
   }
 
   function refillRings() {
+    if (ringList.length === 0) {
+      // First ring is always guaranteed-visible, straight ahead.
+      spawnRingAhead({ firstRing: true, fromPlane: true });
+    }
     while (ringList.length < CFG.ringCount) {
       if (!spawnRingAhead()) break;
     }
@@ -807,52 +903,62 @@
   refillRings();
 
   function updateRings(dt, prevPos) {
-    var nearest = null, nearestD = Infinity;
+    var nearest = null, nearestD2 = Infinity;
     for (var i = ringList.length - 1; i >= 0; i--) {
       var r = ringList[i];
       r.t += dt;
-      // Pulse scale
-      r.mesh.scale.setScalar(1 + Math.sin(r.t * 3) * 0.04);
-      // Pass detection: signed distance to ring plane crosses zero AND within inner radius.
-      var pdx = prevPos.x - r.pos.x, pdy = prevPos.y - r.pos.y, pdz = prevPos.z - r.pos.z;
+      // Pulse scale (gentle).
+      var pulse = 1 + Math.sin(r.t * 2.4) * 0.05;
+      r.grp.scale.setScalar(pulse);
+
+      // Pass detection: signed distance to ring plane crosses zero AND
+      // within the ring's inner radius at the crossing.
+      var pdx = prevPos.x - r.pos.x, pdz = prevPos.z - r.pos.z;
       var ndx = plane.pos.x - r.pos.x, ndy = plane.pos.y - r.pos.y, ndz = plane.pos.z - r.pos.z;
       var s0 = pdx * r.normal.x + pdz * r.normal.z;
       var s1 = ndx * r.normal.x + ndz * r.normal.z;
       if (!r.scored && s0 <= 0 && s1 > 0) {
-        // Crossed forward through the ring plane. Check radial offset at crossing.
-        var dxr = ndx, dyr = ndy, dzr = ndz;
-        var radial = Math.sqrt(dxr * dxr + dyr * dyr + dzr * dzr);
+        var radial = Math.sqrt(ndx * ndx + ndy * ndy + ndz * ndz);
         if (radial < CFG.ringRadius * 1.05) {
           r.scored = true;
           score.rings++;
           flashRing(r);
         }
       }
-      // Distance to plane for nearest pick.
       var d2 = ndx * ndx + ndy * ndy + ndz * ndz;
-      if (!r.scored && d2 < nearestD) { nearestD = d2; nearest = r; }
-      // Despawn if scored OR well behind the plane along forward.
+      if (!r.scored && d2 < nearestD2) { nearestD2 = d2; nearest = r; }
+
+      // Despawn rules: scored + animation done, or far behind.
       var fwd = vset(V(), 0, 0, -1); vapplyQ(fwd, fwd, plane.ori);
       var forwardOffset = (ndx * fwd.x + ndz * fwd.z);
-      if (r.scored && r.t > 0.5) {
-        despawnRing(r, i);
-      } else if (forwardOffset < -80) {
-        despawnRing(r, i);
+      if (r.scored && r.t > 0.5) despawnRing(r, i);
+      else if (forwardOffset < -80) despawnRing(r, i);
+    }
+
+    // Per-ring style: only the nearest gets the brightest core + beacon.
+    for (var k = 0; k < ringList.length; k++) {
+      var rr = ringList[k];
+      var shouldBeNear = (rr === nearest);
+      if (shouldBeNear !== rr.near) {
+        rr.near = shouldBeNear;
+        rr.core.material = makeRingCoreMat(shouldBeNear);
+        rr.glow.material = makeRingGlowMat(shouldBeNear);
+        rr.beacon.material = makeBeaconMat(shouldBeNear);
       }
     }
-    // Visual: nearest brighter.
-    for (var k = 0; k < ringList.length; k++) {
-      ringList[k].mesh.material = (ringList[k] === nearest) ? ringMatBright : ringMat;
-    }
-    return nearest;
+    return { nearest: nearest, nearestD: Math.sqrt(nearestD2) };
   }
   function despawnRing(r, idx) {
-    ringGroup.remove(r.mesh);
-    r.mesh.geometry.dispose();
+    ringGroup.remove(r.grp);
+    ringGroup.remove(r.beacon);
+    // Geometries are shared; only the per-ring materials need disposal.
+    r.core.material.dispose();
+    r.glow.material.dispose();
+    r.beacon.material.dispose();
     ringList.splice(idx, 1);
   }
   function flashRing(r) {
-    r.mesh.scale.setScalar(1.4);
+    r.grp.scale.setScalar(1.5);
   }
 
   // ---- Particles for crash ----
@@ -979,10 +1085,11 @@
   var hudThrottle = $('cv-hud-throttle-fill');
   var hudStall = $('cv-hud-stall');
   var hudArrow = $('cv-hud-arrow');
+  var hudArrowDist = $('cv-hud-arrow-dist');
 
   var score = { rings: 0 };
 
-  function updateHUD(v, alt, nearest) {
+  function updateHUD(v, alt, nearest, nearestD) {
     $('cv-hud-speed').textContent = (v * 1.94).toFixed(0); // arbitrary unit -> knots-ish
     $('cv-hud-alt').textContent = alt.toFixed(0);
     hudThrottle.style.width = (plane.throttle * 100) + '%';
@@ -992,14 +1099,25 @@
     if (nearest) {
       // Project nearest ring to screen for the guidance arrow.
       var tmp = new THREE.Vector3(nearest.pos.x, nearest.pos.y, nearest.pos.z).project(camera);
-      // If off-screen, point an arrow at the edge in that direction.
-      if (Math.abs(tmp.x) > 0.85 || Math.abs(tmp.y) > 0.85 || tmp.z > 1) {
+      var offScreen = Math.abs(tmp.x) > 0.85 || Math.abs(tmp.y) > 0.85 || tmp.z > 1;
+      if (offScreen) {
         var ang = Math.atan2(tmp.y, tmp.x);
         if (tmp.z > 1) ang += Math.PI; // behind us
         hudArrow.style.display = '';
         hudArrow.style.transform = 'translate(-50%,-50%) rotate(' + (-ang * 180 / Math.PI + 90) + 'deg)';
-      } else hudArrow.style.display = 'none';
-    } else hudArrow.style.display = 'none';
+      } else {
+        hudArrow.style.display = 'none';
+      }
+      // Distance readout always shown when a nearest exists — so the
+      // player has an objective number even when the ring is on-screen.
+      if (hudArrowDist) {
+        hudArrowDist.style.display = '';
+        hudArrowDist.textContent = nearestD < 1000 ? (nearestD | 0) + ' m' : (nearestD / 1000).toFixed(2) + ' km';
+      }
+    } else {
+      hudArrow.style.display = 'none';
+      if (hudArrowDist) hudArrowDist.style.display = 'none';
+    }
   }
 
   // ---- Menu / overlays ----
@@ -1041,7 +1159,13 @@
     // Velocity along the new forward.
     var fwd = vset(V(), 0, 0, -1); vapplyQ(fwd, fwd, plane.ori); vnorm(fwd, fwd);
     plane.vel = vset(V(), fwd.x * CFG.startSpeed, 0, fwd.z * CFG.startSpeed);
-    ringList.forEach(function (r) { ringGroup.remove(r.mesh); r.mesh.geometry.dispose(); });
+    ringList.forEach(function (r) {
+      ringGroup.remove(r.grp);
+      ringGroup.remove(r.beacon);
+      r.core.material.dispose();
+      r.glow.material.dispose();
+      r.beacon.material.dispose();
+    });
     ringList.length = 0;
     crashParts.forEach(function (p) { scene.remove(p.mesh); p.mesh.geometry.dispose(); p.mesh.material.dispose(); });
     crashParts.length = 0;
@@ -1124,7 +1248,7 @@
       }
       // Render-time effects
       var v = vlen(plane.vel);
-      var nearest = updateRings(dt, prevPos);
+      var ringInfo = updateRings(dt, prevPos);
       refillRings();
       updateChunks(plane.pos.x, plane.pos.z);
 
@@ -1132,7 +1256,7 @@
       if (collide(plane, world)) {
         crash();
       }
-      updateHUD(v, plane.pos.y, nearest);
+      updateHUD(v, plane.pos.y, ringInfo.nearest, ringInfo.nearestD);
     }
 
     updateCrashParts(dt);
