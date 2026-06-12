@@ -35,24 +35,29 @@
       <div class="ptch-action-buttons">
         <button class="ptch-action-btn ptch-pass-btn" id="ptch-pass-btn" type="button">Pass</button>
         <button class="ptch-action-btn ptch-shoot-btn" id="ptch-shoot-btn" type="button">Shoot</button>
+        <button class="ptch-action-btn ptch-switch-btn" id="ptch-switch-btn" type="button">Switch</button>
       </div>
     </div>
 
     <!-- Desktop hint -->
     <div class="ptch-kb-hint" id="ptch-kb-hint">
-      <span>WASD</span> move &nbsp;·&nbsp; <span>J</span> pass &nbsp;·&nbsp; <span>K</span> shoot (hold)
+      <span>WASD</span> move &nbsp;·&nbsp; <span>J</span> pass &nbsp;·&nbsp; <span>K</span> shoot (hold) &nbsp;·&nbsp; <span>Tab</span> switch
     </div>
+
+    <!-- Referee whistle flash -->
+    <div class="ptch-whistle" id="ptch-whistle"></div>
 
     <!-- Menu overlay -->
     <div class="ptch-overlay is-visible" id="ptch-menu">
       <div class="ptch-overlay-card">
         <div class="ptch-eyebrow">Day 26 · Pitch</div>
         <h1 class="ptch-title">Pitch</h1>
-        <p class="ptch-tagline">Three a side. Winner stays on.</p>
+        <p class="ptch-tagline">Eleven a side. Hold your shape.</p>
         <div class="ptch-how">
           <div><strong>Move</strong> WASD / joystick</div>
           <div><strong>Pass</strong> J / Pass button</div>
           <div><strong>Shoot</strong> K (hold to charge) / Shoot button</div>
+          <div><strong>Switch</strong> Tab / Switch button</div>
         </div>
         <div class="ptch-best" id="ptch-best"></div>
         <button class="ptch-primary-btn" id="ptch-kickoff-btn" type="button">Kick off</button>

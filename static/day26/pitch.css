@@ -102,7 +102,32 @@
 }
 .ptch-pass-btn { border: 2px solid #7BA7CC; }
 .ptch-shoot-btn { border: 2px solid #D97757; }
+.ptch-switch-btn { border: 2px solid #FFD24C; }
 .ptch-action-btn:active { background: rgba(217,119,87,0.4); }
+
+/* Ref whistle flash + CSS vignette over the canvas */
+.ptch-whistle {
+  position: absolute; top: 18%; left: 50%;
+  transform: translate(-50%, 0);
+  padding: 0.4rem 0.9rem;
+  background: rgba(255, 210, 76, 0.95);
+  color: #2a2200;
+  border-radius: 0.4rem;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;
+  font-weight: 700; letter-spacing: 0.08em;
+  opacity: 0; pointer-events: none;
+  transition: opacity 200ms;
+  z-index: 12;
+}
+.ptch-whistle.show::after { content: '🔵 WHISTLE'; }
+.ptch-whistle.show { opacity: 1; }
+.ptch-stage::after {
+  content: '';
+  position: absolute; inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  background: radial-gradient(ellipse at center, transparent 56%, rgba(0,0,0,0.32) 100%);
+}
 
 /* Desktop kb hint */
 .ptch-kb-hint {
