@@ -470,19 +470,49 @@
   renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
   renderer.setSize(window.innerWidth, window.innerHeight, false);
   renderer.outputEncoding = THREE.sRGBEncoding;
+  // ACES filmic tonemapping is the single biggest "rendered, not flat WebGL"
+  // lever in this whole file. Light intensities below are tuned to this.
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.05;
+
+  // Canvas texture helper: a radial gradient as a CanvasTexture, used for
+  // the sun disc, halo, blob shadow under the plane, and water sun-glitter.
+  function makeRadialTexture(rgb, core, falloff) {
+    var size = 128;
+    var c = document.createElement('canvas');
+    c.width = c.height = size;
+    var ctx = c.getContext('2d');
+    var g = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+    g.addColorStop(0, 'rgba(' + rgb + ',' + core + ')');
+    g.addColorStop(falloff, 'rgba(' + rgb + ',' + (core * 0.5) + ')');
+    g.addColorStop(1, 'rgba(' + rgb + ',0)');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, size, size);
+    var tex = new THREE.CanvasTexture(c);
+    tex.encoding = THREE.sRGBEncoding;
+    return tex;
+  }
 
   var scene = new THREE.Scene();
   scene.background = hex(CFG.colSky2);
-  scene.fog = new THREE.Fog(CFG.colFog, CFG.chunkSize * 1.2, CFG.chunkSize * CFG.viewRadius * 1.05);
+  // FogExp2 reads more like aerial perspective than linear fog: distant
+  // islands haze out softly rather than clipping at a hard plane. Density
+  // is tuned so the chunk pop-in seam hides inside the haze band.
+  scene.fog = new THREE.FogExp2(CFG.colFog, 1.0 / (CFG.chunkSize * CFG.viewRadius * 0.9));
 
   var camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.5, CFG.chunkSize * CFG.viewRadius * 1.5);
   camera.position.set(0, CFG.startAltitude + 6, 30);
 
-  // Lights — one directional + one hemisphere, no shadow maps.
-  var sun = new THREE.DirectionalLight(0xffd4a8, 1.05);
-  sun.position.set(-0.4, 0.5, 0.7).normalize().multiplyScalar(100);
+  // Sun direction lives at module scope so the sun sprite, halo, and water
+  // glitter can all read the same vector. Low and to the side: golden hour.
+  var SUN_DIR = new THREE.Vector3(-0.55, 0.30, 0.78).normalize();
+
+  // Lights — re-tuned for ACES filmic tonemapping. Without ACES the same
+  // numbers would blow out highlights; with it, this gives the warm directional
+  // rake + soft sky fill the look depends on.
+  var sun = new THREE.DirectionalLight(0xffd0a0, 3.2);
+  sun.position.copy(SUN_DIR).multiplyScalar(200);
   scene.add(sun);
-  var hemi = new THREE.HemisphereLight(0xffcfa6, 0x4a3a30, 0.5);
+  var hemi = new THREE.HemisphereLight(0xffd6b0, 0x3a3026, 1.4);
   scene.add(hemi);
 
   // Sky dome: large inverted sphere with a vertical gradient.
@@ -500,12 +530,63 @@
   var sky = new THREE.Mesh(skyGeo, skyMat);
   scene.add(sky);
 
-  // Sea plane — big, recentered each frame.
-  var seaGeo = new THREE.PlaneGeometry(CFG.chunkSize * 7, CFG.chunkSize * 7, 1, 1);
+  // Sun disc + halo: two additive billboard sprites placed at SUN_DIR. The
+  // disc is the bright warm core; the halo is a much larger, faint outer
+  // glow that sells "golden hour" without any post-processing bloom. The
+  // sprites parent themselves to the camera so they read as infinitely far.
+  var sunTex = makeRadialTexture('255,235,200', 1.0, 0.40);
+  var haloTex = makeRadialTexture('255,180,110', 0.7, 0.30);
+  var SUN_FAR = CFG.chunkSize * CFG.viewRadius * 1.25;
+  var sunDisc = new THREE.Sprite(new THREE.SpriteMaterial({
+    map: sunTex, color: 0xffeecf, blending: THREE.AdditiveBlending,
+    depthWrite: false, depthTest: false, transparent: true,
+  }));
+  sunDisc.scale.set(110, 110, 1);
+  scene.add(sunDisc);
+  var sunHalo = new THREE.Sprite(new THREE.SpriteMaterial({
+    map: haloTex, color: 0xffc480, blending: THREE.AdditiveBlending,
+    depthWrite: false, depthTest: false, transparent: true, opacity: 0.65,
+  }));
+  sunHalo.scale.set(340, 340, 1);
+  scene.add(sunHalo);
+  // Sky/sun must draw before the rest (no depth-test for sun) so it sits
+  // behind everything. The sprite render order ensures correct draw order.
+  sunHalo.renderOrder = -2;
+  sunDisc.renderOrder = -1;
+
+  // Sea — Phong with specular sun-glitter + gentle waves. Color leans toward
+  // the warm sky horizon (fake fresnel), shininess + specular acting against
+  // SUN_DIR gives the iconic glittering sun-strip on the water. The geometry
+  // gets enough segments to read as wavy, and verts are perturbed every frame
+  // by a sin-noise field sampled in world space (so waves stay still under
+  // a translating sea plane).
+  var SEA_SEGS = 64;
+  var seaGeo = new THREE.PlaneGeometry(CFG.chunkSize * 7, CFG.chunkSize * 7, SEA_SEGS, SEA_SEGS);
   seaGeo.rotateX(-Math.PI / 2);
-  var seaMat = new THREE.MeshLambertMaterial({ color: CFG.colSea, flatShading: true });
+  var seaMat = new THREE.MeshPhongMaterial({
+    color: 0x14384c,
+    specular: 0xffd9a8,         // warm sun color produces a warm glitter strip
+    shininess: 220,
+    flatShading: false,
+    fog: true,
+  });
   var sea = new THREE.Mesh(seaGeo, seaMat);
   scene.add(sea);
+
+  // Blob shadow under the plane: a flat textured circle at the surface,
+  // scaled and faded by altitude. Cheap, but it grounds the plane in the
+  // world — most of the perceived-quality jump on Mobile/High before any
+  // real shadow maps are introduced.
+  var blobTex = makeRadialTexture('0,0,0', 0.85, 0.45);
+  var blobGeo = new THREE.PlaneGeometry(1, 1);
+  blobGeo.rotateX(-Math.PI / 2);
+  var blobMat = new THREE.MeshBasicMaterial({
+    map: blobTex, color: 0x000000, transparent: true, opacity: 0.55,
+    depthWrite: false, fog: false,
+  });
+  var blob = new THREE.Mesh(blobGeo, blobMat);
+  blob.renderOrder = 1;
+  scene.add(blob);
 
   // ---- World + chunk manager ----
   var world = makeWorld(CFG.seed);
@@ -513,17 +594,35 @@
 
   function chunkKey(i, j) { return i + ',' + j; }
 
+  // Height + slope -> warm-graded RGB. The bands matter less than the two
+  // signature touches: (a) a bright foam/wet-sand strip right at the
+  // waterline so coastlines pop instead of fading muddily into the sea,
+  // (b) snow on the highest gentle ground so far peaks read silhouetted
+  // against the haze. Steep faces become rock at any height so cliffs
+  // read as cliffs. A small per-vertex jitter breaks plastic flatness.
+  var COL_FOAM   = [239, 226, 192]; // wet sand / foam at waterline
+  var COL_SNOW   = [242, 243, 245];
   function colorFor(y, slope) {
-    // Pick a band by height; nudge toward rock on steep slopes.
     var c;
-    if (y < 0.3) c = CFG.colSand;
-    else if (y < 8) c = CFG.colSand;
-    else if (y < 22) c = CFG.colGrass;
-    else if (y < 38) c = CFG.colUpland;
-    else c = CFG.colRock;
-    if (slope > 0.8 && y > 6) c = CFG.colRock;
-    // small per-vertex jitter for the painterly look
-    var j = (Math.sin(y * 7.13 + slope * 13.7) * 8) | 0;
+    if (y < 1.6)        c = COL_FOAM;
+    else if (y < 7)     c = CFG.colSand;
+    else if (y < 22)    c = CFG.colGrass;
+    else if (y < 38)    c = CFG.colUpland;
+    else                c = CFG.colRock;
+    // Steep slopes always read as rock above the foam band.
+    if (slope > 0.75 && y > 3.5) c = CFG.colRock;
+    // Snow caps: high ground with gentler slope blends toward white.
+    if (y > 40 && slope < 0.7) {
+      var s = clamp((y - 40) / 12, 0, 1) * (1 - slope);
+      c = [
+        Math.round(c[0] * (1 - s) + COL_SNOW[0] * s),
+        Math.round(c[1] * (1 - s) + COL_SNOW[1] * s),
+        Math.round(c[2] * (1 - s) + COL_SNOW[2] * s),
+      ];
+    }
+    // Deterministic hash-jitter so painterly variation matches at seams.
+    var h = Math.sin(y * 12.9898 + slope * 78.233) * 43758.5453;
+    var j = ((h - Math.floor(h)) * 14 - 7) | 0;
     return [clamp(c[0] + j, 0, 255), clamp(c[1] + j, 0, 255), clamp(c[2] + j, 0, 255)];
   }
 
@@ -1074,10 +1173,54 @@
       camera.updateProjectionMatrix();
     }
 
-    // Sky / sea follow.
+    // Sky / sea / sun-sprites / blob-shadow all follow.
     sky.position.copy(camera.position);
     sea.position.x = camera.position.x;
     sea.position.z = camera.position.z;
+
+    // Sun + halo: planted along SUN_DIR at the far-fog edge from the camera.
+    var sunPx = camera.position.x + SUN_DIR.x * SUN_FAR;
+    var sunPy = camera.position.y + SUN_DIR.y * SUN_FAR;
+    var sunPz = camera.position.z + SUN_DIR.z * SUN_FAR;
+    sunDisc.position.set(sunPx, sunPy, sunPz);
+    sunHalo.position.set(sunPx, sunPy, sunPz);
+
+    // Sea waves: a cheap sin/sin field sampled in world space, so the waves
+    // look stationary while the sea plane translates under the camera.
+    if (state === 'flying' || state === 'over') {
+      var spos = sea.geometry.attributes.position;
+      var sx0 = sea.position.x, sz0 = sea.position.z;
+      var t60 = plane.flightTime;
+      for (var si = 0; si < spos.count; si++) {
+        var lx = spos.getX(si), lz = spos.getZ(si);
+        var wx = lx + sx0, wz = lz + sz0;
+        // Two crossed sin waves; small amplitude so the surface stays sea,
+        // not a swimming pool.
+        var w = Math.sin(wx * 0.045 + t60 * 0.7) * 0.22
+              + Math.sin(wz * 0.062 + t60 * 0.9) * 0.18
+              + Math.sin((wx + wz) * 0.030 + t60 * 0.35) * 0.10;
+        spos.setY(si, w);
+      }
+      spos.needsUpdate = true;
+      // Normals matter for the specular sun-glitter — but recomputing every
+      // frame on 4225 verts is wasteful. Every 4 frames is enough for the
+      // glitter to look alive.
+      if (((plane.flightTime * 60) | 0) % 4 === 0) sea.geometry.computeVertexNormals();
+    }
+
+    // Blob shadow: place under the plane on whichever is higher of the
+    // ground or the water, fade + grow with altitude.
+    if (state === 'flying' || state === 'over') {
+      var groundY = Math.max(world.height(plane.pos.x, plane.pos.z), CFG.waterLevel);
+      blob.position.set(plane.pos.x, groundY + 0.08, plane.pos.z);
+      var alt = Math.max(0, plane.pos.y - groundY);
+      var bs = 5 + alt * 0.10;
+      if (bs > 28) bs = 28;
+      blob.scale.set(bs, 1, bs);
+      blob.material.opacity = Math.max(0.05, 0.62 - alt * 0.0055);
+    } else {
+      blob.material.opacity = 0;
+    }
 
     renderer.render(scene, camera);
 
