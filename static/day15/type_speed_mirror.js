@@ -61,12 +61,24 @@
     const chars = passage.text.split('');
 
     dom.passage.innerHTML = chars.map((c, i) => {
-      const displayChar = c === ' ' ? '&nbsp;' : escapeHTML(c);
+      // Render real spaces so the passage can wrap (CSS uses pre-wrap to
+      // preserve them); spaces remain their own spans so they can be the
+      // is-current / is-done highlighted character.
+      const displayChar = (c === ' ') ? ' ' : escapeHTML(c);
       let cls = 'char';
       if (i < state.currentIdx) cls += ' is-done';
       else if (i === state.currentIdx && state.started && !state.completed) cls += ' is-current';
       return `<span class="${cls}" data-idx="${i}">${displayChar}</span>`;
     }).join('');
+
+    // Keep the line the user is typing visible inside the (capped + scrolling)
+    // passage box. block:'nearest' avoids janking the surrounding page.
+    if (state.started && !state.completed) {
+      const currentEl = dom.passage.querySelector('.is-current');
+      if (currentEl && currentEl.scrollIntoView) {
+        currentEl.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+      }
+    }
 
     updateStatus();
   }
@@ -407,9 +419,36 @@
     initChart();
     renderPassage();
 
-    dom.passageContainer.addEventListener('click', () => {
-      if (state.started) dom.input.focus();
+    // Robust focus: tapping anywhere in the typing area focuses the
+    // (now on-screen, visually invisible) input — this is what raises the
+    // on-screen keyboard on mobile and lets the user re-acquire focus if
+    // they tapped away. Unconditional: works before the test starts, too,
+    // so the user can tap-then-Start without losing focus.
+    const focusInput = (e) => {
+      if (e && e.preventDefault && e.cancelable) e.preventDefault();
+      dom.input.focus();
+    };
+    dom.passageContainer.addEventListener('pointerdown', focusInput);
+    dom.passageContainer.addEventListener('click', focusInput);
+
+    // Re-acquire focus if it's lost mid-test (an accidental tap-away
+    // shouldn't kill the input stream).
+    dom.input.addEventListener('blur', () => {
+      if (state.started && !state.completed) {
+        setTimeout(() => dom.input.focus(), 0);
+      }
     });
+
+    // Focus hint: a subtle overlay label on the passage box that shows
+    // when the input isn't focused and hides on focus.
+    const updateFocusHint = () => {
+      const focused = document.activeElement === dom.input;
+      dom.passageContainer.classList.toggle('is-focused', focused);
+      dom.passageContainer.classList.toggle('is-blurred', !focused);
+    };
+    dom.input.addEventListener('focus', updateFocusHint);
+    dom.input.addEventListener('blur', updateFocusHint);
+    updateFocusHint();
 
     document.addEventListener('keydown', handleKey);
   }

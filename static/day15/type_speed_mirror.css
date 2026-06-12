@@ -98,6 +98,11 @@
   padding: 1.5rem 1.75rem;
   margin: 1.5rem 0;
   position: relative;
+  /* Cap the box at ~one-third of the viewport so the chart + controls fit
+   * on one screen; scroll internally as the user types. */
+  max-height: 32vh;
+  overflow-y: auto;
+  cursor: text;
 }
 
 .tsm-passage {
@@ -106,6 +111,13 @@
   line-height: 1.85;
   color: var(--muted);
   letter-spacing: 0.01em;
+  /* pre-wrap preserves the real spaces we render (so the active-char span
+   * for a space stays highlightable) while still allowing the passage to
+   * wrap inside the box. overflow-wrap + word-break catch ultra-long
+   * tokens at 375px width. */
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .tsm-passage .char {
@@ -160,12 +172,50 @@
   border-radius: 2px;
 }
 
+/* The keystroke-capture input is on-screen but visually invisible,
+ * overlaying the passage container. A tap focuses it (raising the mobile
+ * on-screen keyboard, which off-screen inputs do not), while the passage
+ * text remains visible below it. The document-level keydown handler does
+ * the actual typing logic; the input just owns focus. */
 #tsm-input {
   position: absolute;
-  left: -9999px;
-  width: 1px;
-  height: 1px;
-  opacity: 0;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: transparent;
+  caret-color: transparent;
+  outline: none;
+  cursor: text;
+  z-index: 2;
+  -webkit-tap-highlight-color: transparent;
+  font-size: 16px; /* prevent iOS autozoom on focus */
+}
+
+/* Focus hint — a subtle muted label that appears when the input isn't
+ * focused, so it's obvious how to start typing. Hidden once focused. */
+.tsm-passage-container::after {
+  content: 'Tap / click here and type';
+  position: absolute;
+  top: 0.55rem;
+  right: 0.75rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  opacity: 0.55;
+  pointer-events: none;
+  z-index: 1;
+  transition: opacity 180ms;
+}
+.tsm-passage-container.is-focused::after { opacity: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .tsm-passage-container::after { transition: none; }
 }
 
 .tsm-chart-container {
