@@ -179,10 +179,24 @@
  * visible input that says exactly where to type is bulletproof on
  * desktop AND mobile, and it raises the on-screen keyboard reliably on
  * tap. The caret stays invisible so it doesn't fight the passage's
- * own current-character highlight. */
-#tsm-input {
+ * own current-character highlight.
+ *
+ * The position/inset/height overrides are belt-and-braces against any
+ * stale cached CSS that still has the absolute-overlay rule. */
+#tsm-input,
+input#tsm-input {
+  position: static !important;
+  inset: auto !important;
+  left: auto !important;
+  right: auto !important;
+  top: auto !important;
+  bottom: auto !important;
+  height: auto !important;
+  z-index: auto !important;
   display: block;
+  box-sizing: border-box;
   width: 100%;
+  max-width: 100%;
   margin: 0.6rem 0 0;
   padding: 0.7rem 0.95rem;
   background: var(--bg, #14141a);

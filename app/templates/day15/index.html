@@ -3,7 +3,7 @@
 {% block title %}Type Speed Mirror — Day 15 of 100 Days with Claude{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{{ url_for('static', filename='day15/type_speed_mirror.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='day15/type_speed_mirror.css') }}?v=4">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
 <div class="tsm-page">
@@ -72,5 +72,5 @@
   <footer class="tsm-footer">Day 15 · 100 Days with Claude</footer>
 </div>
 
-<script src="{{ url_for('static', filename='day15/type_speed_mirror.js') }}" defer></script>
+<script src="{{ url_for('static', filename='day15/type_speed_mirror.js') }}?v=4" defer></script>
 {% endblock %}
