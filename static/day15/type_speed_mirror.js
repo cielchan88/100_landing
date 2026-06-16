@@ -215,6 +215,7 @@
   }
 
   function updateChart() {
+    if (!state.chart) return;     // chart-less mode (Chart.js failed to load)
     if (state.keyTimes.length < 2) return;
     const { labels, paces } = computePaces(state.keyTimes);
     state.chart.data.labels = labels;
@@ -235,9 +236,11 @@
     if (dom.input) dom.input.value = '';
 
     renderPassage();
-    state.chart.data.labels = [];
-    state.chart.data.datasets[0].data = [];
-    state.chart.update('none');
+    if (state.chart) {
+      state.chart.data.labels = [];
+      state.chart.data.datasets[0].data = [];
+      state.chart.update('none');
+    }
 
     dom.stats.classList.remove('is-visible');
     document.getElementById('tsm-start-btn').textContent = 'Stop';
@@ -420,9 +423,11 @@
       document.getElementById('tsm-start-btn').textContent = 'Start';
       dom.stats.classList.remove('is-visible');
       renderPassage();
-      state.chart.data.labels = [];
-      state.chart.data.datasets[0].data = [];
-      state.chart.update('none');
+      if (state.chart) {
+        state.chart.data.labels = [];
+        state.chart.data.datasets[0].data = [];
+        state.chart.update('none');
+      }
     });
   }
 
@@ -442,18 +447,18 @@
     ).join('');
     dom.chips = document.querySelectorAll('.tsm-passage-chip');
 
-    setupChips();
-    setupActions();
-    initChart();
-    renderPassage();
+    // Wire input capture FIRST, before anything that could throw. The chart
+    // depends on a CDN load that can be blocked by adblockers / flaky
+    // networks; if Chart.js isn't there, initChart() throws and (before this
+    // re-order) the input event listener was never attached, so the page
+    // looked fine but typing did nothing. Listeners go on first; the chart
+    // is wrapped in try/catch and treated as a nice-to-have.
+    dom.input.addEventListener('input', handleInput);
+    document.addEventListener('keydown', handleKey);
 
-    // Robust focus: tapping anywhere in the typing area focuses the
-    // (visually invisible, on-screen) input. Calling focus() directly is
-    // enough — DO NOT preventDefault on pointerdown here, because that
-    // suppresses the synthesized click that actually delivers focus to
-    // the input on some browsers, leaving it unfocused. The transparent
-    // input is the topmost layer so taps land on it directly anyway; this
-    // is just a defensive re-focus.
+    // Defensive re-focus: a click anywhere in the passage area pulls focus
+    // back to the input. (No pointerdown + preventDefault — that suppresses
+    // the synthesized click that delivers focus on some browsers.)
     dom.passageContainer.addEventListener('click', () => dom.input.focus());
 
     // Re-acquire focus if it's lost mid-test (an accidental tap-away
@@ -465,8 +470,9 @@
       }
     });
 
-    // Focus hint: a subtle overlay label on the passage box that shows
-    // when the input isn't focused and hides on focus.
+    // Focus hint (the legacy passage-container ::after; the new visible
+    // input is its own affordance and the CSS hides this, but the class
+    // toggle is kept for backwards-compat).
     const updateFocusHint = () => {
       const focused = document.activeElement === dom.input;
       dom.passageContainer.classList.toggle('is-focused', focused);
@@ -475,6 +481,16 @@
     dom.input.addEventListener('focus', updateFocusHint);
     dom.input.addEventListener('blur', updateFocusHint);
     updateFocusHint();
+
+    setupChips();
+    setupActions();
+    // Chart is a nice-to-have visual; if Chart.js failed to load (adblock,
+    // CDN flake), the typing engine still works.
+    try { initChart(); }
+    catch (e) {
+      console.warn('Type Speed Mirror: chart unavailable —', e && e.message);
+    }
+    renderPassage();
 
     // The input event is the primary character source (works on both
     // desktop hardware keyboards AND mobile on-screen keyboards). The
