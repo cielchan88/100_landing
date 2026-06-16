@@ -92,28 +92,26 @@
   }
 
   // ===== Input handling =====
-  function handleKey(e) {
+  // Architecture: characters are captured via the input element's `input`
+  // event, which fires reliably on BOTH desktop hardware keyboards AND
+  // mobile on-screen keyboards (where `keydown` is unreliable — many
+  // virtual keyboards send only `e.key === 'Unidentified'` to keydown or
+  // skip it entirely, but they all dispatch `input` with the character).
+  // The keydown listener stays only to swallow Tab so it can't jump focus
+  // away during a test and to keep Space from scrolling the page.
+  function processChar(typed) {
     if (!state.started || state.completed) return;
+    if (typeof typed !== 'string' || typed.length !== 1) return;
 
     const passage = PASSAGES[state.passageIdx];
     const expected = passage.text[state.currentIdx];
-    const typed = e.key;
-
-    if (typed.length > 1 && typed !== ' ') return;
-
-    e.preventDefault();
 
     if (typed === expected) {
-      const now = performance.now();
-      state.keyTimes.push(now);
+      state.keyTimes.push(performance.now());
       state.currentIdx++;
-
       renderPassage();
       updateChart();
-
-      if (state.currentIdx >= passage.text.length) {
-        completeSession();
-      }
+      if (state.currentIdx >= passage.text.length) completeSession();
     } else {
       const charEl = dom.passage.querySelector(`[data-idx="${state.currentIdx}"]`);
       if (charEl) {
@@ -122,6 +120,29 @@
       }
       state.errors++;
     }
+  }
+
+  // Keydown is only for swallowing keys that would steal focus or scroll
+  // the page mid-test. Character processing happens in the input event.
+  function handleKey(e) {
+    if (!state.started || state.completed) return;
+    if (e.key === 'Tab') { e.preventDefault(); dom.input.focus(); return; }
+    if (e.key === ' ' && document.activeElement !== dom.input) { e.preventDefault(); }
+  }
+
+  // The input event handler: e.data carries the inserted character (or
+  // multiple characters, for paste / IME composition / fast autocorrect).
+  // We process them in order and then clear the input so it doesn't grow.
+  function handleInput(e) {
+    if (!state.started || state.completed) {
+      dom.input.value = '';
+      return;
+    }
+    const data = e.data;
+    if (data && data.length) {
+      for (let i = 0; i < data.length; i++) processChar(data.charAt(i));
+    }
+    dom.input.value = '';
   }
 
   // ===== Chart =====
@@ -205,6 +226,9 @@
     state.keyTimes = [];
     state.errors = 0;
     state.startTime = performance.now();
+    // Clear any pre-Start text so the first real character is processed
+    // cleanly rather than as a multi-char paste.
+    if (dom.input) dom.input.value = '';
 
     renderPassage();
     state.chart.data.labels = [];
@@ -420,19 +444,17 @@
     renderPassage();
 
     // Robust focus: tapping anywhere in the typing area focuses the
-    // (now on-screen, visually invisible) input — this is what raises the
-    // on-screen keyboard on mobile and lets the user re-acquire focus if
-    // they tapped away. Unconditional: works before the test starts, too,
-    // so the user can tap-then-Start without losing focus.
-    const focusInput = (e) => {
-      if (e && e.preventDefault && e.cancelable) e.preventDefault();
-      dom.input.focus();
-    };
-    dom.passageContainer.addEventListener('pointerdown', focusInput);
-    dom.passageContainer.addEventListener('click', focusInput);
+    // (visually invisible, on-screen) input. Calling focus() directly is
+    // enough — DO NOT preventDefault on pointerdown here, because that
+    // suppresses the synthesized click that actually delivers focus to
+    // the input on some browsers, leaving it unfocused. The transparent
+    // input is the topmost layer so taps land on it directly anyway; this
+    // is just a defensive re-focus.
+    dom.passageContainer.addEventListener('click', () => dom.input.focus());
 
     // Re-acquire focus if it's lost mid-test (an accidental tap-away
-    // shouldn't kill the input stream).
+    // shouldn't kill the input stream). Only fights the user while a test
+    // is active.
     dom.input.addEventListener('blur', () => {
       if (state.started && !state.completed) {
         setTimeout(() => dom.input.focus(), 0);
@@ -450,6 +472,10 @@
     dom.input.addEventListener('blur', updateFocusHint);
     updateFocusHint();
 
+    // The input event is the primary character source (works on both
+    // desktop hardware keyboards AND mobile on-screen keyboards). The
+    // document keydown is only for swallowing Tab / scroll-on-Space.
+    dom.input.addEventListener('input', handleInput);
     document.addEventListener('keydown', handleKey);
   }
 
