@@ -134,6 +134,10 @@
   // multiple characters, for paste / IME composition / fast autocorrect).
   // We process them in order and then clear the input so it doesn't grow.
   function handleInput(e) {
+    // Auto-start the session on the user's first keystroke. The Start
+    // button is still there for explicit use, but with the input visible
+    // most people will just click it and start typing — let that work.
+    if (!state.started && !state.completed) startSession();
     if (!state.started || state.completed) {
       dom.input.value = '';
       return;

@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}Singularity — Day 37 of 100 Days with Claude{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='day37/singularity.css') }}">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<!-- r128 example addons at exactly three@0.128.0. Each is wrapped in
+     try/catch in singularity.js so a load failure disables only that
+     effect (the scene still renders with the others). -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js" defer></script>
+
+<div class="sg-page">
+  <canvas id="sg-canvas"></canvas>
+
+  <header class="sg-topbar"><a href="/" aria-label="Back to all days">← Back to all days</a></header>
+
+  <div class="sg-hint" id="sg-hint">drag to orbit · scroll to zoom</div>
+
+  <button class="sg-gear" id="sg-gear" aria-label="Settings">⚙</button>
+  <div class="sg-settings" id="sg-settings">
+    <label class="sg-cb-row"><input type="checkbox" id="sg-auto"> Auto-orbit</label>
+    <label class="sg-slider-row">
+      <span>Disk speed</span>
+      <input type="range" id="sg-speed" min="0" max="100" value="36">
+    </label>
+    <label class="sg-slider-row">
+      <span>Lensing</span>
+      <input type="range" id="sg-lens" min="0" max="100" value="50">
+    </label>
+    <label class="sg-cb-row"><input type="checkbox" id="sg-bloom"> Bloom</label>
+  </div>
+
+  <div class="sg-about">
+    Artistic approximation — screen-space lensing, not geodesic ray-tracing.
+  </div>
+  <div class="sg-corner-tag">Day 37 · 100 Days with Claude</div>
+</div>
+
+<script src="{{ url_for('static', filename='day37/singularity.js') }}" defer></script>
+{% endblock %}
