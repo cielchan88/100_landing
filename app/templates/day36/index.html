@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Swarm — Day 36 of 100 Days with Claude{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='day36/swarm.css') }}">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<!-- Three.js r128 example addons at the matching version. GPUComputationRenderer
+     is the de-risking choice for ping-ponged float compute textures; the post-
+     processing scripts power the (optional) bloom. Failure of any one disables
+     only that effect via try/catch in swarm.js. -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/misc/GPUComputationRenderer.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js" defer></script>
+
+<div class="sw-page">
+  <canvas id="sw-canvas"></canvas>
+
+  <header class="sw-topbar"><a href="/" aria-label="Back to all days">← Back to all days</a></header>
+
+  <div class="sw-hint" id="sw-hint">move your cursor</div>
+
+  <button class="sw-gear" id="sw-gear" aria-label="Settings">⚙</button>
+  <div class="sw-settings" id="sw-settings">
+    <div class="sw-section">Morph into</div>
+    <div class="sw-btn-row">
+      <button class="sw-btn-sm" type="button" id="sw-morph-sphere">Sphere</button>
+      <button class="sw-btn-sm" type="button" id="sw-morph-torus">Torus</button>
+      <button class="sw-btn-sm" type="button" id="sw-morph-36">"36"</button>
+    </div>
+    <div class="sw-row">
+      <input type="text" id="sw-morph-text" maxlength="18" placeholder="your word">
+      <button class="sw-btn-sm" type="button" id="sw-morph-text-go">Go</button>
+    </div>
+
+    <div class="sw-section">Palette</div>
+    <select id="sw-palette" class="sw-select">
+      <option value="cyan-magenta">Cyan → magenta</option>
+      <option value="ember">Ember</option>
+      <option value="mint">Mint</option>
+      <option value="monochrome">Monochrome</option>
+    </select>
+
+    <label class="sw-cb-row"><input type="checkbox" id="sw-bloom"> Bloom</label>
+
+    <div class="sw-count" id="sw-count"></div>
+  </div>
+
+  <div class="sw-corner-tag">Day 36 · 100 Days with Claude</div>
+</div>
+
+<script src="{{ url_for('static', filename='day36/swarm.js') }}" defer></script>
+{% endblock %}
