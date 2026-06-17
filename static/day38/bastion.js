@@ -807,6 +807,7 @@
   $('bn-restart-btn').addEventListener('click', function () {
     fullReset();
     state.phase = 'build';
+    startLoop();
   });
 
   // Keyboard shortcuts (1/2/3, Space = next wave, P = pause).
@@ -820,16 +821,20 @@
     if (e.code === 'Escape') state.selectedTower = null;
   });
 
-  // Menu / over overlay buttons
+  // Menu / over overlay buttons. Each starts the rAF loop, which on the
+  // menu/game-over screens is NOT running (we render one static frame
+  // and idle the page until the user starts a game).
   $('bn-play-btn').addEventListener('click', function () {
     fullReset();
     state.phase = 'build';
     showOverlay(null);
+    startLoop();
   });
   $('bn-playagain-btn').addEventListener('click', function () {
     fullReset();
     state.phase = 'build';
     showOverlay(null);
+    startLoop();
   });
 
   function fullReset() {
@@ -854,15 +859,21 @@
   }
 
   // =====================================================================
-  // Main loop. Defensive: bounded substep, NaN-safe dt, defensive array
-  // caps so a pathological pile-up of projectiles/pops/enemies can never
-  // grow heap unbounded (the original cause of an OOM crash report).
+  // Main loop. The loop only runs when the GAME is actually running
+  // (build phase or wave). On menu / game-over it does not run at all —
+  // we render one static frame and let the page be idle. This is the
+  // real fix for the load-time OOM crash report: a constantly-running
+  // rAF + render pipeline on top of a canvas under a (formerly blurred)
+  // overlay was burning compositor work for nothing, every single frame,
+  // from the moment the page loaded.
   // =====================================================================
   var last = performance.now();
   var MAX_PROJECTILES = 400;
   var MAX_POPS = 120;
   var MAX_ENEMIES = 200;
-  var MAX_SUBSTEPS = 4;   // hard ceiling — even with weird dt, can't spin
+  var MAX_SUBSTEPS = 4;
+  var rafId = null;
+  var running = false;
 
   function trimCaps() {
     if (projectiles.length > MAX_PROJECTILES) projectiles.splice(0, projectiles.length - MAX_PROJECTILES);
@@ -870,35 +881,27 @@
     if (enemies.length > MAX_ENEMIES) enemies.splice(0, enemies.length - MAX_ENEMIES);
   }
 
-  // Render is throttled in non-wave states (menu, build, gameover) — the
-  // canvas isn't animating anything time-critical there, so cutting from
-  // 60 fps to ~10 fps drops GPU pressure massively without any visible
-  // change. Combined with removing backdrop-filter from the overlays this
-  // is what fixes the "Aw, Snap — Out of Memory" the user hit on load.
-  var lastRenderT = 0;
-  function shouldRender(now) {
-    if (state.phase === 'wave') return true;
-    // Hover changes need an immediate repaint so the preview tracks the cursor.
-    if (state._hoverDirty) { state._hoverDirty = false; return true; }
-    if (now - lastRenderT > 100) return true;  // ~10 fps idle
-    return false;
+  function startLoop() {
+    if (running) return;
+    running = true;
+    last = performance.now();
+    rafId = requestAnimationFrame(loop);
+  }
+  function stopLoop() {
+    running = false;
+    if (rafId !== null) cancelAnimationFrame(rafId);
+    rafId = null;
   }
 
   function loop(t) {
-    requestAnimationFrame(loop);
+    if (!running) return;
+    rafId = requestAnimationFrame(loop);
     var raw = (t - last) / 1000;
     last = t;
-    // Defensive: NaN / negative / huge backgrounded-tab deltas all clamp
-    // to a safe single-frame budget. Without this clamp a hidden tab can
-    // wake up and try to simulate hours of game time in one shot, which
-    // is the canonical browser-game OOM signature.
     if (!isFinite(raw) || raw <= 0) raw = 1 / 60;
     var dt = Math.min(0.05, raw);
     if (!state.paused) {
       var per = dt * state.speed;
-      // Bounded substep: stop after MAX_SUBSTEPS even if per is huge.
-      // (per max under normal play = 0.05 * 2 = 0.1, three substeps; the
-      // ceiling only matters as a safety net.)
       var subs = 0;
       while (per > 0.04 && subs < MAX_SUBSTEPS) {
         stepLogic(0.04);
@@ -909,10 +912,9 @@
       trimCaps();
     }
     updateHUD();
-    if (shouldRender(t)) {
-      render();
-      lastRenderT = t;
-    }
+    render();
+    // If we just hit game-over, the loop self-stops next frame.
+    if (state.phase === 'gameover') stopLoop();
   }
 
   // Pause when the tab is hidden — most browsers throttle rAF aggressively
@@ -942,6 +944,10 @@
   }
 
   // Initial overlay state.
+  // Boot: render one static frame so the menu has the grid behind it,
+  // but DO NOT start the rAF loop. The loop only runs while a game is
+  // active (build phase or wave). On menu / game-over the page is idle.
   showOverlay('menu');
-  requestAnimationFrame(loop);
+  updateHUD();
+  render();
 })();
