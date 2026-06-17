@@ -769,15 +769,17 @@
   }
   canvas.addEventListener('pointermove', function (e) {
     var c = eventToCell(e);
-    if (c.x < 0 || c.x >= W || c.y < 0 || c.y >= H) { state.hover = null; return; }
+    if (c.x < 0 || c.x >= W || c.y < 0 || c.y >= H) { state.hover = null; state._hoverDirty = true; return; }
+    if (!state.hover || state.hover.x !== c.x || state.hover.y !== c.y) state._hoverDirty = true;
     state.hover = c;
   });
-  canvas.addEventListener('pointerleave', function () { state.hover = null; });
+  canvas.addEventListener('pointerleave', function () { state.hover = null; state._hoverDirty = true; });
   canvas.addEventListener('pointerdown', function (e) {
     e.preventDefault();
     var c = eventToCell(e);
     if (c.x < 0 || c.x >= W || c.y < 0 || c.y >= H) return;
     state.hover = c;
+    state._hoverDirty = true;
     if (state.selectedTower) tryPlace(c.x, c.y, state.selectedTower);
   });
 
@@ -787,6 +789,7 @@
     if (!btn) return;
     btn.addEventListener('click', function () {
       state.selectedTower = state.selectedTower === k ? null : k;
+      state._hoverDirty = true;
     });
   });
 
@@ -867,6 +870,20 @@
     if (enemies.length > MAX_ENEMIES) enemies.splice(0, enemies.length - MAX_ENEMIES);
   }
 
+  // Render is throttled in non-wave states (menu, build, gameover) — the
+  // canvas isn't animating anything time-critical there, so cutting from
+  // 60 fps to ~10 fps drops GPU pressure massively without any visible
+  // change. Combined with removing backdrop-filter from the overlays this
+  // is what fixes the "Aw, Snap — Out of Memory" the user hit on load.
+  var lastRenderT = 0;
+  function shouldRender(now) {
+    if (state.phase === 'wave') return true;
+    // Hover changes need an immediate repaint so the preview tracks the cursor.
+    if (state._hoverDirty) { state._hoverDirty = false; return true; }
+    if (now - lastRenderT > 100) return true;  // ~10 fps idle
+    return false;
+  }
+
   function loop(t) {
     requestAnimationFrame(loop);
     var raw = (t - last) / 1000;
@@ -892,7 +909,10 @@
       trimCaps();
     }
     updateHUD();
-    render();
+    if (shouldRender(t)) {
+      render();
+      lastRenderT = t;
+    }
   }
 
   // Pause when the tab is hidden — most browsers throttle rAF aggressively

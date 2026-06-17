@@ -114,12 +114,15 @@
 /* --- Overlays --- */
 .bn-overlay {
   position: absolute; inset: 0;
-  background: rgba(8, 8, 7, 0.78);
+  background: rgba(8, 8, 7, 0.88);
   display: none;
   align-items: center; justify-content: center;
   padding: 1rem;
   z-index: 5;
-  backdrop-filter: blur(3px);
+  /* No backdrop-filter: it forces a separate compositor buffer that the
+   * browser re-blurs every frame the underlying canvas repaints, which on
+   * constrained devices was OOM'ing the renderer. The slightly more opaque
+   * background gives the same dimming without the compositor cost. */
   border-radius: 0.45rem;
 }
 .bn-overlay.is-visible { display: flex; }
