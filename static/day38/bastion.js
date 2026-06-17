@@ -52,7 +52,7 @@
 
     // Colors
     bg:        '#0F0F0E',
-    grid:      'rgba(255,255,255,0.04)',
+    gridLine:  'rgba(255,255,255,0.04)',
     pathGlow:  'rgba(123,167,204,0.18)',
     pathStroke: 'rgba(127,200,255,0.55)',
     entranceCol: '#7BA7CC',
@@ -542,7 +542,7 @@
     ctx.fillStyle = CFG.bg;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     // grid lines
-    ctx.strokeStyle = CFG.grid;
+    ctx.strokeStyle = CFG.gridLine;
     ctx.lineWidth = 1;
     ctx.beginPath();
     for (var x = 0; x <= W; x++) { ctx.moveTo(x * cellPx, 0); ctx.lineTo(x * cellPx, H * cellPx); }
