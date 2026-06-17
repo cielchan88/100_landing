@@ -290,6 +290,7 @@
     var def = CFG.enemies[kind];
     var path = state.sharedPath || findPath(W, H, blocked, entrance, base);
     if (!path) return;
+    if (enemies.length >= MAX_ENEMIES) return;  // defensive
     enemies.push({
       kind: kind,
       hp: def.hp * hpMul,
@@ -301,7 +302,10 @@
       color: def.color,
       x: entrance.x + 0.5 - 0.5,    // step slightly off the left edge so they walk in
       y: entrance.y + 0.5 - 0.5,
-      path: path.slice(),
+      // Share the cached path by reference. Only enemies that need a
+      // different starting cell (via rePathEnemies after a tower placement)
+      // get their own path array. This dramatically cuts allocation churn.
+      path: path,
       pathIdx: 1,
       slowUntil: 0,
       slowMul: 1,
@@ -518,11 +522,14 @@
   // =====================================================================
   function fitCanvas() {
     var wrap = canvas.parentElement;
-    var maxW = wrap.clientWidth - 4;
-    var maxH = Math.min(window.innerHeight * 0.62, wrap.clientHeight - 4 || 9999);
+    // Belt-and-braces: if the wrap hasn't been laid out yet, clientHeight
+    // is 0; a negative-truthy `0 - 4` would have leaked through the
+    // earlier `|| 9999` short-circuit. Use explicit positive math.
+    var maxW = Math.max(120, (wrap.clientWidth || 320) - 4);
+    var maxH = Math.min(window.innerHeight * 0.62, Math.max(180, (wrap.clientHeight || 240) - 4));
     var byW = Math.floor(maxW / W);
     var byH = Math.floor(maxH / H);
-    cellPx = Math.max(20, Math.min(56, Math.min(byW, byH)));
+    cellPx = Math.max(20, Math.min(46, Math.min(byW, byH)));
     canvas.width = W * cellPx;
     canvas.height = H * cellPx;
     canvas.style.width = canvas.width + 'px';
@@ -844,28 +851,63 @@
   }
 
   // =====================================================================
-  // Main loop.
+  // Main loop. Defensive: bounded substep, NaN-safe dt, defensive array
+  // caps so a pathological pile-up of projectiles/pops/enemies can never
+  // grow heap unbounded (the original cause of an OOM crash report).
   // =====================================================================
   var last = performance.now();
+  var MAX_PROJECTILES = 400;
+  var MAX_POPS = 120;
+  var MAX_ENEMIES = 200;
+  var MAX_SUBSTEPS = 4;   // hard ceiling — even with weird dt, can't spin
+
+  function trimCaps() {
+    if (projectiles.length > MAX_PROJECTILES) projectiles.splice(0, projectiles.length - MAX_PROJECTILES);
+    if (pops.length > MAX_POPS) pops.splice(0, pops.length - MAX_POPS);
+    if (enemies.length > MAX_ENEMIES) enemies.splice(0, enemies.length - MAX_ENEMIES);
+  }
+
   function loop(t) {
     requestAnimationFrame(loop);
-    var dt = Math.min(0.05, (t - last) / 1000);
+    var raw = (t - last) / 1000;
     last = t;
+    // Defensive: NaN / negative / huge backgrounded-tab deltas all clamp
+    // to a safe single-frame budget. Without this clamp a hidden tab can
+    // wake up and try to simulate hours of game time in one shot, which
+    // is the canonical browser-game OOM signature.
+    if (!isFinite(raw) || raw <= 0) raw = 1 / 60;
+    var dt = Math.min(0.05, raw);
     if (!state.paused) {
-      var steps = state.speed;
-      var sdt = dt / steps * state.speed; // *= speed
-      // Substep at 2x so collision / movement stay smooth.
       var per = dt * state.speed;
-      // Cap per-step dt so 2x doesn't break the integration.
-      while (per > 0.04) {
+      // Bounded substep: stop after MAX_SUBSTEPS even if per is huge.
+      // (per max under normal play = 0.05 * 2 = 0.1, three substeps; the
+      // ceiling only matters as a safety net.)
+      var subs = 0;
+      while (per > 0.04 && subs < MAX_SUBSTEPS) {
         stepLogic(0.04);
         per -= 0.04;
+        subs++;
       }
-      stepLogic(per);
+      if (per > 0) stepLogic(Math.min(per, 0.04));
+      trimCaps();
     }
     updateHUD();
     render();
   }
+
+  // Pause when the tab is hidden — most browsers throttle rAF aggressively
+  // but Chrome can still queue work; the visibility-pause guarantees the
+  // main loop is idle and stops any chance of background allocation churn.
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) {
+      state._wasPausedByVisibility = !state.paused;
+      state.paused = true;
+    } else if (state._wasPausedByVisibility) {
+      state.paused = false;
+      state._wasPausedByVisibility = false;
+      last = performance.now(); // reset the dt baseline so we don't sim a backlog
+    }
+  });
   function stepLogic(dt) {
     if (state.phase === 'wave') {
       updateWave(dt);
