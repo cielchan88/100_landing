@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block title %}Bastion — Day 38 of 100 Days with Claude{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='day38/bastion.css') }}?v=1">
+
+<div class="bn-page">
+  <header class="bn-topbar"><a href="/" aria-label="Back to all days">← Back to all days</a></header>
+
+  <section class="bn-hero">
+    <div class="bn-eyebrow">Day 38 · Bastion</div>
+    <h1 class="bn-headline">Build the maze. <span style="color: var(--accent)">Hold the line.</span></h1>
+  </section>
+
+  <!-- HUD -->
+  <div class="bn-hud">
+    <div class="bn-chip"><span class="bn-lbl">WAVE</span><b id="bn-wave">0</b></div>
+    <div class="bn-chip"><span class="bn-lbl">GOLD</span><b id="bn-gold">0</b></div>
+    <div class="bn-chip bn-lives"><span class="bn-lbl">LIVES</span><b id="bn-lives">0</b></div>
+    <div class="bn-chip"><span class="bn-lbl">SCORE</span><b id="bn-score">0</b></div>
+    <div class="bn-chip bn-best"><span class="bn-lbl">BEST</span><b id="bn-best">0</b></div>
+  </div>
+
+  <!-- Canvas -->
+  <div class="bn-canvas-wrap">
+    <canvas id="bn-canvas"></canvas>
+
+    <!-- Menu overlay -->
+    <div class="bn-overlay is-visible" id="bn-menu">
+      <div class="bn-overlay-card">
+        <div class="bn-wordmark">BASTION</div>
+        <div class="bn-tagline">Build the maze. Hold the line.</div>
+        <div class="bn-how">
+          <div><b>Place</b> towers on the grid — every one is a wall.</div>
+          <div><b>Enemies recompute</b> their route around your maze.</div>
+          <div><b>Survive</b> endless waves. The exit can never be sealed.</div>
+        </div>
+        <button class="bn-btn bn-btn-primary" type="button" id="bn-play-btn">Play</button>
+        <div class="bn-controls-hint">
+          Keys 1/2/3 = tower · Space = start wave · P = pause · Esc = cancel
+        </div>
+      </div>
+    </div>
+
+    <!-- Game over overlay -->
+    <div class="bn-overlay" id="bn-gameover">
+      <div class="bn-overlay-card">
+        <div class="bn-go-title">The line broke</div>
+        <div class="bn-go-stats">
+          <div><span>Waves survived</span><b id="bn-go-wave">0</b></div>
+          <div><span>Score</span><b id="bn-go-score">0</b></div>
+          <div><span>Best</span><b id="bn-go-best">0</b></div>
+        </div>
+        <button class="bn-btn bn-btn-primary" type="button" id="bn-playagain-btn">Play again</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tower palette -->
+  <div class="bn-palette">
+    <button class="bn-tower-btn" type="button" id="bn-t-gun">
+      <span class="bn-tower-glyph bn-glyph-tri" style="color: #7BA7CC"></span>
+      <span class="bn-tower-name">Gun</span>
+      <span class="bn-tower-cost">14g</span>
+    </button>
+    <button class="bn-tower-btn" type="button" id="bn-t-cannon">
+      <span class="bn-tower-glyph bn-glyph-sq" style="color: #D97757"></span>
+      <span class="bn-tower-name">Cannon</span>
+      <span class="bn-tower-cost">30g</span>
+    </button>
+    <button class="bn-tower-btn" type="button" id="bn-t-frost">
+      <span class="bn-tower-glyph bn-glyph-hex" style="color: #7AD0E6"></span>
+      <span class="bn-tower-name">Frost</span>
+      <span class="bn-tower-cost">22g</span>
+    </button>
+  </div>
+
+  <!-- Flow controls -->
+  <div class="bn-flow">
+    <button class="bn-btn bn-btn-primary" type="button" id="bn-startwave-btn">Start wave</button>
+    <button class="bn-btn" type="button" id="bn-speed-btn">1x</button>
+    <button class="bn-btn" type="button" id="bn-pause-btn">❚❚</button>
+    <button class="bn-btn" type="button" id="bn-restart-btn">Restart</button>
+  </div>
+
+  <div class="bn-about">
+    A* pathfinding is the engine — every tower is an obstacle, so enemies
+    bend their route around your maze. Placements that would seal the
+    base off are refused; in-flight enemies re-path automatically.
+  </div>
+
+  <footer class="bn-footer">
+    Day 38 · 100 Days with Claude
+    <div class="sub">A grid tower-defense where the path is the strategy.</div>
+  </footer>
+</div>
+
+<script src="{{ url_for('static', filename='day38/bastion.js') }}?v=1" defer></script>
+{% endblock %}

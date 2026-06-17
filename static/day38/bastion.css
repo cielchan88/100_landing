@@ -1,0 +1,215 @@
+/* Bastion — Day 38 */
+.bn-page { max-width: 920px; margin: 0 auto; padding: 0.75rem 1rem 4rem; }
+
+.bn-topbar { padding: 0.5rem 0; }
+.bn-topbar a { color: var(--muted); font-size: 0.875rem; text-decoration: none; }
+.bn-topbar a:hover { color: var(--accent); }
+
+.bn-hero { padding: 1rem 0 0.6rem; }
+.bn-eyebrow {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.7rem;
+  text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent);
+  margin-bottom: 0.5rem;
+}
+.bn-headline {
+  font-size: clamp(1.4rem, 4vw, 2rem);
+  font-weight: 600; letter-spacing: -0.02em; line-height: 1.18;
+  margin-bottom: 0.5rem;
+}
+
+/* --- HUD --- */
+.bn-hud {
+  display: flex; flex-wrap: wrap; gap: 0.45rem;
+  margin: 0.7rem 0;
+}
+.bn-chip {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.4rem;
+  padding: 0.35rem 0.6rem;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;
+}
+.bn-lbl {
+  color: var(--accent); font-size: 0.62rem;
+  letter-spacing: 0.07em; text-transform: uppercase;
+}
+.bn-chip b { font-weight: 700; color: var(--text); min-width: 1.5ch; text-align: right; }
+.bn-lives b { color: #ff8888; }
+.bn-best b { color: #FFCB85; }
+
+/* --- Canvas --- */
+.bn-canvas-wrap {
+  position: relative;
+  background: #0F0F0E;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 4px;
+  margin-bottom: 0.6rem;
+  display: flex; justify-content: center; align-items: center;
+  min-height: 240px;
+}
+#bn-canvas {
+  display: block;
+  image-rendering: -webkit-optimize-contrast;
+  touch-action: none;
+  cursor: crosshair;
+  border-radius: 0.4rem;
+}
+
+/* --- Tower palette --- */
+.bn-palette {
+  display: flex; gap: 0.5rem; flex-wrap: wrap;
+  margin: 0.6rem 0;
+}
+.bn-tower-btn {
+  flex: 1 1 110px;
+  display: flex; flex-direction: column; align-items: center; gap: 0.25rem;
+  padding: 0.6rem 0.4rem;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 0.45rem;
+  cursor: pointer;
+  color: var(--text);
+  transition: border-color 130ms, background 130ms;
+}
+.bn-tower-btn:hover { border-color: var(--accent); }
+.bn-tower-btn.selected {
+  border-color: var(--accent);
+  background: rgba(217, 119, 87, 0.10);
+  box-shadow: 0 0 0 2px rgba(217, 119, 87, 0.25);
+}
+.bn-tower-btn.unaffordable { opacity: 0.45; cursor: not-allowed; }
+.bn-tower-glyph {
+  width: 22px; height: 22px;
+  display: inline-block;
+}
+.bn-glyph-tri { clip-path: polygon(50% 6%, 92% 86%, 8% 86%); background: currentColor; }
+.bn-glyph-sq  { background: currentColor; border-radius: 2px; }
+.bn-glyph-hex { clip-path: polygon(50% 4%, 96% 28%, 96% 72%, 50% 96%, 4% 72%, 4% 28%); background: currentColor; }
+.bn-tower-name { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; }
+.bn-tower-cost { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; color: var(--muted); }
+
+/* --- Flow buttons --- */
+.bn-flow { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.8rem; }
+.bn-btn {
+  padding: 0.55rem 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 0.4rem;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.78rem;
+  cursor: pointer;
+  transition: border-color 130ms, color 130ms;
+}
+.bn-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.bn-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.bn-btn-primary {
+  background: var(--accent); color: var(--bg);
+  border-color: var(--accent);
+  font-weight: 700;
+}
+.bn-btn-primary:hover:not(:disabled) { filter: brightness(1.08); color: var(--bg); }
+
+/* --- Overlays --- */
+.bn-overlay {
+  position: absolute; inset: 0;
+  background: rgba(8, 8, 7, 0.78);
+  display: none;
+  align-items: center; justify-content: center;
+  padding: 1rem;
+  z-index: 5;
+  backdrop-filter: blur(3px);
+  border-radius: 0.45rem;
+}
+.bn-overlay.is-visible { display: flex; }
+.bn-overlay-card {
+  background: rgba(20, 18, 16, 0.96);
+  border: 1px solid rgba(217, 119, 87, 0.45);
+  border-radius: 0.6rem;
+  padding: 1.4rem 1.5rem;
+  max-width: 340px;
+  text-align: center;
+  color: var(--text);
+}
+.bn-wordmark {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(1.5rem, 6vw, 2.1rem);
+  font-weight: 700; letter-spacing: 0.16em;
+  background: linear-gradient(135deg, #D97757, #FFCB85);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  margin-bottom: 0.35rem;
+}
+.bn-tagline {
+  color: #f8d9c5; font-style: italic;
+  margin-bottom: 1rem;
+  font-size: 0.92rem;
+}
+.bn-how {
+  text-align: left;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 0.4rem;
+  padding: 0.6rem 0.8rem;
+}
+.bn-how b { color: var(--accent); }
+.bn-controls-hint {
+  margin-top: 0.6rem;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.66rem;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+}
+.bn-go-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.2rem; font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 0.9rem;
+  letter-spacing: 0.06em;
+}
+.bn-go-stats {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.bn-go-stats > div {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 0.5rem 0.4rem;
+  border-radius: 0.3rem;
+  font-family: 'JetBrains Mono', monospace;
+}
+.bn-go-stats span {
+  display: block; font-size: 0.58rem;
+  color: var(--accent); letter-spacing: 0.06em;
+  margin-bottom: 0.2rem;
+}
+.bn-go-stats b { font-size: 0.95rem; }
+
+/* --- About + footer --- */
+.bn-about {
+  margin: 1rem 0; padding: 0.85rem 1.1rem;
+  background: var(--surface); border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 0.45rem;
+  font-size: 0.82rem; line-height: 1.55; color: var(--text);
+  font-style: italic;
+}
+.bn-footer {
+  margin-top: 1.5rem; text-align: center;
+  color: var(--muted); font-size: 0.7rem;
+  font-family: 'JetBrains Mono', monospace;
+}
+.bn-footer .sub { margin-top: 0.3rem; font-style: italic; opacity: 0.7; }
+
+@media (prefers-reduced-motion: reduce) {
+  .bn-tower-btn, .bn-btn { transition: none; }
+}
+@media (max-width: 520px) {
+  .bn-tower-btn { padding: 0.45rem 0.3rem; }
+  .bn-tower-name { font-size: 0.66rem; }
+  .bn-chip { font-size: 0.74rem; padding: 0.3rem 0.5rem; }
+  .bn-btn { font-size: 0.74rem; padding: 0.5rem 0.85rem; }
+}
